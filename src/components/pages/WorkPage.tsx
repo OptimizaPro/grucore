@@ -12,7 +12,7 @@ export default function WorkPage({ locale }: { locale: Locale }) {
     <>
       <JsonLd data={imageGallery({ name: c.meta.work.title, path: href(locale, "work"), locale,
         images: w.cells.flatMap((x) => x.kind === "compare" ? [{ url: photoAbs(x.before!, 1600), caption: x.altBefore! }, { url: photoAbs(x.after!, 1600), caption: x.altAfter! }] : [{ url: photoAbs(x.photo!, 1600), caption: photoAlt(x.photo!, locale) ?? `${x.title} · ${x.meta}` }]) })} />
-      <PageHero photoKey="kitchen2" alt={w.cells[1].title} eyebrow={w.eyebrow} h1={w.h1} lede={w.lede} />
+      <PageHero photoKey="bathVanityAfter" alt={photoAlt("bathVanityAfter", locale) ?? w.cells[1].title} eyebrow={w.eyebrow} h1={w.h1} lede={w.lede} />
       <section className="sec bg-bone" data-tone="light">
         <div className="shell">
           <GalleryGrid cells={w.cells.map((x) => (x.photo && !x.alt ? { ...x, alt: photoAlt(x.photo, locale) ?? x.title } : x))} filters={w.filters} filterLabel={w.filterLbl} labels={[c.ui.before, c.ui.after]} compareLabel={c.ui.dragToCompare} beforeAfterText={`${c.ui.before} / ${c.ui.after}`} />

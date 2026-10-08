@@ -95,7 +95,7 @@ const CORE: Guide[] = [
   },
   /* ------------------------------------------------------------ BATH COST */
   {
-    id: "bathroom-cost", slug: { en: "bathroom-remodel-cost-auburn-al", es: "costo-remodelar-bano-alabama" }, photo: "bath2", published: D, updated: D, service: "bathroom", estimator: "bath", related: ["tub-to-shower", "permits", "hire-contractor"],
+    id: "bathroom-cost", slug: { en: "bathroom-remodel-cost-auburn-al", es: "costo-remodelar-bano-alabama" }, photo: "bathVanityAfter", published: D, updated: D, service: "bathroom", estimator: "bath", related: ["tub-to-shower", "permits", "hire-contractor"],
     t: {
       en: {
         title: "Bathroom Remodel Cost in Auburn & Opelika, AL (2026)", eyebrow: "Cost guide · 2026",

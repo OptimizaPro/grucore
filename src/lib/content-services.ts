@@ -258,7 +258,7 @@ export const SERVICE_PAGES: ServicePage[] = [
   },
   /* ------------------------------------------------------------ REMODELING */
   {
-    id: "remodeling", slug: { en: "home-remodeling", es: "remodelacion-de-casas" }, form: "remodeling", photo: "kitchen3", photos: ["roomRaw", "floor1"],
+    id: "remodeling", slug: { en: "home-remodeling", es: "remodelacion-de-casas" }, form: "remodeling", photo: "kitchen3", photos: ["bathTubAfterClose", "vanityNavy"],
     estimator: "remodel", related: ["kitchen", "additions", "flooring"],
     t: {
       en: {
@@ -528,11 +528,11 @@ export const SERVICE_PAGES: ServicePage[] = [
   },
   /* ------------------------------------------------------------ REPAIRS */
   {
-    id: "repairs", slug: { en: "home-repairs", es: "reparaciones-del-hogar" }, form: "repairs", photo: "porch2", photos: ["deckRebuildFraming", "dockLake"],
+    id: "repairs", slug: { en: "home-repairs", es: "reparaciones-del-hogar" }, form: "repairs", photo: "deckRebuildFraming", photos: ["dockLake", "fenceInstalled"],
     related: ["painting", "flooring", "rental"],
     t: {
       en: {
-        name: "Home Repairs & Carpentry", alt: "Rebuilt front porch with new columns and railings in Opelika, AL",
+        name: "Home Repairs & Carpentry", alt: "Deck being rebuilt with the old boards removed and the joists exposed",
         title: "Home Repairs in Auburn & Opelika, AL | Rot, Decks & Drywall",
         description: "Home repairs in Auburn and Opelika, AL: wood rot, siding, decks and porches, drywall, doors, windows, storm damage and pre-sale punch lists. No job too small.",
         eyebrow: "Repairs & carpentry · Auburn & Opelika, AL", h1: "Home repairs, done like a remodel",
@@ -562,7 +562,7 @@ export const SERVICE_PAGES: ServicePage[] = [
         ],
       },
       es: {
-        name: "Reparaciones y carpintería", alt: "Porche reconstruido con columnas y barandal nuevos en Opelika, AL",
+        name: "Reparaciones y carpintería", alt: "Terraza en reconstrucción, con las tablas viejas quitadas y las vigas a la vista",
         title: "Reparaciones de casas en Auburn y Opelika, AL",
         description: "Reparamos casas en Auburn y Opelika, AL: madera podrida, fachada, terrazas, tablaroca, puertas, ventanas, daños por tormenta y pendientes. En español.",
         eyebrow: "Reparaciones y carpintería · Auburn y Opelika, AL", h1: "Reparaciones hechas con el cuidado de una remodelación",

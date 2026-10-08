@@ -45,7 +45,8 @@ export default function HomePage({ locale }: { locale: Locale }) {
     { label: h.split.finish, sub: h.split.finishSub, list: c.services.filter((s) => s.group === "finish"), start: 1 },
     { label: h.split.build, sub: h.split.buildSub, list: c.services.filter((s) => s.group === "build"), start: 4 },
   ];
-  const showcase = c.work.cells.find((x) => x.kind === "compare" && x.cat === "bath")!; // the owner's own bathroom before/after
+  const bathPairs = c.work.cells.filter((x) => x.kind === "compare" && x.cat === "bath");
+  const showcase = [bathPairs[0], bathPairs[2]].filter(Boolean); // the owner's own bathroom before/afters: the tub area and the vanity
 
   return (
     <>
@@ -192,10 +193,15 @@ export default function HomePage({ locale }: { locale: Locale }) {
 
           <Reveal className="mt-6"><Link className="text-link text-navy normal-case tracking-normal font-body font-semibold text-step-0" href={href(locale, "help")}>{h.newbie} <Arrow /></Link></Reveal>
 
-          <div className="grid gap-8 mt-16 md:mt-24 lg:grid-cols-[1.2fr_.8fr] lg:gap-gutter lg:items-center">
-            <Reveal>
-              <Compare before={showcase.before!} after={showcase.after!} altBefore={showcase.altBefore!} altAfter={showcase.altAfter!} labels={[c.ui.before, c.ui.after]} ariaLabel={c.ui.dragToCompare} portrait={showcase.portrait} />
-            </Reveal>
+          <div className="grid gap-8 mt-16 md:mt-24 lg:grid-cols-[1.35fr_.65fr] lg:gap-gutter lg:items-center">
+            <div className="grid gap-5 sm:grid-cols-2">
+              {showcase.map((x, i) => (
+                <Reveal key={x.title} delay={i * 0.08}>
+                  <Compare before={x.before!} after={x.after!} altBefore={x.altBefore!} altAfter={x.altAfter!} labels={[c.ui.before, c.ui.after]} ariaLabel={c.ui.dragToCompare} portrait={x.portrait} sizes="(min-width: 64rem) 28vw, 50vw" />
+                  <p className="pt-3 font-display uppercase text-step-0 leading-none text-navy">{x.title}</p>
+                </Reveal>
+              ))}
+            </div>
             <Reveal delay={0.1}>
               <span className="eyebrow text-amber-deep mb-4">{h.workEyebrow}</span>
               <h2 className="d h-md text-navy">{h.workH}</h2>

@@ -7,9 +7,9 @@
    Ken Burns zoom (transform only). Reduced motion: first slide, static. */
 import Image from "next/image";
 import { useEffect, useState } from "react";
-import { photo, type PhotoKey } from "@/lib/brand";
+import { photo, photoPos, type PhotoKey } from "@/lib/brand";
 
-const SLIDES: PhotoKey[] = ["hero", "kitchen1", "houseWhite", "bath1", "porch2", "kitchen2", "porch1", "bath2"];
+const SLIDES: PhotoKey[] = ["hero", "kitchen1", "houseWhite", "bathVanityAfter", "porch2", "kitchen2", "porch1", "bathTubAfterWide"];
 const INTERVAL = 6500;
 
 export default function HomeSlideshow({ active, reduced }: { active: boolean; reduced: boolean }) {
@@ -45,6 +45,7 @@ export default function HomeSlideshow({ active, reduced }: { active: boolean; re
               sizes="100vw"
               quality={70}
               priority={i === 0}
+              style={photoPos(SLIDES[i]) ? { objectPosition: photoPos(SLIDES[i]) } : undefined}
               className={`object-cover ${role !== "next" && !reduced ? (i % 2 ? "kenburns kenburns--alt" : "kenburns") : ""}`}
             />
           </div>

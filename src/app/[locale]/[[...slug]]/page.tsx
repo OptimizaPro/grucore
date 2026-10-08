@@ -38,7 +38,7 @@ export function generateStaticParams() {
 }
 
 const OG: Record<PageKey, PhotoKey> = {
-  home: "hero", services: "kitchen1", about: "worker1", work: "kitchen2", reviews: "porch3", contact: "houseWhite", thanks: "porch1",
+  home: "hero", services: "kitchen1", about: "worker1", work: "bathVanityAfter", reviews: "porch3", contact: "houseWhite", thanks: "porch1",
   estimator: "kitchen3", guides: "worker3", areas: "porch1", privacy: "houseWhite", review: "porch3", help: "worker1", facts: "worker4",
 };
 
