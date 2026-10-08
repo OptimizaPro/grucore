@@ -45,7 +45,7 @@ export default function HomePage({ locale }: { locale: Locale }) {
     { label: h.split.finish, sub: h.split.finishSub, list: c.services.filter((s) => s.group === "finish"), start: 1 },
     { label: h.split.build, sub: h.split.buildSub, list: c.services.filter((s) => s.group === "build"), start: 4 },
   ];
-  const kitchen = c.work.cells.find((x) => x.kind === "compare" && x.cat === "kitchen")!;
+  const showcase = c.work.cells.find((x) => x.kind === "compare" && x.cat === "bath")!; // the owner's own bathroom before/after
 
   return (
     <>
@@ -194,7 +194,7 @@ export default function HomePage({ locale }: { locale: Locale }) {
 
           <div className="grid gap-8 mt-16 md:mt-24 lg:grid-cols-[1.2fr_.8fr] lg:gap-gutter lg:items-center">
             <Reveal>
-              <Compare before={kitchen.before!} after={kitchen.after!} altBefore={kitchen.altBefore!} altAfter={kitchen.altAfter!} labels={[c.ui.before, c.ui.after]} ariaLabel={c.ui.dragToCompare} />
+              <Compare before={showcase.before!} after={showcase.after!} altBefore={showcase.altBefore!} altAfter={showcase.altAfter!} labels={[c.ui.before, c.ui.after]} ariaLabel={c.ui.dragToCompare} portrait={showcase.portrait} />
             </Reveal>
             <Reveal delay={0.1}>
               <span className="eyebrow text-amber-deep mb-4">{h.workEyebrow}</span>

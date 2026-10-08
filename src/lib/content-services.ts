@@ -120,11 +120,11 @@ export const SERVICE_PAGES: ServicePage[] = [
   },
   /* ------------------------------------------------------------ BATHROOM */
   {
-    id: "bathroom", slug: { en: "bathroom-remodeling", es: "remodelacion-de-banos" }, form: "kitchensBaths", photo: "bath2", photos: ["bath1", "bath3"],
+    id: "bathroom", slug: { en: "bathroom-remodeling", es: "remodelacion-de-banos" }, form: "kitchensBaths", photo: "bathVanityAfter", photos: ["bathTubAfterWide", "bathTileDetail"],
     estimator: "bath", related: ["kitchen", "flooring", "remodeling"],
     t: {
       en: {
-        name: "Bathroom Remodeling", alt: "Remodeled primary bathroom with tiled walk-in shower in Opelika, AL",
+        name: "Bathroom Remodeling", alt: "Remodeled bathroom with a navy vanity, gold mirror and light fixture, and white tile along the lower wall",
         title: "Bathroom Remodeling in Auburn & Opelika, AL | Showers",
         description: "Bathroom remodeling in Auburn and Opelika, AL: walk-in and curbless showers, tub-to-shower conversions, tile and vanities, waterproofed right. Free estimate.",
         eyebrow: "Bathroom remodeling · Auburn & Opelika, AL", h1: "Bathroom remodeling in Auburn, AL",
@@ -155,7 +155,7 @@ export const SERVICE_PAGES: ServicePage[] = [
         ],
       },
       es: {
-        name: "Remodelación de baños", alt: "Baño principal remodelado con regadera de azulejo en Opelika, AL",
+        name: "Remodelación de baños", alt: "Baño remodelado con tocador azul marino, espejo y lámpara dorados, y azulejo blanco en la parte baja de la pared",
         title: "Remodelación de baños en Auburn y Opelika, AL",
         description: "Remodelamos baños en Auburn y Opelika, AL: regaderas a ras de piso, cambio de tina por regadera, azulejo y tocadores bien impermeabilizados. En español.",
         eyebrow: "Remodelación de baños · Auburn y Opelika, AL", h1: "Remodelación de baños en Auburn, AL",
@@ -528,7 +528,7 @@ export const SERVICE_PAGES: ServicePage[] = [
   },
   /* ------------------------------------------------------------ REPAIRS */
   {
-    id: "repairs", slug: { en: "home-repairs", es: "reparaciones-del-hogar" }, form: "repairs", photo: "porch2", photos: ["deck1", "worker2"],
+    id: "repairs", slug: { en: "home-repairs", es: "reparaciones-del-hogar" }, form: "repairs", photo: "porch2", photos: ["deckRebuildFraming", "dockLake"],
     related: ["painting", "flooring", "rental"],
     t: {
       en: {

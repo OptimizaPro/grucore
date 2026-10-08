@@ -11,7 +11,7 @@ const REPAIR_RANGE = { en: serviceById("repairs").t.en.glance.range, es: service
 export const guide: Guide = {
   id: "deck-repair-vs-replace",
   slug: { en: "deck-repair-or-replace-auburn-al", es: "reparar-o-cambiar-terraza-de-madera-auburn-al" },
-  photo: "deck1",
+  photo: "deckRebuildFraming",
   published: D,
   updated: D,
   service: "repairs",

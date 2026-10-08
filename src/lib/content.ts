@@ -18,8 +18,8 @@
    ------------------------------------------------------------------------- */
 import type { Locale, PageKey } from "./i18n";
 
-import { BRAND, PHOTOS, photo, type PhotoKey } from "./brand";
-export { BRAND, PHOTOS, photo, type PhotoKey };
+import { BRAND, PHOTOS, LOCAL_PHOTOS, photo, photoAbs, photoPos, photoAlt, isOwnPhoto, type PhotoKey } from "./brand";
+export { BRAND, PHOTOS, LOCAL_PHOTOS, photo, photoAbs, photoPos, photoAlt, isOwnPhoto, type PhotoKey };
 
 export type ServiceId = "remodeling" | "additions" | "kitchensBaths" | "painting" | "finishing" | "repairs";
 export type ServiceGroup = "build" | "finish";
@@ -34,6 +34,8 @@ export interface Proof { value?: number; decimals?: number; display?: string; la
 export interface GalleryCell {
   kind: "photo" | "wide" | "tall" | "compare"; cat: GalleryCat; title: string; meta: string;
   photo?: PhotoKey; before?: PhotoKey; after?: PhotoKey; alt?: string; altBefore?: string; altAfter?: string;
+  /** Portrait source photos: the before/after slider uses a tall frame instead of 4:3. */
+  portrait?: boolean;
 }
 
 export interface SiteContent {
@@ -223,23 +225,28 @@ const en: SiteContent = {
     filterLbl: "Filter projects",
     filters: [{ v: "all", l: "All" }, { v: "compare", l: "Before / After" }, { v: "kitchen", l: "Kitchens" }, { v: "bath", l: "Bathrooms" }, { v: "addition", l: "Additions" }, { v: "exterior", l: "Exterior" }, { v: "deck", l: "Decks" }, { v: "flooring", l: "Flooring" }],
     cells: [
+      { kind: "compare", cat: "bath", portrait: true, before: "bathTubBeforeWide", after: "bathTubAfterWide", altBefore: "Bathroom tub with a gold-framed sliding glass door before the remodel", altAfter: "The same tub area after the remodel: white tile to the ceiling, two tiled niches, brass fixtures and a shower curtain", title: "Tub-shower remodel", meta: "Tile to the ceiling, brass fixtures" },
+      { kind: "compare", cat: "bath", portrait: true, before: "bathTubBeforeClose", after: "bathTubAfterClose", altBefore: "Close view of the old tub with its gold-framed sliding door and rippled glass", altAfter: "Close view of the new tub with a white tile surround and built-in niches", title: "Tub wall, up close", meta: "Sliding door out, new tile in" },
+      { kind: "compare", cat: "bath", portrait: true, before: "bathVanityBefore", after: "bathVanityAfter", altBefore: "Bathroom vanity with white cabinets, a plain oval sink and a large mirror before the remodel", altAfter: "The bathroom after the remodel: navy vanity with a white top, gold mirror and light fixture, and white tile along the lower wall", title: "Vanity & finishes", meta: "Navy vanity, gold mirror and light" },
+      { kind: "photo", cat: "bath", photo: "bathTileDetail", title: "Tile detail", meta: "Tile to the ceiling, recessed light" },
+      { kind: "photo", cat: "bath", photo: "vanityNavy", title: "Navy vanity", meta: "Cabinets, pulls and top" },
+      { kind: "photo", cat: "bath", photo: "vanityTop", title: "Vanity top", meta: "Integrated sink and backsplash" },
+      { kind: "photo", cat: "deck", photo: "deckRebuildFraming", title: "Deck rebuild", meta: "Decking off, framing exposed" },
+      { kind: "tall", cat: "deck", photo: "dockLake", title: "Lakeside dock", meta: "T-shaped walkway and platform" },
+      { kind: "photo", cat: "exterior", photo: "fenceInstalled", title: "Chain-link fence", meta: "Galvanized rail and posts" },
+      { kind: "photo", cat: "exterior", photo: "fenceStaged", title: "Fence install", meta: "Rolls and gates staged" },
       { kind: "compare", cat: "exterior", before: "houseWeathered", after: "houseWhite", altBefore: "Weathered wood-sided house before exterior renovation", altAfter: "White farmhouse exterior with black shutters after renovation", title: "Exterior refresh", meta: "Siding, paint, trim" },
       { kind: "tall", cat: "kitchen", photo: "kitchen2", title: "Kitchen remodel", meta: "Cabinets & counters" },
-      { kind: "photo", cat: "bath", photo: "bath2", title: "Primary bath", meta: "Tub & walk-in shower" },
       { kind: "photo", cat: "addition", photo: "framing1", title: "Second-story addition", meta: "Framing" },
       { kind: "compare", cat: "kitchen", before: "roomRaw", after: "kitchen1", altBefore: "Kitchen space stripped to the subfloor before remodel", altAfter: "Finished kitchen with marble island and white cabinetry", title: "Full kitchen renovation", meta: "Layout change & island" },
-      { kind: "photo", cat: "deck", photo: "deck2", title: "Backyard deck", meta: "Composite decking" },
       { kind: "wide", cat: "exterior", photo: "porch2", title: "Porch rebuild", meta: "Columns, rails & paint" },
       { kind: "photo", cat: "flooring", photo: "floor2", title: "LVP flooring", meta: "Rental turnover" },
-      { kind: "compare", cat: "deck", before: "deck3", after: "deck1", altBefore: "Plain wooden deck before rebuild", altAfter: "Rebuilt deck with built-in bench seating", title: "Deck rebuild", meta: "Rot repair to full rebuild" },
-      { kind: "tall", cat: "bath", photo: "bath3", title: "Guest bath", meta: "Freestanding tub" },
       { kind: "photo", cat: "kitchen", photo: "kitchen3", title: "Kitchen refresh", meta: "Cabinet paint & backsplash" },
       { kind: "photo", cat: "addition", photo: "framing2", title: "Garage addition", meta: "Framing & roofing" },
       { kind: "wide", cat: "flooring", photo: "floor1", title: "Whole-home flooring", meta: "Engineered hardwood" },
       { kind: "photo", cat: "exterior", photo: "paint1", title: "Exterior painting", meta: "Prep & paint" },
-      { kind: "photo", cat: "bath", photo: "bath1", title: "Walk-in shower", meta: "Tile & glass" },
     ],
-    notice: "Photos on this page are representative of our work. Want to see a project like yours in person? Ask us for local references.",
+    notice: "The bathroom, deck, dock and fence photos are from real Z Construction jobs. Photos in the other categories are representative of the work until we add ours. Want to see a project like yours in person? Ask us for local references.",
     ctaH: "Want your house on this page?", ctaP: "Send us a photo of the room and a sentence about what you'd like to change. We'll take it from there.",
   },
   reviews: {
@@ -449,23 +456,28 @@ const es: SiteContent = {
     filterLbl: "Filtrar proyectos",
     filters: [{ v: "all", l: "Todo" }, { v: "compare", l: "Antes / Después" }, { v: "kitchen", l: "Cocinas" }, { v: "bath", l: "Baños" }, { v: "addition", l: "Ampliaciones" }, { v: "exterior", l: "Fachadas" }, { v: "deck", l: "Terrazas" }, { v: "flooring", l: "Pisos" }],
     cells: [
+      { kind: "compare", cat: "bath", portrait: true, before: "bathTubBeforeWide", after: "bathTubAfterWide", altBefore: "Tina del baño con puerta corrediza de cristal con marco dorado, antes de la remodelación", altAfter: "La misma tina después de la remodelación: azulejo blanco hasta el techo, dos nichos de azulejo, accesorios de latón y cortina de regadera", title: "Tina y regadera nuevas", meta: "Azulejo hasta el techo, accesorios de latón" },
+      { kind: "compare", cat: "bath", portrait: true, before: "bathTubBeforeClose", after: "bathTubAfterClose", altBefore: "Vista cercana de la tina vieja con su puerta corrediza de marco dorado y cristal texturizado", altAfter: "Vista cercana de la tina nueva con azulejo blanco alrededor y nichos integrados", title: "La pared de la tina, de cerca", meta: "Sin puerta corrediza, con azulejo nuevo" },
+      { kind: "compare", cat: "bath", portrait: true, before: "bathVanityBefore", after: "bathVanityAfter", altBefore: "Tocador con gabinetes blancos, lavabo ovalado sencillo y espejo grande, antes de la remodelación", altAfter: "El baño después de la remodelación: tocador azul marino con cubierta blanca, espejo y lámpara dorados, y azulejo blanco en la parte baja de la pared", title: "Tocador y acabados", meta: "Tocador azul marino, espejo y lámpara dorados" },
+      { kind: "photo", cat: "bath", photo: "bathTileDetail", title: "Detalle del azulejo", meta: "Azulejo hasta el techo y luz empotrada" },
+      { kind: "photo", cat: "bath", photo: "vanityNavy", title: "Tocador azul marino", meta: "Gabinetes, jaladeras y cubierta" },
+      { kind: "photo", cat: "bath", photo: "vanityTop", title: "Cubierta del tocador", meta: "Lavabo integrado y salpicadero" },
+      { kind: "photo", cat: "deck", photo: "deckRebuildFraming", title: "Terraza en reconstrucción", meta: "Sin tablas, estructura a la vista" },
+      { kind: "tall", cat: "deck", photo: "dockLake", title: "Muelle junto al lago", meta: "Pasarela y plataforma en forma de T" },
+      { kind: "photo", cat: "exterior", photo: "fenceInstalled", title: "Cerca de malla ciclónica", meta: "Barra superior y postes galvanizados" },
+      { kind: "photo", cat: "exterior", photo: "fenceStaged", title: "Instalación de cerca", meta: "Rollos y puertas listos en obra" },
       { kind: "compare", cat: "exterior", before: "houseWeathered", after: "houseWhite", altBefore: "Casa con madera desgastada antes de renovar la fachada", altAfter: "Fachada blanca con persianas negras ya renovada", title: "Fachada renovada", meta: "Fachada, pintura y molduras" },
       { kind: "tall", cat: "kitchen", photo: "kitchen2", title: "Remodelación de cocina", meta: "Gabinetes y cubiertas" },
-      { kind: "photo", cat: "bath", photo: "bath2", title: "Baño principal", meta: "Tina y regadera" },
       { kind: "photo", cat: "addition", photo: "framing1", title: "Segundo piso", meta: "Estructura" },
       { kind: "compare", cat: "kitchen", before: "roomRaw", after: "kitchen1", altBefore: "Cocina desmantelada hasta el subpiso antes de la obra", altAfter: "Cocina terminada con isla de mármol y gabinetes blancos", title: "Cocina completa", meta: "Nueva distribución e isla" },
-      { kind: "photo", cat: "deck", photo: "deck2", title: "Terraza trasera", meta: "Deck de material compuesto" },
       { kind: "wide", cat: "exterior", photo: "porch2", title: "Porche reconstruido", meta: "Columnas, barandal y pintura" },
       { kind: "photo", cat: "flooring", photo: "floor2", title: "Piso LVP", meta: "Cambio de inquilino" },
-      { kind: "compare", cat: "deck", before: "deck3", after: "deck1", altBefore: "Terraza sencilla antes de reconstruirla", altAfter: "Terraza reconstruida con banca integrada", title: "Terraza nueva", meta: "De reparar a reconstruir" },
-      { kind: "tall", cat: "bath", photo: "bath3", title: "Baño de visitas", meta: "Tina independiente" },
       { kind: "photo", cat: "kitchen", photo: "kitchen3", title: "Cocina renovada", meta: "Gabinetes pintados y salpicadero" },
       { kind: "photo", cat: "addition", photo: "framing2", title: "Cochera nueva", meta: "Estructura y techo" },
       { kind: "wide", cat: "flooring", photo: "floor1", title: "Pisos en toda la casa", meta: "Madera de ingeniería" },
       { kind: "photo", cat: "exterior", photo: "paint1", title: "Pintura exterior", meta: "Preparación y pintura" },
-      { kind: "photo", cat: "bath", photo: "bath1", title: "Regadera a ras de piso", meta: "Azulejo y cristal" },
     ],
-    notice: "Las fotos de esta página muestran el tipo de trabajo que hacemos. ¿Quiere ver en persona un proyecto parecido al suyo? Pídanos referencias de clientes de la zona.",
+    notice: "Las fotos de baños, terrazas, muelle y cerca son de trabajos reales de Z Construction. Las de las demás categorías muestran el tipo de trabajo mientras agregamos las nuestras. ¿Quiere ver en persona un proyecto parecido al suyo? Pídanos referencias de clientes de la zona.",
     ctaH: "¿Quiere ver su casa en esta página?", ctaP: "Mándenos una foto del espacio y una frase de lo que quiere cambiar. Nosotros nos encargamos del resto.",
   },
   reviews: {

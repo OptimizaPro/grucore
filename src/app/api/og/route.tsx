@@ -1,7 +1,7 @@
 import { ImageResponse } from "next/og";
 import { readFile } from "node:fs/promises";
 import path from "node:path";
-import { BRAND, PHOTOS, photo, type PhotoKey } from "@/lib/content";
+import { BRAND, PHOTOS, LOCAL_PHOTOS, photo, type PhotoKey } from "@/lib/content";
 
 /* ---------------------------------------------------------------------------
    /api/og?t=Title&k=Kicker&p=photoKey&l=es
@@ -40,7 +40,13 @@ export async function GET(req: Request) {
   const title = clean(q.get("t"), 90) || BRAND.name;
   const kicker = clean(q.get("k"), 80) || (es ? "Pintura y remodelación · Auburn y Opelika, AL" : "Painting & remodeling · Auburn & Opelika, AL");
   const key = (q.get("p") ?? "") as PhotoKey;
-  const img = photo(key in PHOTOS ? key : "hero", 900);
+  /* The owner's photos are read from disk and embedded (a card should never
+     depend on fetching the live site); placeholders stay remote. */
+  let img = photo(key in PHOTOS || key in LOCAL_PHOTOS ? key : "hero", 900);
+  if (img.startsWith("/")) {
+    const file = await readFile(path.join(process.cwd(), "public", img.replace(/^\//, "").replace(/\.\./g, "")));
+    img = `data:image/jpeg;base64,${file.toString("base64")}`;
+  }
   const { display, body, logo } = await getAssets();
   const size = title.length > 56 ? 54 : title.length > 36 ? 64 : 78;
   const pills = es ? ["Presupuestos gratis", "Hablamos español"] : ["Free written estimates", "Se habla español"];

@@ -5,7 +5,7 @@ const D = "2026-09-29";
 export const guide: Guide = {
   id: "tub-to-shower",
   slug: { en: "tub-to-shower-conversion-cost-auburn-al", es: "cambiar-tina-por-regadera-auburn-al" },
-  photo: "bath1", published: D, updated: D, service: "bathroom", estimator: "bath",
+  photo: "bathTubAfterWide", published: D, updated: D, service: "bathroom", estimator: "bath",
   related: ["bathroom-cost", "permits", "builder-grade-upgrades"],
   sources: [
     { name: "Schluter-Systems: Schluter-KERDI waterproofing membrane", url: "https://www.schluter.com/schluter-us/en_US/Membranes/Waterproofing-(KERDI)/Schluter-KERDI/p/KERDI" },

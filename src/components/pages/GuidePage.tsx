@@ -6,7 +6,7 @@ import CtaBand from "@/components/CtaBand";
 import ProjectCta from "@/components/ProjectCta";
 import { Arrow } from "@/components/Icons";
 import { Reveal } from "@/components/motion";
-import { CONTENT, photo } from "@/lib/content";
+import { CONTENT, photoAbs } from "@/lib/content";
 import { GUIDES, type GuideId } from "@/lib/content-guides";
 import { serviceById } from "@/lib/content-services";
 import { absolute, href, type Locale } from "@/lib/i18n";
@@ -94,7 +94,7 @@ export default function GuidePage({ locale, id }: { locale: Locale; id: GuideId 
       </article>
       <CtaBand locale={locale} h={gi.ctaH} p={gi.ctaP} btn={c.cta.btn} word={c.cta.word} />
       <JsonLd data={[
-        article({ headline: t.h1, description: t.description, path, locale, image: photo(g.photo, 1600), published: g.published, updated: g.updated, words, section: t.eyebrow.split(" · ")[0],
+        article({ headline: t.h1, description: t.description, path, locale, image: photoAbs(g.photo, 1600), published: g.published, updated: g.updated, words, section: t.eyebrow.split(" · ")[0],
           about: `${absolute(serviceHref(locale, g.service))}#service`, aboutName: svc.t[locale].name, aboutUrl: absolute(serviceHref(locale, g.service)), citations: g.sources, mentions: ["Auburn, Alabama", "Opelika, Alabama", "Lee County, Alabama"] }),
         ...(t.faq.length ? [faqPage(t.faq.map((f) => ({ q: f.q, a: plainText(f.a) })))] : []),
       ]} />

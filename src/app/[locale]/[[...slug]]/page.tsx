@@ -19,7 +19,7 @@ import HelpPage from "@/components/pages/HelpPage";
 import FactsPage from "@/components/pages/FactsPage";
 import { HELP } from "@/lib/content-help";
 import { FACTS, FACTS_VERIFIED } from "@/lib/content-facts";
-import { CONTENT, photo, type PhotoKey } from "@/lib/content";
+import { CONTENT, photoAbs, type PhotoKey } from "@/lib/content";
 import { serviceById } from "@/lib/content-services";
 import { AREA_PAGES } from "@/lib/content-areas";
 import { GUIDES } from "@/lib/content-guides";
@@ -60,7 +60,7 @@ const KIND: Partial<Record<PageKey, PageKind>> = { about: "AboutPage", contact: 
 function pageGraph(locale: Locale, r: Route, m: { title: string; description: string; image: PhotoKey }) {
   const path = routeHref(locale, r), url = absolute(path);
   const twinPath = routeHref(locale === "en" ? "es" : "en", r);
-  const base = { name: m.title, description: m.description, path, twinPath, locale, image: photo(m.image, 1600) };
+  const base = { name: m.title, description: m.description, path, twinPath, locale, image: photoAbs(m.image, 1600) };
   switch (r.kind) {
     case "service": return webPage({ ...base, kind: "ItemPage", mainEntity: `${url}#service`, breadcrumb: true, modified: CONTENT_UPDATED });
     case "guide": { const g = GUIDES.find((x) => x.id === r.id)!; return webPage({ ...base, kind: "WebPage", mainEntity: `${url}#article`, breadcrumb: true, modified: g.updated, extra: { datePublished: g.published } }); }

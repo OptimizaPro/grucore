@@ -10,7 +10,7 @@ import Promise from "@/components/Promise";
 import Compare from "@/components/Compare";
 import { Arrow, Check, Phone } from "@/components/Icons";
 import { Reveal, Stagger, Item } from "@/components/motion";
-import { BRAND, CONTENT, photo } from "@/lib/content";
+import { BRAND, CONTENT, photoAbs, photoAlt } from "@/lib/content";
 import { waHref } from "@/lib/wa";
 import { SERVICE_UI, serviceById, type ServicePageId } from "@/lib/content-services";
 import { AREA_PAGES } from "@/lib/content-areas";
@@ -28,7 +28,7 @@ export default function ServiceDetailPage({ locale, id }: { locale: Locale; id: 
   const est = s.estimator ? ESTIMATOR[s.estimator].tiers : null;
   const areaNames = AREA_PAGES.length ? AREA_PAGES.map((a) => a.t[locale].name) : ["Auburn", "Opelika", "Smiths Station"];
   /* A before/after pair from the gallery for the categories that have one. */
-  const cmpCat: Partial<Record<ServicePageId, "kitchen" | "exterior" | "deck">> = { kitchen: "kitchen", cabinets: "kitchen", rental: "kitchen", painting: "exterior", repairs: "deck", remodeling: "kitchen" };
+  const cmpCat: Partial<Record<ServicePageId, "kitchen" | "exterior" | "deck" | "bath">> = { bathroom: "bath", kitchen: "kitchen", cabinets: "kitchen", rental: "kitchen", painting: "exterior", repairs: "deck", remodeling: "kitchen" };
   /* Hub → spoke: the guides written for this service, then any that point here as related. */
   const guides = GUIDES.filter((g) => g.service === id).concat(GUIDES.filter((g) => g.service !== id && s.related.includes(g.service))).slice(0, 4);
   const cmp = cmpCat[id] ? c.work.cells.find((x) => x.kind === "compare" && x.cat === cmpCat[id]) : undefined;
@@ -71,7 +71,7 @@ export default function ServiceDetailPage({ locale, id }: { locale: Locale; id: 
             <ul className="grid gap-3 mt-6 sm:grid-cols-2 sm:gap-x-6">{t.included.map((x) => <li key={x} className="flex gap-3 items-start text-step--1"><Check className="w-4 h-4 shrink-0 mt-[.3em] text-amber-deep" /><span>{x}</span></li>)}</ul>
           </Reveal>
           <Reveal delay={0.1} className="grid grid-cols-2 gap-3">
-            {s.photos.map((k, i) => <div key={k} className={`relative overflow-hidden rounded-card aspect-[4/5] ${i ? "mt-10" : ""}`}><Photo k={k} alt={t.alt} sizes="(min-width: 60rem) 25vw, 50vw" /></div>)}
+            {s.photos.map((k, i) => <div key={k} className={`relative overflow-hidden rounded-card aspect-[4/5] ${i ? "mt-10" : ""}`}><Photo k={k} alt={photoAlt(k, locale) ?? t.alt} sizes="(min-width: 60rem) 25vw, 50vw" /></div>)}
           </Reveal>
         </div>
       </section>
@@ -79,7 +79,7 @@ export default function ServiceDetailPage({ locale, id }: { locale: Locale; id: 
       {cmp && (
         <section className="sec bg-bone" data-tone="light">
           <div className="shell grid gap-8 lg:grid-cols-[1.2fr_.8fr] lg:gap-gutter lg:items-center">
-            <Reveal><Compare before={cmp.before!} after={cmp.after!} altBefore={cmp.altBefore!} altAfter={cmp.altAfter!} labels={[c.ui.before, c.ui.after]} ariaLabel={c.ui.dragToCompare} /></Reveal>
+            <Reveal><Compare before={cmp.before!} after={cmp.after!} altBefore={cmp.altBefore!} altAfter={cmp.altAfter!} labels={[c.ui.before, c.ui.after]} ariaLabel={c.ui.dragToCompare} portrait={cmp.portrait} /></Reveal>
             <Reveal delay={0.1}>
               <span className="eyebrow text-amber-deep mb-4">{c.home.workEyebrow}</span>
               <h2 className="d h-md text-navy">{c.home.workH}</h2>
@@ -204,7 +204,7 @@ export default function ServiceDetailPage({ locale, id }: { locale: Locale; id: 
 
       <CtaBand locale={locale} h={c.cta.h} p={c.cta.p} btn={c.cta.btn} word={c.cta.word} />
       <JsonLd data={[
-        serviceNode({ name: t.name, description: t.description, path, locale, areas: areaNames, image: photo(s.photo, 1600), lo: est?.[0].lo, hi: est?.[2].hi,
+        serviceNode({ name: t.name, description: t.description, path, locale, areas: areaNames, image: photoAbs(s.photo, 1600), lo: est?.[0].lo, hi: est?.[2].hi,
           tiers: est?.map((tier) => ({ name: `${t.name}: ${tier.l[locale]}`, description: tier.d[locale], lo: tier.lo, hi: tier.hi })),
           guides: guides.map((g) => ({ name: g.t[locale].h1, path: guideHref(locale, g.id) })) }),
         faqPage(t.faq),

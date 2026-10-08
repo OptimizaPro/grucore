@@ -4,7 +4,7 @@ import { indexableRoutes, routeHref, type Route } from "@/lib/routes";
 import { GUIDES } from "@/lib/content-guides";
 import { AREA_PAGES } from "@/lib/content-areas";
 import { serviceById } from "@/lib/content-services";
-import { photo, type PhotoKey } from "@/lib/content";
+import { photoAbs, type PhotoKey } from "@/lib/content";
 import { CONTENT_UPDATED } from "@/lib/seo";
 import { FACTS_VERIFIED } from "@/lib/content-facts";
 
@@ -33,7 +33,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       lastModified, changeFrequency: r.kind === "guide" ? ("yearly" as const) : ("monthly" as const), priority,
       /* Next writes <image:loc> verbatim (no XML escaping), and the Unsplash
          query string's "&" would make the whole sitemap invalid XML. */
-      images: [photo(imageOf(r), 1600).replace(/&/g, "&amp;")],
+      images: [photoAbs(imageOf(r), 1600).replace(/&/g, "&amp;")],
       alternates: { languages: { "en-US": en, en, "es-US": es, es, "x-default": en } },
     }));
   });
