@@ -1,4 +1,4 @@
-# Z Construction & Remodeling LLC — website
+# Grucore|Construction & Remodeling — website
 
 Next.js 16 · React 19 · Tailwind CSS v4 · @react-three/fiber · Framer Motion. English at `/`, Spanish at `/es` (native copy, localized slugs, hreflang).
 
