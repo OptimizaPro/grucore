@@ -1,0 +1,101 @@
+# Shared negative keyword list — paste into Google Ads → Tools → Shared library →
+# Negative keyword lists → "Z – Account negatives", then apply to every campaign.
+# Syntax: plain = broad negative, "quotes" = phrase negative, [brackets] = exact negative.
+# Review the Search Terms report weekly for the first 8 weeks and add to this list.
+
+# Jobs / HR
+job
+jobs
+hiring
+career
+careers
+employment
+salary
+wage
+hourly
+resume
+apprentice
+internship
+indeed
+"work for"
+"subcontractor jobs"
+# Education / licensing (people studying, not buying)
+exam
+course
+class
+school
+training
+certification
+"how to become"
+"license test"
+# DIY / research-only
+diy
+"how to"
+"do it yourself"
+tutorial
+youtube
+pinterest
+pictures
+images
+"design ideas"
+inspiration
+blueprint
+template
+software
+app
+# Free / assistance (keep "free estimate" — do NOT add plain "free")
+[free]
+"for free"
+cheap
+cheapest
+coupon
+grant
+grants
+"government assistance"
+habitat
+volunteer
+"low income"
+# Retail / products
+"home depot"
+lowes
+"lowe's"
+ikea
+"floor and decor"
+"floor & decor"
+wayfair
+amazon
+"paint colors"
+"paint store"
+supplies
+wholesale
+"used cabinets"
+"cabinet doors only"
+"for sale"
+# Out of scope
+commercial
+industrial
+roofing
+roofer
+pool
+hvac
+"auto body"
+car
+boat
+rv
+"lead paint testing"
+# Out of area (remove Columbus / LaGrange lines once licensed in Georgia)
+montgomery
+birmingham
+atlanta
+"columbus ga"
+lagrange
+huntsville
+# Spanish equivalents
+trabajo
+empleo
+"se busca"
+sueldo
+curso
+gratis
+barato
+"como hacer"

@@ -1,0 +1,31 @@
+prompt_id,language,service,town,intent,prompt
+EN01,en,painting,Auburn,recommend,Who are the best house painters in Auburn AL?
+EN02,en,painting,Opelika,recommend,I need someone to paint the exterior of my house in Opelika Alabama. Who should I call?
+EN03,en,painting,Auburn,cost,How much does it cost to paint a house interior in Auburn Alabama in 2026?
+EN04,en,cabinets,Opelika,recommend,Who paints kitchen cabinets in Opelika AL?
+EN05,en,cabinets,Auburn,decide,Should I paint or replace my kitchen cabinets? I live in Auburn AL.
+EN06,en,kitchen,Auburn,recommend,Recommend a kitchen remodeling contractor in Auburn Alabama
+EN07,en,kitchen,Lee County,cost,How much does a kitchen remodel cost in Lee County Alabama?
+EN08,en,bathroom,Opelika,recommend,Best bathroom remodelers in Opelika AL
+EN09,en,bathroom,Auburn,cost,What does a tub to shower conversion cost in Auburn AL?
+EN10,en,flooring,Auburn,recommend,Who installs LVP flooring in Auburn Alabama?
+EN11,en,rental,Auburn,recommend,Rental turnover or make-ready contractor for student rentals in Auburn AL
+EN12,en,rental,Auburn,landlord,I own a condo near Auburn University and live out of state. Who can repaint and fix it between tenants?
+EN13,en,general,Smiths Station,recommend,Remodeling contractor near Smiths Station Alabama
+EN14,en,general,Auburn,spanish,Spanish-speaking contractor in Auburn Alabama
+EN15,en,general,Auburn,permits,Do I need a permit to remodel a bathroom in Auburn AL?
+EN16,en,general,Auburn,trust,How do I check if a contractor is licensed in Alabama?
+EN17,en,general,Auburn,brand,What is Z Construction & Remodeling in Auburn AL? Are they any good?
+EN18,en,general,Auburn,brand,Z Construction Auburn AL phone number and hours
+ES01,es,painting,Auburn,recommend,¿Quién pinta casas en Auburn Alabama?
+ES02,es,painting,Opelika,recommend,Pintores de casas en Opelika Alabama que hablen español
+ES03,es,painting,Auburn,cost,¿Cuánto cobra un pintor por pintar una casa en Auburn Alabama?
+ES04,es,cabinets,Opelika,recommend,¿Quién pinta gabinetes de cocina en Opelika?
+ES05,es,kitchen,Auburn,recommend,Contratista para remodelar cocina en Auburn Alabama
+ES06,es,bathroom,Opelika,recommend,Remodelación de baños en Opelika Alabama
+ES07,es,bathroom,Lee County,cost,¿Cuánto cuesta remodelar un baño en Alabama?
+ES08,es,general,Auburn,spanish,Contratista que hable español en Auburn Alabama
+ES09,es,general,Opelika,spanish,Busco un contratista hispano o que hable español en Opelika para arreglar mi casa
+ES10,es,rental,Auburn,landlord,¿Quién prepara casas de renta entre inquilinos en Auburn?
+ES11,es,general,Auburn,permits,¿Necesito permiso para remodelar mi casa en Auburn Alabama?
+ES12,es,general,Auburn,brand,¿Qué es Z Construction & Remodeling en Auburn Alabama?

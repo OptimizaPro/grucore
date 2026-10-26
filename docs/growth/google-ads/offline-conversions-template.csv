@@ -1,0 +1,5 @@
+Parameters:TimeZone=America/Chicago
+Google Click ID,Conversion Name,Conversion Time,Conversion Value,Conversion Currency
+EXAMPLE_GCLID_FROM_LEAD_EMAIL,Qualified lead,2026-10-02 14:30:00,0,USD
+EXAMPLE_GCLID_FROM_LEAD_EMAIL,Estimate scheduled,2026-10-04 09:00:00,0,USD
+EXAMPLE_GCLID_FROM_LEAD_EMAIL,Job won,2026-10-20 16:00:00,18500,USD

@@ -1,0 +1,3 @@
+month,date,tester,assistant,mode,prompt_id,language,z_mentioned,z_rank,z_url_cited,z_facts_correct,score,businesses_named,sources_cited,screenshot,notes
+EXAMPLE 2026-10,2026-10-05,Owner,ChatGPT,logged-out search on,EN01,en,0,,,,0,"CertaPro; Five Star Painting; E&S Contractor Painting","yelp.com; angi.com; certapro.com",link-to-screenshot,example row - delete
+EXAMPLE 2026-10,2026-10-05,Owner,Perplexity,logged-out,ES08,es,1,2,/es/guias/contratista-que-habla-espanol-auburn-opelika,1,2,"Z Construction & Remodeling; ...","zconstructionauburn.com; yelp.com",link-to-screenshot,example row - delete
