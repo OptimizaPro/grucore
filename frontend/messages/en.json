@@ -1,0 +1,241 @@
+{
+  "Metadata": {
+    "title": "Grucore — Premium Construction Guatemala",
+    "description": "Premium construction and remodeling company in Guatemala. Residential and commercial projects with the highest quality standards."
+  },
+  "Home": {
+    "meta": {
+      "title": "Grucore — Premium Construction & Remodeling",
+      "description": "We build extraordinary spaces in Guatemala. Residential, commercial and industrial projects with premium standards."
+    },
+    "hero": {
+      "eyebrow": "Guatemalan premium construction company",
+      "headline_1": "WE BUILD",
+      "headline_2": "EXTRAORDINARY",
+      "headline_3": "SPACES",
+      "cta_primary": "Get a free estimate",
+      "cta_secondary": "View projects"
+    },
+    "trust": {
+      "projects_value": "50",
+      "projects_label": "projects delivered",
+      "years_value": "10",
+      "years_label": "years of experience",
+      "response_value": "24",
+      "response_label": "hour response time",
+      "advisor_value": "1",
+      "advisor_label": "dedicated advisor"
+    },
+    "services": {
+      "eyebrow": "Our services",
+      "title": "Solutions for every type of project",
+      "subtitle": "From residential remodeling to large-scale commercial development, our team covers the full project lifecycle.",
+      "items": [
+        {
+          "id": "residential",
+          "title": "Residential Construction",
+          "description": "We design and build the home you imagined, with premium materials and on-time delivery.",
+          "tags": ["Homes", "Residences", "Townhouses"],
+          "range": "Q 300,000 – Q 2,500,000"
+        },
+        {
+          "id": "remodeling",
+          "title": "Interior Remodeling",
+          "description": "We transform existing spaces with design precision and clean execution, minimizing disruption to your daily routine.",
+          "tags": ["Kitchens", "Bathrooms", "Living", "Full home"],
+          "range": "Q 50,000 – Q 500,000"
+        },
+        {
+          "id": "commercial",
+          "title": "Commercial Projects",
+          "description": "Offices, retail spaces, restaurants and mixed developments. We meet timelines because we understand the cost of every delay.",
+          "tags": ["Offices", "Restaurants", "Retail"],
+          "range": "Q 200,000 – Q 5,000,000"
+        },
+        {
+          "id": "design_build",
+          "title": "Design + Build",
+          "description": "Architecture, engineering and execution under a single contract. Reducing coordination time and eliminating inconsistencies between plans and site.",
+          "tags": ["Design", "Engineering", "Execution"],
+          "range": "Q 400,000 – Q 3,000,000"
+        },
+        {
+          "id": "industrial",
+          "title": "Industrial Construction",
+          "description": "Warehouses, industrial facilities and production plants. Efficient structures focused on operational functionality.",
+          "tags": ["Warehouses", "Facilities", "Plants"],
+          "range": "Q 500,000 – Q 8,000,000"
+        },
+        {
+          "id": "finishing",
+          "title": "Premium Finishes",
+          "description": "Flooring, ceilings, fine carpentry, paint and closing details. The last 20% that makes the visual difference.",
+          "tags": ["Flooring", "Carpentry", "Paint"],
+          "range": "Q 30,000 – Q 300,000"
+        }
+      ],
+      "cta": "View all services"
+    },
+    "process": {
+      "eyebrow": "How we work",
+      "title": "A clear process from the first contact",
+      "steps": [
+        {
+          "number": "01",
+          "title": "Initial consultation",
+          "description": "We evaluate your project at no cost. Within 24 hours you have a response and a dedicated advisor who will be your single point of contact throughout."
+        },
+        {
+          "number": "02",
+          "title": "Planning & budget",
+          "description": "We prepare plans, technical specifications and a detailed budget. No surprises: every line item is documented before we break ground."
+        },
+        {
+          "number": "03",
+          "title": "Execution",
+          "description": "We build with daily supervision. You receive progress updates, photos and access to your client portal in real time."
+        },
+        {
+          "number": "04",
+          "title": "Delivery & warranty",
+          "description": "Formal handover with detailed walkthrough, resolved punch list and work warranty. Your space, ready to move in."
+        }
+      ]
+    },
+    "portfolio": {
+      "eyebrow": "Portfolio",
+      "title": "Projects that speak for themselves",
+      "cta": "View full portfolio",
+      "projects": [
+        {
+          "id": 1,
+          "title": "Los Cipresales Residence",
+          "type": "Residential Construction",
+          "location": "Carretera a El Salvador",
+          "area": "480 m²",
+          "duration": "14 months"
+        },
+        {
+          "id": 2,
+          "title": "Torre Norte Corporate Offices",
+          "type": "Commercial Remodeling",
+          "location": "Zone 10, Guatemala City",
+          "area": "1,200 m²",
+          "duration": "6 months"
+        },
+        {
+          "id": 3,
+          "title": "Mercado Central Restaurant",
+          "type": "Commercial Construction",
+          "location": "Antigua Guatemala",
+          "area": "350 m²",
+          "duration": "5 months"
+        }
+      ]
+    },
+    "before_after": {
+      "eyebrow": "Transformations",
+      "title": "Before and after says it all",
+      "before_label": "Before",
+      "after_label": "After",
+      "drag_hint": "Drag to compare"
+    },
+    "pricing": {
+      "eyebrow": "Transparent pricing",
+      "title": "No surprises. Real ranges by project type.",
+      "subtitle": "We publish ranges based on executed projects. The exact quote depends on specifications, materials and location. Always free.",
+      "disclaimer": "* Prices in Guatemalan Quetzales (GTQ). Include standard labor and materials. Premium finishes are additional.",
+      "cta": "Get a free estimate",
+      "items": [
+        {
+          "id": "basic",
+          "category": "REMODELING",
+          "title": "Partial remodeling",
+          "description": "Kitchen, bathrooms or specific spaces in an existing home.",
+          "range_gtq": "Q 50,000 – Q 150,000",
+          "range_usd": "$ 6,500 – $ 19,500",
+          "duration": "1 – 3 months",
+          "highlights": ["Floor plans included", "Assigned site foreman", "1-year warranty"]
+        },
+        {
+          "id": "mid",
+          "category": "RESIDENTIAL",
+          "title": "Full remodel or new home",
+          "description": "Complete home remodeling or new construction up to 300 m².",
+          "range_gtq": "Q 200,000 – Q 900,000",
+          "range_usd": "$ 26,000 – $ 117,000",
+          "duration": "3 – 10 months",
+          "highlights": ["Architectural design", "Daily supervision", "Client portal", "2-year warranty"],
+          "featured": true
+        },
+        {
+          "id": "large",
+          "category": "COMMERCIAL / INDUSTRIAL",
+          "title": "Large-scale project",
+          "description": "Commercial, industrial or large residential developments.",
+          "range_gtq": "Q 1,000,000+",
+          "range_usd": "$ 130,000+",
+          "duration": "To be defined",
+          "highlights": ["Dedicated project team", "Weekly financial reports", "ERP integrations", "Contractual warranty"]
+        }
+      ]
+    },
+    "testimonials": {
+      "eyebrow": "Clients",
+      "title": "What those who trust us say",
+      "items": [
+        {
+          "quote": "They met the schedule to the week. They've worked with us for years on every company expansion.",
+          "author": "Carlos Mendoza",
+          "role": "Director of Operations",
+          "company": "Grupo Empresarial CM"
+        },
+        {
+          "quote": "The remodeling of our home came out exactly as we imagined. The progress portal gave us peace of mind.",
+          "author": "Ana Lucía Herrera",
+          "role": "Owner",
+          "company": "Private residence, Zone 15"
+        },
+        {
+          "quote": "Of all the contractors we evaluated, Grucore was the only one that presented a line-item budget from the start.",
+          "author": "Roberto Cifuentes",
+          "role": "General Manager",
+          "company": "La Corriente Restaurant"
+        }
+      ]
+    },
+    "cta": {
+      "eyebrow": "Have a project in mind?",
+      "title": "Free estimate in 24 hours",
+      "subtitle": "No commitment. A specialized advisor reviews your case and delivers a real estimate, not a generic range.",
+      "button": "Start my estimate",
+      "secondary": "or call +502 5712-2606"
+    }
+  },
+  "Navigation": {
+    "services": "Services",
+    "projects": "Projects",
+    "about": "About",
+    "contact": "Contact",
+    "quote": "Get a quote",
+    "portal": "Client portal",
+    "admin": "Internal panel"
+  },
+  "Common": {
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "retry": "Retry",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "view": "View",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "search": "Search",
+    "filter": "Filter",
+    "export": "Export",
+    "currency": { "gtq": "GTQ", "usd": "USD" }
+  }
+}

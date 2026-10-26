@@ -1,0 +1,241 @@
+{
+  "Metadata": {
+    "title": "Grucore — Construcción y Remodelación en Guatemala",
+    "description": "Empresa de construcción y remodelación premium en Guatemala. Proyectos residenciales y comerciales con los más altos estándares de calidad."
+  },
+  "Home": {
+    "meta": {
+      "title": "Grucore — Construcción y Remodelación en Guatemala",
+      "description": "Construimos espacios extraordinarios en Guatemala. Proyectos residenciales, comerciales e industriales con estándares premium."
+    },
+    "hero": {
+      "eyebrow": "Empresa guatemalteca de construcción y remodelación premium",
+      "headline_1": "CONSTRUIMOS",
+      "headline_2": "ESPACIOS",
+      "headline_3": "EXTRAORDINARIOS",
+      "cta_primary": "Solicitar cotización gratuita",
+      "cta_secondary": "Ver proyectos"
+    },
+    "trust": {
+      "projects_value": "50",
+      "projects_label": "proyectos entregados",
+      "years_value": "10",
+      "years_label": "años de experiencia",
+      "response_value": "24",
+      "response_label": "horas de respuesta",
+      "advisor_value": "1",
+      "advisor_label": "asesor único asignado"
+    },
+    "services": {
+      "eyebrow": "Nuestros servicios",
+      "title": "Soluciones para cada tipo de proyecto",
+      "subtitle": "Desde una remodelación residencial hasta un desarrollo comercial a gran escala, nuestro equipo cubre todo el ciclo del proyecto.",
+      "items": [
+        {
+          "id": "residential",
+          "title": "Construcción Residencial",
+          "description": "Diseñamos y construimos la residencia que imaginaste, con materiales de primera y tiempos cumplidos.",
+          "tags": ["Casas", "Residencias", "Townhouses"],
+          "range": "Q 300,000 – Q 2,500,000"
+        },
+        {
+          "id": "remodeling",
+          "title": "Remodelación Interior",
+          "description": "Transformamos espacios existentes con criterio de diseño y ejecución limpia, sin interrumpir tu rutina más de lo necesario.",
+          "tags": ["Cocinas", "Baños", "Sala", "Completa"],
+          "range": "Q 50,000 – Q 500,000"
+        },
+        {
+          "id": "commercial",
+          "title": "Proyectos Comerciales",
+          "description": "Oficinas, locales, restaurantes y desarrollos mixtos. Cumplimos cronogramas porque entendemos el costo de cada día de retraso.",
+          "tags": ["Oficinas", "Restaurantes", "Retail"],
+          "range": "Q 200,000 – Q 5,000,000"
+        },
+        {
+          "id": "design_build",
+          "title": "Diseño y Construcción",
+          "description": "Arquitectura, ingeniería y ejecución bajo un solo contrato. Reducimos tiempos de coordinación y evitamos inconsistencias entre planos y obra.",
+          "tags": ["Diseño", "Ingeniería", "Ejecución"],
+          "range": "Q 400,000 – Q 3,000,000"
+        },
+        {
+          "id": "industrial",
+          "title": "Construcción Industrial",
+          "description": "Bodegas, naves industriales y plantas de producción. Estructuras eficientes con enfoque en funcionalidad operativa.",
+          "tags": ["Bodegas", "Naves", "Plantas"],
+          "range": "Q 500,000 – Q 8,000,000"
+        },
+        {
+          "id": "finishing",
+          "title": "Acabados Premium",
+          "description": "Pisos, cielos, carpintería fina, pintura y detalles de cierre. El último 20% que marca la diferencia visual.",
+          "tags": ["Pisos", "Carpintería", "Pintura"],
+          "range": "Q 30,000 – Q 300,000"
+        }
+      ],
+      "cta": "Ver todos los servicios"
+    },
+    "process": {
+      "eyebrow": "Cómo trabajamos",
+      "title": "Un proceso claro desde el primer contacto",
+      "steps": [
+        {
+          "number": "01",
+          "title": "Consulta inicial",
+          "description": "Evaluamos tu proyecto sin costo. En 24 horas tienes una respuesta y un asesor asignado que será tu punto de contacto durante todo el proceso."
+        },
+        {
+          "number": "02",
+          "title": "Planificación y presupuesto",
+          "description": "Elaboramos planos, especificaciones técnicas y un presupuesto detallado. Sin sorpresas: cada ítem queda documentado antes de iniciar."
+        },
+        {
+          "number": "03",
+          "title": "Ejecución",
+          "description": "Construimos con supervisión diaria. Recibes actualizaciones de avance, fotos y acceso a tu portal de cliente en tiempo real."
+        },
+        {
+          "number": "04",
+          "title": "Entrega y garantía",
+          "description": "Entrega formal con recorrido detallado, lista de pendientes resuelta y garantía de trabajo. Tu espacio, listo para habitarlo."
+        }
+      ]
+    },
+    "portfolio": {
+      "eyebrow": "Portafolio",
+      "title": "Proyectos que hablan por sí solos",
+      "cta": "Ver portafolio completo",
+      "projects": [
+        {
+          "id": 1,
+          "title": "Residencia Los Cipresales",
+          "type": "Construcción Residencial",
+          "location": "Carretera a El Salvador",
+          "area": "480 m²",
+          "duration": "14 meses"
+        },
+        {
+          "id": 2,
+          "title": "Oficinas Corporativas Torre Norte",
+          "type": "Remodelación Comercial",
+          "location": "Zona 10, Ciudad de Guatemala",
+          "area": "1,200 m²",
+          "duration": "6 meses"
+        },
+        {
+          "id": 3,
+          "title": "Restaurante Mercado Central",
+          "type": "Construcción Comercial",
+          "location": "Antigua Guatemala",
+          "area": "350 m²",
+          "duration": "5 meses"
+        }
+      ]
+    },
+    "before_after": {
+      "eyebrow": "Transformaciones",
+      "title": "El antes y el después lo dice todo",
+      "before_label": "Antes",
+      "after_label": "Después",
+      "drag_hint": "Arrastra para comparar"
+    },
+    "pricing": {
+      "eyebrow": "Transparencia de precios",
+      "title": "Sin sorpresas. Rangos reales por tipo de proyecto.",
+      "subtitle": "Publicamos rangos basados en proyectos ejecutados. La cotización exacta depende de especificaciones, materiales y ubicación. Siempre sin costo.",
+      "disclaimer": "* Precios en Quetzales (GTQ). Incluyen mano de obra y materiales estándar. Acabados premium tienen costo adicional.",
+      "cta": "Obtener cotización gratuita",
+      "items": [
+        {
+          "id": "basic",
+          "category": "REMODELACIÓN",
+          "title": "Remodelación parcial",
+          "description": "Cocina, baños o espacios puntuales de una vivienda existente.",
+          "range_gtq": "Q 50,000 – Q 150,000",
+          "range_usd": "$ 6,500 – $ 19,500",
+          "duration": "1 – 3 meses",
+          "highlights": ["Planimetría incluida", "Maestro de obra asignado", "Garantía 1 año"]
+        },
+        {
+          "id": "mid",
+          "category": "RESIDENCIAL",
+          "title": "Remodelación completa o casa nueva",
+          "description": "Remodelación total de vivienda o construcción nueva hasta 300 m².",
+          "range_gtq": "Q 200,000 – Q 900,000",
+          "range_usd": "$ 26,000 – $ 117,000",
+          "duration": "3 – 10 meses",
+          "highlights": ["Diseño arquitectónico", "Supervisión diaria", "Portal de cliente", "Garantía 2 años"],
+          "featured": true
+        },
+        {
+          "id": "large",
+          "category": "COMERCIAL / INDUSTRIAL",
+          "title": "Proyecto mayor",
+          "description": "Desarrollos comerciales, industriales o residenciales de gran escala.",
+          "range_gtq": "Q 1,000,000+",
+          "range_usd": "$ 130,000+",
+          "duration": "A definir",
+          "highlights": ["Equipo de proyecto dedicado", "Reportes financieros semanales", "Integraciones ERP", "Garantía por contrato"]
+        }
+      ]
+    },
+    "testimonials": {
+      "eyebrow": "Clientes",
+      "title": "Lo que dicen quienes ya confían en nosotros",
+      "items": [
+        {
+          "quote": "Cumplieron el cronograma a la semana. Llevan años trabajando con nosotros en cada expansión de la empresa.",
+          "author": "Carlos Mendoza",
+          "role": "Director de Operaciones",
+          "company": "Grupo Empresarial CM"
+        },
+        {
+          "quote": "La remodelación de nuestra casa quedó exactamente como la imaginamos. El portal de seguimiento nos daba paz mental.",
+          "author": "Ana Lucía Herrera",
+          "role": "Propietaria",
+          "company": "Residencia privada, Zona 15"
+        },
+        {
+          "quote": "De todos los contratistas que evaluamos, Grucore fue el único que presentó un presupuesto detallado ítem por ítem desde el inicio.",
+          "author": "Roberto Cifuentes",
+          "role": "Gerente General",
+          "company": "Restaurante La Corriente"
+        }
+      ]
+    },
+    "cta": {
+      "eyebrow": "¿Tienes un proyecto en mente?",
+      "title": "Cotización gratuita en 24 horas",
+      "subtitle": "Sin compromiso. Un asesor especializado revisa tu caso y te entrega una estimación real, no un rango genérico.",
+      "button": "Iniciar mi cotización",
+      "secondary": "o llama al +502 5712-2606"
+    }
+  },
+  "Navigation": {
+    "services": "Servicios",
+    "projects": "Proyectos",
+    "about": "Nosotros",
+    "contact": "Contacto",
+    "quote": "Cotizar",
+    "portal": "Portal cliente",
+    "admin": "Panel interno"
+  },
+  "Common": {
+    "loading": "Cargando...",
+    "error": "Ha ocurrido un error",
+    "retry": "Reintentar",
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "view": "Ver",
+    "back": "Volver",
+    "next": "Siguiente",
+    "previous": "Anterior",
+    "search": "Buscar",
+    "filter": "Filtrar",
+    "export": "Exportar",
+    "currency": { "gtq": "GTQ", "usd": "USD" }
+  }
+}

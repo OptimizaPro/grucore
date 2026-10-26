@@ -1,0 +1,68 @@
+/* ── BlockInline: ajuste de columnas ──────────────────────── */
+/* El related_name='blocks' hace que el prefix del formset sea "blocks" */
+
+/* Forzar layout fijo para que los anchos se respeten */
+#blocks-group table,
+.dynamic-blocks table {
+    table-layout: fixed;
+    width: 100%;
+}
+
+/* Orden — muy estrecho */
+#blocks-group .column-order,
+#blocks-group .field-order {
+    width: 60px !important;
+    min-width: 60px !important;
+}
+
+/* Key — estrecho */
+#blocks-group .column-key,
+#blocks-group .field-key {
+    width: 110px !important;
+    min-width: 110px !important;
+}
+
+/* Label — medio */
+#blocks-group .column-label,
+#blocks-group .field-label {
+    width: 130px !important;
+    min-width: 130px !important;
+}
+
+/* Tipo — medio */
+#blocks-group .column-block_type,
+#blocks-group .field-block_type {
+    width: 110px !important;
+    min-width: 110px !important;
+}
+
+/* Valor ES y Valor EN — se reparten el espacio restante */
+#blocks-group .column-value_es,
+#blocks-group .field-value_es,
+#blocks-group .column-value_en,
+#blocks-group .field-value_en {
+    width: auto !important;
+    min-width: 180px !important;
+}
+
+/* Inputs de order y key — sobrescribir clases Tailwind de Unfold */
+#blocks-group .field-order input,
+#blocks-group .field-key input {
+    min-width: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    padding-left: 0.375rem !important;
+    padding-right: 0.375rem !important;
+    padding-top: 0.25rem !important;
+    padding-bottom: 0.25rem !important;
+    font-size: 0.75rem !important;
+    box-sizing: border-box;
+}
+
+/* Textareas — ancho completo de su celda */
+#blocks-group .field-value_es textarea,
+#blocks-group .field-value_en textarea {
+    width: 100% !important;
+    min-width: 0 !important;
+    box-sizing: border-box;
+}

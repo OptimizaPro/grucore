@@ -1,0 +1,32 @@
+http://localhost:8000/admin/
+usuario: nalvarez
+password: $$Grucore28&&
+email: nalvarez@grucore.com
+
+
+  ┌──────────┬──────────────────────────────┐
+  │          │     DEMO CLIENTE             │
+  ├──────────┼──────────────────────────────┤
+  │ URL      │ http://localhost:3001/portal │
+  ├──────────┼──────────────────────────────┤
+  │ Email    │ cliente@demo.grucore.com     │
+  ├──────────┼──────────────────────────────┤
+  │ Password │ Demo1234!                    │
+  └──────────┴──────────────────────────────┘
+
+ docker compose up --build
+  - Staff: http://localhost:3000/erp/login
+  - Cliente: http://localhost:3000/portal
+  - Django admin: http://localhost:8000/admin
+
+  Tareas Pendientes
+  - Actualizar Tour Bienvenida y Tour Visual en ERP y portal del Cliente
+  - Crear Skill para replicar esta aplicación, actualmente sirve para nuestra empresa Grucore pero podria comercializarse 
+  como White Label o SaaS
+
+  Portal Cliente
+  - Valorar añadir una sección de Colaboradores/Trabajadores para B2B seguramente la empresa cliente lo necesitara
+
+  ERP 
+  - Valorar añadir Chat Room para la comunicación interna https://flowbite.com/application-ui/demo/pages/chat-room/
+  - Considerar añadir Cuenta de Resultados (P&L) a la aplicación https://chatgpt.com/c/6ad6e084-6520-83e8-891a-f224539b0c4b

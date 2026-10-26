@@ -1,0 +1,36 @@
+# ─── Entorno ──────────────────────────────────────────────────────────────────
+.env
+.env.local
+.env.*.local
+
+# ─── Next.js ──────────────────────────────────────────────────────────────────
+frontend/.next/
+frontend/out/
+frontend/node_modules/
+frontend/.turbo/
+
+# ─── Python / Django ──────────────────────────────────────────────────────────
+backend/__pycache__/
+backend/**/__pycache__/
+backend/**/*.pyc
+backend/**/*.pyo
+backend/.venv/
+backend/venv/
+backend/staticfiles/
+backend/media/
+backend/*.egg-info/
+backend/.pytest_cache/
+
+# ─── Docker ───────────────────────────────────────────────────────────────────
+.docker/
+
+# ─── OS ───────────────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ─── IDE ──────────────────────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo

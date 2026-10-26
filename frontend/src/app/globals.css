@@ -1,0 +1,86 @@
+@import "tailwindcss";
+
+@theme {
+  /* ─── Colores base ─────────────────────────────────────────────────────── */
+  --color-base:        #1A2530;
+  --color-surface:     #1F2D3A;
+  --color-surface-2:   #27384A;
+  --color-bone:        #F4F1EB;
+  --color-stone:       #E8E4DC;
+
+  /* ─── Acento principal — naranja Grucore ─────────────────────────────── */
+  --color-brand-light: #FF9E7A;
+  --color-brand:       #FF6B35;
+  --color-brand-hover: #FF8557;
+  --color-brand-dark:  #C4501F;
+  --color-brand-muted: #7A3420;
+  /* aliases legacy */
+  --color-amber-300:   #FF9E7A;
+  --color-amber-400:   #FF8557;
+  --color-amber-500:   #FF6B35;
+  --color-amber-600:   #C4501F;
+  --color-amber-700:   #7A3420;
+
+  /* ─── Texto ────────────────────────────────────────────────────────────── */
+  --color-text-primary:   #F0EDE8;
+  --color-text-secondary: #8A95A5;
+  --color-text-inverse:   #1A1F2E;
+
+  /* ─── Semánticos ──────────────────────────────────────────────────────── */
+  --color-success:  #4A9E6B;
+  --color-warning:  #D4882A;
+  --color-danger:   #C44B3A;
+  --color-info:     #3B7FC4;
+
+  /* ─── Tipografía ──────────────────────────────────────────────────────── */
+  --font-display: 'Montserrat', sans-serif;
+  --font-body:    'Roboto', sans-serif;
+  --font-mono:    'Space Mono', monospace;
+
+  /* ─── Border radius ───────────────────────────────────────────────────── */
+  --radius-sm:  0.25rem;
+  --radius-md:  0.5rem;
+  --radius-lg:  0.75rem;
+  --radius-xl:  1rem;
+  --radius-2xl: 1.5rem;
+}
+
+@layer base {
+  :root {
+    color-scheme: dark;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  * {
+    border-color: var(--color-surface-2);
+  }
+
+  body {
+    background-color: var(--color-base);
+    color: var(--color-text-primary);
+    font-family: var(--font-body);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+  }
+
+  /* Scrollbar sutil */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--color-surface); }
+  ::-webkit-scrollbar-thumb { background: var(--color-surface-2); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--color-amber-600); }
+
+  /* Focus ring */
+  :focus-visible {
+    outline: 2px solid var(--color-amber-500);
+    outline-offset: 2px;
+  }
+}
