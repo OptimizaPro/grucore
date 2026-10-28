@@ -49,17 +49,18 @@ const nextConfig: NextConfig = {
   experimental: {
     optimizePackageImports: ['lucide-react', 'framer-motion'],
   },
-  async rewrites() {
-    const backend = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000'
+  async redirects() {
+    const adminDomain = process.env.ADMIN_DOMAIN ?? process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000'
     return [
-      // Django admin — proxy para mantener el dominio en grucore.com
       {
         source: '/djamasy',
-        destination: `${backend}/djamasy/`,
+        destination: `${adminDomain}/djamasy/`,
+        permanent: false,
       },
       {
         source: '/djamasy/:path*',
-        destination: `${backend}/djamasy/:path*`,
+        destination: `${adminDomain}/djamasy/:path*`,
+        permanent: false,
       },
     ]
   },
