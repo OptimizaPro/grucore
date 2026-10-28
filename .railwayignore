@@ -1,0 +1,23 @@
+# Generated files
+backend/staticfiles/
+backend/media/
+backend/__pycache__/
+backend/**/__pycache__/
+backend/**/*.pyc
+backend/**/*.pyo
+backend/*.egg-info/
+backend/.pytest_cache/
+backend/fixtures/service_images/
+
+# Entornos virtuales
+backend/.venv/
+backend/venv/
+
+# IDE
+.vscode/
+.idea/
+
+# Node
+node_modules/
+frontend/node_modules/
+frontend/.next/

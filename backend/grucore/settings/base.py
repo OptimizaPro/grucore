@@ -131,7 +131,7 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 # ─── Storage de archivos (Supabase S3-compatible) ────────────────────────────
-USE_S3 = env.bool('USE_S3', default=bool(env('SUPABASE_S3_ACCESS_KEY', default='')))
+USE_S3 = env.bool('USE_S3', default=bool(env('SUPABASE_ACCESS_KEY_ID', default='')))
 
 if USE_S3:
     _S3_BUCKET = env('SUPABASE_S3_BUCKET', default='grucore-media')
@@ -141,8 +141,8 @@ if USE_S3:
             'OPTIONS': {
                 'endpoint_url': env('SUPABASE_S3_ENDPOINT'),
                 'bucket_name':  _S3_BUCKET,
-                'access_key':   env('SUPABASE_S3_ACCESS_KEY'),
-                'secret_key':   env('SUPABASE_S3_SECRET_KEY'),
+                'access_key':   env('SUPABASE_ACCESS_KEY_ID'),
+                'secret_key':   env('SUPABASE_SECRET_ACCESS_KEY'),
                 'region_name':  env('SUPABASE_S3_REGION', default='us-east-1'),
                 'default_acl':  'public-read',
                 'file_overwrite': False,
@@ -152,7 +152,7 @@ if USE_S3:
             'BACKEND': 'whitenoise.storage.CompressedManifestStaticFilesStorage',
         },
     }
-    MEDIA_URL = f"{env('SUPABASE_URL')}/storage/v1/object/public/{_S3_BUCKET}/"
+    MEDIA_URL = f"https://rvprwttonwjolnwwrshp.supabase.co/storage/v1/object/public/{_S3_BUCKET}/"
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 

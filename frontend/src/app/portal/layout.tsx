@@ -2,6 +2,8 @@ import type { Metadata } from 'next'
 import PortalOnboarding from '@/components/portal/PortalOnboarding'
 import ERPToaster from '@/components/erp/ERPToaster'
 
+export const dynamic = 'force-dynamic'
+
 export const metadata: Metadata = {
   title: { default: 'Portal Cliente — Grucore', template: '%s | Portal Grucore' },
   description: 'Portal de seguimiento de proyectos para clientes de Grucore.',

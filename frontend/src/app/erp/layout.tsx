@@ -3,6 +3,8 @@ import '../globals.css'
 import ERPToaster from '@/components/erp/ERPToaster'
 import ERPOnboarding from '@/components/erp/ERPOnboarding'
 
+export const dynamic = 'force-dynamic'
+
 export const metadata: Metadata = {
   title: { default: 'Panel ERP — Grucore', template: '%s | ERP Grucore' },
   description: 'Panel interno de gestión de proyectos para el equipo de Grucore.',
