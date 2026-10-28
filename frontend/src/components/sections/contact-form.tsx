@@ -52,7 +52,7 @@ export function ContactForm({ data, locale }: { data: ContactCMSData; locale: st
   }
 
   const inputClass =
-    'w-full bg-[#1A2530] border border-[#27384A] rounded-lg px-4 py-3 text-sm text-[#F0EDE8] placeholder:text-[#4A5568] focus:outline-none focus:border-[#FF6B35]/60 transition-colors'
+    'w-full bg-[#1A2530] border border-[#27384A] rounded-lg px-4 py-3 text-sm text-[#F0EDE8] placeholder:text-[#8A95A5] focus:outline-none focus:border-[#FF6B35]/60 transition-colors appearance-none'
   const labelClass = 'block text-xs text-[#8A95A5] mb-1.5 font-medium'
 
   const contactCards = [
@@ -182,10 +182,15 @@ export function ContactForm({ data, locale }: { data: ContactCMSData; locale: st
                       </div>
                       <div>
                         <label className={labelClass}>{data.form.service}</label>
-                        <select value={form.service} onChange={(e) => setForm({ ...form, service: e.target.value })} className={inputClass}>
-                          <option value="" disabled>{locale === 'es' ? 'Selecciona...' : 'Select...'}</option>
-                          {data.services.map((s) => <option key={s} value={s}>{s}</option>)}
-                        </select>
+                        <div className="relative">
+                          <select value={form.service} onChange={(e) => setForm({ ...form, service: e.target.value })} className={inputClass + ' pr-10'}>
+                            <option value="" disabled>{locale === 'es' ? 'Selecciona...' : 'Select...'}</option>
+                            {data.services.map((s) => <option key={s} value={s}>{s}</option>)}
+                          </select>
+                          <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#8A95A5]">
+                            <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 4l4 4 4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+                          </span>
+                        </div>
                       </div>
                     </div>
 
@@ -212,7 +217,7 @@ export function ContactForm({ data, locale }: { data: ContactCMSData; locale: st
                       )}
                     </button>
 
-                    <p className="text-xs text-[#4A5568] text-center">{data.form.footerTrust}</p>
+                    <p className="text-xs text-[#8A95A5] text-center">{data.form.footerTrust}</p>
                   </form>
                 )}
               </div>
