@@ -87,6 +87,21 @@ class CompanySettings(models.Model):
     name        = models.CharField(max_length=200, default='Grucore', verbose_name='Nombre de empresa')
     tagline     = models.CharField(max_length=300, blank=True, default='Construcción y Remodelación Premium',
                                    verbose_name='Tagline')
+    description = models.CharField(max_length=400, blank=True, verbose_name='Descripción (footer)',
+                                   help_text='Texto breve que aparece bajo el logo en el footer del sitio público.')
+
+    # Contacto público
+    phone       = models.CharField(max_length=30,  blank=True, verbose_name='Teléfono')
+    email       = models.EmailField(blank=True, verbose_name='Email de contacto')
+    address     = models.CharField(max_length=200, blank=True, verbose_name='Dirección')
+
+    # Redes sociales
+    whatsapp    = models.CharField(max_length=30,  blank=True, verbose_name='WhatsApp (número con código de país)',
+                                   help_text='Solo números, ej: 50257122606')
+    instagram   = models.URLField(blank=True, verbose_name='Instagram URL')
+    linkedin    = models.URLField(blank=True, verbose_name='LinkedIn URL')
+    facebook    = models.URLField(blank=True, verbose_name='Facebook URL')
+
     updated_at  = models.DateTimeField(auto_now=True)
 
     class Meta:

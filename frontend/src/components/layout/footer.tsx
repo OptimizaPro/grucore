@@ -7,19 +7,29 @@ export async function Footer() {
   const t     = await getTranslations('Navigation')
   const year  = new Date().getFullYear()
   const brand = await fetchCompanySettings()
-  const logoSrc = brand.logo_url ?? '/Grucore-white.png'
+
+  const logoSrc   = brand.logo_url ?? '/Grucore-white.png'
+  const phone     = brand.phone     || '+502 2000-0000'
+  const email     = brand.email     || 'info@grucore.com'
+  const address   = brand.address   || 'Ciudad de Guatemala, Guatemala'
+  const desc      = brand.description || 'Empresa guatemalteca de construcción y remodelación premium. Más de 10 años construyendo espacios que perduran.'
+  const whatsapp  = brand.whatsapp  || '50220000000'
+  const instagram = brand.instagram || 'https://instagram.com/grucore'
+  const linkedin  = brand.linkedin  || 'https://linkedin.com/company/grucore'
+  const facebook  = brand.facebook  || ''
 
   return (
     <footer className="bg-[#131D28] border-t border-[#27384A]">
       <div className="max-w-7xl mx-auto px-6 py-16">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
+
           {/* Brand */}
           <div className="md:col-span-2 space-y-4">
             <div>
-              <Link href="/" aria-label="Grucore — Inicio">
+              <Link href="/" aria-label={`${brand.name} — Inicio`}>
                 <Image
                   src={logoSrc}
-                  alt="Grucore — Construcción y Remodelaciones"
+                  alt={`${brand.name} — Construcción y Remodelaciones`}
                   width={520}
                   height={60}
                   className="h-20 w-auto"
@@ -28,13 +38,12 @@ export async function Footer() {
                 />
               </Link>
               <p className="mt-4 text-sm text-[#8A95A5] leading-relaxed max-w-sm">
-                Empresa guatemalteca de construcción y remodelación premium. Más de 10 años
-                construyendo espacios que perduran.
+                {desc}
               </p>
             </div>
             <div className="flex gap-4 pt-2">
               <a
-                href="https://wa.me/50220000000"
+                href={`https://wa.me/${whatsapp.replace(/\D/g, '')}`}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-[#8A95A5] hover:text-[#FF6B35] transition-colors"
@@ -45,7 +54,7 @@ export async function Footer() {
                 </svg>
               </a>
               <a
-                href="https://instagram.com/grucore"
+                href={instagram}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-[#8A95A5] hover:text-[#FF6B35] transition-colors"
@@ -58,7 +67,7 @@ export async function Footer() {
                 </svg>
               </a>
               <a
-                href="https://linkedin.com/company/grucore"
+                href={linkedin}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-[#8A95A5] hover:text-[#FF6B35] transition-colors"
@@ -70,6 +79,19 @@ export async function Footer() {
                   <circle cx="4" cy="4" r="2" />
                 </svg>
               </a>
+              {facebook && (
+                <a
+                  href={facebook}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[#8A95A5] hover:text-[#FF6B35] transition-colors"
+                  aria-label="Facebook"
+                >
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
+                  </svg>
+                </a>
+              )}
             </div>
           </div>
 
@@ -108,12 +130,12 @@ export async function Footer() {
               Contacto
             </h3>
             <div className="flex flex-col gap-3 text-sm text-[#8A95A5]">
-              <p>Ciudad de Guatemala, Guatemala</p>
-              <a href="tel:+50220000000" className="hover:text-[#FF6B35] transition-colors">
-                +502 2000-0000
+              <p>{address}</p>
+              <a href={`tel:${phone.replace(/\s/g, '')}`} className="hover:text-[#FF6B35] transition-colors">
+                {phone}
               </a>
-              <a href="mailto:info@grucore.com" className="hover:text-[#FF6B35] transition-colors">
-                info@grucore.com
+              <a href={`mailto:${email}`} className="hover:text-[#FF6B35] transition-colors">
+                {email}
               </a>
               <div className="pt-1">
                 <a
@@ -130,7 +152,7 @@ export async function Footer() {
         {/* Bottom bar */}
         <div className="mt-16 pt-8 pb-12 border-t border-[#27384A] flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-xs text-[#8A95A5]">
-            © {year} Grucore. Todos los derechos reservados.
+            © {year} {brand.name}. Todos los derechos reservados.
           </p>
           <div className="flex gap-6 text-xs text-[#8A95A5]">
             <Link href="/privacy" className="hover:text-[#F0EDE8] transition-colors">

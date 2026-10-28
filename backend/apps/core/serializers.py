@@ -8,7 +8,12 @@ class CompanySettingsSerializer(serializers.ModelSerializer):
 
     class Meta:
         model  = CompanySettings
-        fields = ['name', 'tagline', 'logo_url', 'logo_light_url', 'updated_at']
+        fields = [
+            'name', 'tagline', 'description',
+            'phone', 'email', 'address',
+            'whatsapp', 'instagram', 'linkedin', 'facebook',
+            'logo_url', 'logo_light_url', 'updated_at',
+        ]
         read_only_fields = ['logo_url', 'logo_light_url', 'updated_at']
 
     def get_logo_url(self, obj):

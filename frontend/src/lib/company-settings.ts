@@ -13,6 +13,14 @@ const API_URL = process.env.NEXT_PUBLIC_API_URL ?? ''
 export interface CompanySettings {
   name:           string
   tagline:        string
+  description:    string
+  phone:          string
+  email:          string
+  address:        string
+  whatsapp:       string
+  instagram:      string
+  linkedin:       string
+  facebook:       string
   logo_url:       string | null
   logo_light_url: string | null
   updated_at:     string
@@ -21,6 +29,14 @@ export interface CompanySettings {
 const FALLBACK: CompanySettings = {
   name:           'Grucore',
   tagline:        'Construcción y Remodelación Premium',
+  description:    '',
+  phone:          '',
+  email:          '',
+  address:        '',
+  whatsapp:       '',
+  instagram:      '',
+  linkedin:       '',
+  facebook:       '',
   logo_url:       null,
   logo_light_url: null,
   updated_at:     '',
