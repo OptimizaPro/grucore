@@ -54,8 +54,8 @@ const nextConfig: NextConfig = {
     return [
       // Django admin — redirige al backend directamente (evita loops de proxy)
       {
-        source: '/admin/:path*',
-        destination: `${backend}/admin/:path*`,
+        source: '/djamasy/:path*',
+        destination: `${backend}/djamasy/:path*`,
         permanent: false,
       },
     ]

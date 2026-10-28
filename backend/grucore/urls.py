@@ -36,7 +36,7 @@ api_v1_patterns = [
 ]
 
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path('djamasy/', admin.site.urls),
     path('api/', include(api_v1_patterns)),
 
     # ── API Docs ──────────────────────────────────────────────────────────────
