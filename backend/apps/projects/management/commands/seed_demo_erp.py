@@ -607,16 +607,15 @@ class Command(BaseCommand):
         # ── 13. Punch Items ───────────────────────────────────────────────────
         # status: open, in_progress, resolved, closed
         # priority: low, medium, high, critical
-        # category: correction, observation, non_conformity, risk, other
         punch_data = [
-            ('Fisura superficial en pared noreste dormitorio 2',   'Dormitorio 2 — pared noreste', 'high',   'non_conformity'),
-            ('Nivelación pendiente en piso del área de servicio',  'Área de servicio — piso',      'medium', 'correction'),
-            ('Marco de ventana sala sin sellado perimetral',       'Sala — ventana principal',     'medium', 'correction'),
-            ('Toma de corriente doble sin tapa en corredor',       'Corredor segundo nivel',        'low',    'observation'),
-            ('Pintura de rodapié faltante en gradas',              'Gradas — rodapié',              'low',    'observation'),
+            ('Fisura superficial en pared noreste dormitorio 2',   'Dormitorio 2 — pared noreste', 'high'),
+            ('Nivelación pendiente en piso del área de servicio',  'Área de servicio — piso',      'medium'),
+            ('Marco de ventana sala sin sellado perimetral',       'Sala — ventana principal',     'medium'),
+            ('Toma de corriente doble sin tapa en corredor',       'Corredor segundo nivel',        'low'),
+            ('Pintura de rodapié faltante en gradas',              'Gradas — rodapié',              'low'),
         ]
 
-        for desc, location, priority, category in punch_data:
+        for desc, location, priority in punch_data:
             PunchItem.objects.get_or_create(
                 project=project,
                 description=desc,
@@ -627,7 +626,6 @@ class Command(BaseCommand):
                     'created_by':  supervisor,
                     'status':      'open',
                     'priority':    priority,
-                    'category':    category,
                     'due_date':    datetime.date(2026, 11, 15),
                 },
             )
