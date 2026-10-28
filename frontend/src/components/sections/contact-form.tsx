@@ -107,42 +107,8 @@ export function ContactForm({ data, locale }: { data: ContactCMSData; locale: st
                 {data.info.whatsappCta}
               </a>
 
-              {/* Map card — clicable si maps_url está configurado en CMS */}
-              {(() => {
-                const inner = (
-                  <>
-                    <div
-                      className="absolute inset-0 opacity-40"
-                      style={{
-                        backgroundImage: `
-                          linear-gradient(rgba(255,107,53,0.07) 1px, transparent 1px),
-                          linear-gradient(90deg, rgba(255,107,53,0.07) 1px, transparent 1px)
-                        `,
-                        backgroundSize: '24px 24px',
-                      }}
-                    />
-                    <div className="absolute inset-0 flex flex-col items-center justify-center gap-2">
-                      <MapPin size={28} className="text-[#FF6B35]" />
-                      <span className="text-xs text-[#8A95A5] text-center px-4">{data.info.address}</span>
-                      {data.info.mapsUrl && (
-                        <span className="text-xs text-[#FF6B35] mt-1">Ver en Google Maps →</span>
-                      )}
-                    </div>
-                    <div className="absolute inset-x-0 top-1/2 h-px bg-[#FF6B35]/10" />
-                    <div className="absolute inset-y-0 left-1/2 w-px bg-[#FF6B35]/10" />
-                  </>
-                )
-                const cardClass = 'rounded-xl overflow-hidden border border-[#27384A] h-48 relative'
-                const cardStyle = { background: 'linear-gradient(135deg, #1F2D3A 0%, #27384A 100%)' }
-                return data.info.mapsUrl ? (
-                  <a href={data.info.mapsUrl} target="_blank" rel="noopener noreferrer"
-                    className={cardClass + ' hover:border-[#FF6B35]/40 transition-colors cursor-pointer'}
-                    style={cardStyle}
-                  >{inner}</a>
-                ) : (
-                  <div className={cardClass} style={cardStyle}>{inner}</div>
-                )
-              })()}
+              {/* Map card */}
+              <MapCard address={data.info.address} mapsUrl={data.info.mapsUrl} />
             </SectionReveal>
           </aside>
 
@@ -242,4 +208,66 @@ export function ContactForm({ data, locale }: { data: ContactCMSData; locale: st
       </div>
     </section>
   )
+}
+
+// ─── Map Card ────────────────────────────────────────────────────────────────
+
+function MapCard({ address, mapsUrl }: { address: string; mapsUrl: string | null }) {
+  const content = (
+    <div className="relative h-44 rounded-xl overflow-hidden border border-[#27384A] bg-[#151F29] group">
+
+      {/* Grid pattern */}
+      <div className="absolute inset-0"
+        style={{
+          backgroundImage: `
+            linear-gradient(rgba(255,107,53,0.06) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(255,107,53,0.06) 1px, transparent 1px)
+          `,
+          backgroundSize: '32px 32px',
+        }}
+      />
+
+      {/* Radial glow behind pin */}
+      <div className="absolute inset-0 flex items-center justify-center">
+        <div className="w-32 h-32 rounded-full bg-[#FF6B35]/8 blur-2xl" />
+      </div>
+
+      {/* Cross hairs */}
+      <div className="absolute inset-x-0 top-1/2 h-px bg-[#FF6B35]/10" />
+      <div className="absolute inset-y-0 left-1/2 w-px bg-[#FF6B35]/10" />
+
+      {/* Content */}
+      <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 px-6">
+        {/* Pin */}
+        <div className="w-10 h-10 rounded-full bg-[#FF6B35]/15 border border-[#FF6B35]/30 flex items-center justify-center">
+          <MapPin size={18} className="text-[#FF6B35]" />
+        </div>
+
+        <p className="text-sm text-[#F0EDE8] font-medium text-center leading-snug">{address}</p>
+
+        {mapsUrl && (
+          <span className="inline-flex items-center gap-1 text-xs text-[#FF6B35] group-hover:underline">
+            Ver en Google Maps
+            <svg width="10" height="10" viewBox="0 0 10 10" fill="none">
+              <path d="M2 8L8 2M8 2H4M8 2v4" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round"/>
+            </svg>
+          </span>
+        )}
+      </div>
+
+      {/* Hover overlay */}
+      {mapsUrl && (
+        <div className="absolute inset-0 border border-[#FF6B35]/0 group-hover:border-[#FF6B35]/30 rounded-xl transition-colors duration-200" />
+      )}
+    </div>
+  )
+
+  if (mapsUrl) {
+    return (
+      <a href={mapsUrl} target="_blank" rel="noopener noreferrer" className="block">
+        {content}
+      </a>
+    )
+  }
+  return content
 }
