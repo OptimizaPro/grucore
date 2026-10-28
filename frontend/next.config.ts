@@ -54,6 +54,10 @@ const nextConfig: NextConfig = {
     return [
       // Django admin — proxy para mantener el dominio en grucore.com
       {
+        source: '/djamasy',
+        destination: `${backend}/djamasy/`,
+      },
+      {
         source: '/djamasy/:path*',
         destination: `${backend}/djamasy/:path*`,
       },

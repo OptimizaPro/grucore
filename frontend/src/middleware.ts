@@ -46,7 +46,7 @@ export const config = {
   matcher: [
     '/portal/dashboard/:path*',
     '/erp/:path*',
-    // i18n — excluye api, _next, archivos estáticos, admin, portal, erp
-    '/((?!api|_next|_vercel|admin|portal|erp|.*\\..*).*)',
+    // i18n — excluye api, _next, archivos estáticos, admin, djamasy, portal, erp
+    '/((?!api|_next|_vercel|admin|djamasy|portal|erp|.*\\..*).*)',
   ],
 }
