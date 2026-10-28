@@ -49,15 +49,15 @@ const nextConfig: NextConfig = {
   experimental: {
     optimizePackageImports: ['lucide-react', 'framer-motion'],
   },
-  async rewrites() {
+  async redirects() {
     const backend = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000'
     return [
-      // Django admin
-      { source: '/admin/:path*', destination: `${backend}/admin/:path*` },
-      // Admin static files (CSS/JS/fonts del admin de Django)
-      { source: '/static/:path*', destination: `${backend}/static/:path*` },
-      // Media files (cuando USE_S3=False)
-      { source: '/media/:path*', destination: `${backend}/media/:path*` },
+      // Django admin — redirige al backend directamente (evita loops de proxy)
+      {
+        source: '/admin/:path*',
+        destination: `${backend}/admin/:path*`,
+        permanent: false,
+      },
     ]
   },
 }
