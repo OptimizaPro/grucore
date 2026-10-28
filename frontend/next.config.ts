@@ -54,11 +54,9 @@ const nextConfig: NextConfig = {
     return [
       // Django admin
       { source: '/admin/:path*', destination: `${backend}/admin/:path*` },
-      // Django API
-      { source: '/api/:path*', destination: `${backend}/api/:path*` },
-      // Admin static files (CSS/JS del admin de Django)
+      // Admin static files (CSS/JS/fonts del admin de Django)
       { source: '/static/:path*', destination: `${backend}/static/:path*` },
-      // Media files
+      // Media files (cuando USE_S3=False)
       { source: '/media/:path*', destination: `${backend}/media/:path*` },
     ]
   },
