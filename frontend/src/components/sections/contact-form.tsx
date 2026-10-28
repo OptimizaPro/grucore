@@ -28,11 +28,12 @@ export interface ContactCMSData {
   }
   services:   string[]
   info: {
-    address: string
-    phone:   string
-    email:   string
-    hours:   string
+    address:  string
+    phone:    string
+    email:    string
+    hours:    string
     whatsappCta: string
+    mapsUrl:  string | null
   }
 }
 
@@ -106,28 +107,42 @@ export function ContactForm({ data, locale }: { data: ContactCMSData; locale: st
                 {data.info.whatsappCta}
               </a>
 
-              {/* Map placeholder */}
-              <div
-                className="rounded-xl overflow-hidden border border-[#27384A] h-48 relative"
-                style={{ background: 'linear-gradient(135deg, #1F2D3A 0%, #27384A 100%)' }}
-              >
-                <div
-                  className="absolute inset-0 opacity-40"
-                  style={{
-                    backgroundImage: `
-                      linear-gradient(rgba(255,107,53,0.07) 1px, transparent 1px),
-                      linear-gradient(90deg, rgba(255,107,53,0.07) 1px, transparent 1px)
-                    `,
-                    backgroundSize: '24px 24px',
-                  }}
-                />
-                <div className="absolute inset-0 flex flex-col items-center justify-center gap-2">
-                  <MapPin size={28} className="text-[#FF6B35]" />
-                  <span className="text-xs text-[#8A95A5]">{data.info.address}</span>
-                </div>
-                <div className="absolute inset-x-0 top-1/2 h-px bg-[#FF6B35]/10" />
-                <div className="absolute inset-y-0 left-1/2 w-px bg-[#FF6B35]/10" />
-              </div>
+              {/* Map card — clicable si maps_url está configurado en CMS */}
+              {(() => {
+                const inner = (
+                  <>
+                    <div
+                      className="absolute inset-0 opacity-40"
+                      style={{
+                        backgroundImage: `
+                          linear-gradient(rgba(255,107,53,0.07) 1px, transparent 1px),
+                          linear-gradient(90deg, rgba(255,107,53,0.07) 1px, transparent 1px)
+                        `,
+                        backgroundSize: '24px 24px',
+                      }}
+                    />
+                    <div className="absolute inset-0 flex flex-col items-center justify-center gap-2">
+                      <MapPin size={28} className="text-[#FF6B35]" />
+                      <span className="text-xs text-[#8A95A5] text-center px-4">{data.info.address}</span>
+                      {data.info.mapsUrl && (
+                        <span className="text-xs text-[#FF6B35] mt-1">Ver en Google Maps →</span>
+                      )}
+                    </div>
+                    <div className="absolute inset-x-0 top-1/2 h-px bg-[#FF6B35]/10" />
+                    <div className="absolute inset-y-0 left-1/2 w-px bg-[#FF6B35]/10" />
+                  </>
+                )
+                const cardClass = 'rounded-xl overflow-hidden border border-[#27384A] h-48 relative'
+                const cardStyle = { background: 'linear-gradient(135deg, #1F2D3A 0%, #27384A 100%)' }
+                return data.info.mapsUrl ? (
+                  <a href={data.info.mapsUrl} target="_blank" rel="noopener noreferrer"
+                    className={cardClass + ' hover:border-[#FF6B35]/40 transition-colors cursor-pointer'}
+                    style={cardStyle}
+                  >{inner}</a>
+                ) : (
+                  <div className={cardClass} style={cardStyle}>{inner}</div>
+                )
+              })()}
             </SectionReveal>
           </aside>
 

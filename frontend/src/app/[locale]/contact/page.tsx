@@ -107,6 +107,7 @@ export default async function ContactPage({ params }: Props) {
       email:       info.email        ?? fb.email_info,
       hours:       info.hours        ?? fb.hours,
       whatsappCta: info.whatsapp_cta ?? fb.whatsappCta,
+      mapsUrl:     (info.maps_url as string) || null,
     },
   }
 

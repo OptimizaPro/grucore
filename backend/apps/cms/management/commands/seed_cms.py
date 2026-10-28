@@ -273,6 +273,7 @@ PAGES = [
                     {'key': 'email',        'label': 'Email',           'type': 'text', 'es': 'info@grucore.gt',                 'en': 'info@grucore.gt'},
                     {'key': 'hours',        'label': 'Horario',         'type': 'text', 'es': 'Lun – Vie, 8:00 – 18:00',        'en': 'Mon – Fri, 8:00 – 18:00'},
                     {'key': 'whatsapp_cta', 'label': 'CTA WhatsApp',   'type': 'text', 'es': 'Escribir por WhatsApp ahora',     'en': 'Write on WhatsApp now'},
+                    {'key': 'maps_url',     'label': 'URL Google Maps', 'type': 'text', 'es': '',                                  'en': ''},
                 ],
             },
             {
