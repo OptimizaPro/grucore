@@ -133,12 +133,12 @@ export async function Footer() {
             © {year} Grucore. Todos los derechos reservados.
           </p>
           <div className="flex gap-6 text-xs text-[#8A95A5]">
-            <a href="/privacy" className="hover:text-[#F0EDE8] transition-colors">
+            <Link href="/privacy" className="hover:text-[#F0EDE8] transition-colors">
               Privacidad
-            </a>
-            <a href="/terms" className="hover:text-[#F0EDE8] transition-colors">
+            </Link>
+            <Link href="/terms" className="hover:text-[#F0EDE8] transition-colors">
               Términos
-            </a>
+            </Link>
           </div>
         </div>
       </div>
