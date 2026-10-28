@@ -24,4 +24,4 @@ COPY backend/ .
 EXPOSE 8000
 
 # Railway injects $PORT; fallback to 8000 for other platforms
-CMD ["sh", "-c", "python manage.py migrate --noinput && python manage.py collectstatic --noinput && gunicorn grucore.wsgi:application --bind 0.0.0.0:${PORT:-8000} --workers 2 --timeout 120"]
+CMD ["sh", "-c", "python manage.py migrate --noinput && python manage.py collectstatic --noinput && gunicorn grucore.wsgi:application --bind 0.0.0.0:${PORT:-8000} --workers 2 --timeout 120 --limit-request-line 8190 --limit-request-field_size 8190"]
