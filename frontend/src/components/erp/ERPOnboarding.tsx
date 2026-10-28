@@ -141,10 +141,17 @@ const SPOTLIGHT_STEPS = [
     iconColor: '#EC4899',
   },
   {
+    selector: '[data-tour="erp-crm"]',
+    title: 'CRM',
+    description: 'Pipeline de leads con etapas personalizables. Registra actividades, seguimientos y convierte oportunidades en proyectos.',
+    Icon: UserSearch,
+    iconColor: '#14B8A6',
+  },
+  {
     selector: '[data-tour="erp-operaciones"]',
     title: 'Operaciones',
-    description: 'CRM para gestión de leads y oportunidades, más tareas asignables con prioridad y fecha límite.',
-    Icon: UserSearch,
+    description: 'Tareas asignables con prioridad, fecha límite y responsable. Mantén el equipo enfocado en lo que importa.',
+    Icon: CheckSquare,
     iconColor: '#8B5CF6',
   },
   {
@@ -153,6 +160,13 @@ const SPOTLIGHT_STEPS = [
     description: 'Control de gastos por categoría, facturas con IVA, RFIs formales y órdenes de cambio con firma digital.',
     Icon: BarChart2,
     iconColor: '#4A9E6B',
+  },
+  {
+    selector: '[data-tour="erp-financiero"]',
+    title: 'Financiero',
+    description: 'Compras, finanzas y P&L, activos fijos, subcontratistas y tesorería. Vista completa de la salud financiera de la empresa.',
+    Icon: TrendingUp,
+    iconColor: '#F59E0B',
   },
 ]
 

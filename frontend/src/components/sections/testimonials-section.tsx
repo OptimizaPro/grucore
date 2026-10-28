@@ -36,18 +36,21 @@ export function TestimonialsSection({ data }: { data?: TestimonialsData }) {
           {items.map((item, i) => (
             <figure
               key={i}
-              className="flex flex-col gap-6 p-8 rounded-xl border border-[#2E4156] bg-[#1A2530]"
+              className="flex flex-col gap-6 p-8 rounded-xl border border-[#2E4156] bg-[#1F2D3A]"
             >
               {/* Quote mark */}
               <div
-                className="text-5xl leading-none text-[#FF6B35]/30 select-none"
+                className="text-5xl leading-none text-[#FF6B35]/40 select-none"
                 aria-hidden
                 style={{ fontFamily: 'Georgia, serif' }}
               >
                 "
               </div>
 
-              <blockquote className="flex-1 text-base text-[#F0EDE8] leading-relaxed">
+              <blockquote
+                className="flex-1 text-base leading-relaxed"
+                style={{ color: '#E8E4DC' }}
+              >
                 {item.quote}
               </blockquote>
 

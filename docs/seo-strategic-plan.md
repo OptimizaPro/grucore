@@ -287,7 +287,7 @@ Contacto: [email]
 
 | Tarea | Prioridad |
 |---|---|
-| Registrar dominio + configurar Railway/Vercel | Crítica |
+| Registrar dominio + configurar Railway (frontend + backend) | Crítica |
 | Crear GBP y verificar | Crítica |
 | Publicar Tier 1 (6 páginas de lanzamiento) | Crítica |
 | Implementar schema JSON-LD global | Alta |

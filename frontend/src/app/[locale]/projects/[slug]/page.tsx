@@ -72,7 +72,9 @@ export default async function ProjectDetailPage({ params }: Props) {
         subtitle={`${project.city} · ${project.location}`}
         bgImage={project.cover_image}
         accentLast
-        size="lg"
+        size="md"
+        split
+        subtitleVariant="border-left"
       />
 
       <div className="bg-[#1A2530]">
@@ -207,7 +209,7 @@ export default async function ProjectDetailPage({ params }: Props) {
             {project.tags.map((tag) => (
               <span
                 key={tag}
-                className="px-3 py-1.5 text-xs rounded-lg border border-[#27384A] text-[#8A95A5]"
+                className="px-3 py-1.5 text-xs rounded-lg border border-gray-600 text-[#8A95A5]"
               >
                 {tag}
               </span>
@@ -247,7 +249,7 @@ export default async function ProjectDetailPage({ params }: Props) {
                         {locale === 'es' ? rel.type_label.es : rel.type_label.en}
                       </p>
                       <h3
-                        className="text-base font-semibold text-[#F0EDE8] group-hover:text-[#FF6B35] transition-colors truncate"
+                        className="text-base font-semibold text-white group-hover:text-[#FF6B35] transition-colors truncate"
                         style={{ fontFamily: 'Montserrat, sans-serif' }}
                       >
                         {locale === 'es' ? rel.title.es : rel.title.en}

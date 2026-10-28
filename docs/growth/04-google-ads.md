@@ -52,7 +52,7 @@ Every landing page already has: phone number, WhatsApp, a quote form on the page
 
 ## Conversion tracking — wired into the site
 
-Create these conversion actions in Google Ads (Goals → Conversions → New → Website, "set up manually"), then paste each label into the matching environment variable in Vercel:
+Create these conversion actions in Google Ads (Goals → Conversions → New → Website, "set up manually"), then paste each label into the matching environment variable in Railway:
 
 | Conversion action | Category | Primary? | Env var |
 |---|---|---|---|

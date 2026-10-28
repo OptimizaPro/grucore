@@ -11,7 +11,7 @@
 |---|---|
 | Frontend | Next.js 15 (App Router) — repo independiente |
 | Backend | Grucore ERP API (DRF) — sin duplicar lógica |
-| Deploy frontend | Vercel |
+| Deploy frontend | Railway |
 | Deploy backend | Railway (ya existente, mismo servicio) |
 | Dominio | Independiente del ERP |
 | Auth | Pública para cotizaciones / NextAuth para área de cliente |
@@ -149,10 +149,10 @@ Requiere:
 
 ## Fase 5 — Deploy
 
-### Frontend (Vercel)
+### Frontend (Railway)
 - [ ] Crear repo en GitHub
-- [ ] Conectar a Vercel
-- [ ] Configurar env vars: `NEXT_PUBLIC_API_URL` apuntando a Railway
+- [ ] Conectar a Railway
+- [ ] Configurar env vars: `NEXT_PUBLIC_API_URL` apuntando al servicio backend Railway
 - [ ] Configurar dominio personalizado
 
 ### Backend (Railway — sin cambios de infra)

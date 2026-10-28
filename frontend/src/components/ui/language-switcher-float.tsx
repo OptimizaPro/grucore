@@ -29,15 +29,11 @@ export function LanguageSwitcherFloat() {
   }
 
   return (
-    <div
-      className="fixed bottom-20 right-4 z-50 md:bottom-6 md:right-6"
-      aria-label="Language selector"
-    >
-      <div className="relative">
-        {/* Dropdown panel */}
+    <div className="relative" aria-label="Language selector">
+      {/* Dropdown panel */}
         <div
           className={cn(
-            'absolute bottom-full right-0 mb-2 min-w-[140px] bg-[#1F2D3A] border border-[#27384A] rounded-xl overflow-hidden shadow-xl transition-all duration-200',
+            'absolute bottom-full left-1/2 -translate-x-1/2 mb-2 min-w-[140px] bg-[#1F2D3A] border border-[#27384A] rounded-xl overflow-hidden shadow-xl transition-all duration-200',
             open ? 'opacity-100 translate-y-0 pointer-events-auto' : 'opacity-0 translate-y-2 pointer-events-none'
           )}
         >
@@ -69,24 +65,33 @@ export function LanguageSwitcherFloat() {
         <button
           onClick={() => setOpen((v) => !v)}
           className={cn(
-            'flex items-center gap-2 px-3 py-2 rounded-xl border shadow-lg transition-all duration-200',
+            'flex items-center gap-2 px-4 py-2.5 rounded-xl border shadow-lg transition-all duration-200',
             open
               ? 'bg-[#FF6B35] border-[#FF6B35] text-[#1A2530]'
-              : 'bg-[#1F2D3A] border-[#27384A] text-[#8A95A5] hover:border-[#FF6B35]/40 hover:text-[#F0EDE8]'
+              : 'bg-[#1F2D3A] border-[#FF6B35] text-[#F0EDE8] hover:bg-[#FF6B35] hover:text-[#1A2530]'
           )}
           aria-expanded={open}
           aria-haspopup="listbox"
         >
           <Globe size={14} />
+          {/* Label solo en md+ */}
+          <span
+            className="hidden md:inline text-xs font-medium opacity-70"
+            style={{ fontFamily: 'Montserrat, sans-serif' }}
+          >
+            {locale === 'es' ? 'Idioma' : 'Language'}
+          </span>
+          {/* Separador */}
+          <span className="hidden md:inline opacity-30 text-xs">|</span>
+          <span className="text-base leading-none">{current.flag}</span>
           <span
             className="text-xs font-semibold tracking-wider uppercase"
             style={{ fontFamily: 'Space Mono, monospace' }}
           >
             {current.short}
           </span>
-          <span className="text-base leading-none">{current.flag}</span>
         </button>
-      </div>
     </div>
   )
 }
+

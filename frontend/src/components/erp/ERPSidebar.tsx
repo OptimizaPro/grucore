@@ -1,7 +1,7 @@
 'use client'
 
 import Image from 'next/image'
-import { LayoutDashboard, Users, Package, Truck, FolderOpen, ClipboardList, BarChart2, Images, Settings, LogOut, X, CheckSquare, HardHat, UserSearch, Building2, ChevronDown, BookOpen, ShoppingCart, TrendingUp, Wrench, Landmark } from 'lucide-react'
+import { LayoutDashboard, Users, Package, Truck, FolderOpen, ClipboardList, BarChart2, Images, Settings, LogOut, X, CheckSquare, HardHat, UserSearch, Building2, ChevronDown, BookOpen, ShoppingCart, TrendingUp, Wrench, Landmark, GitBranch } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { cn } from '@/lib/utils'
 import { logoutERP, type User as UserType } from '@/lib/api'
@@ -9,7 +9,7 @@ import { getCompanySettings } from '@/lib/company-settings'
 import ERPAvatar from './ERPAvatar'
 import ERPSettingsModal from './ERPSettingsModal'
 
-type ERPPage = 'dashboard' | 'clients' | 'team' | 'inventory' | 'suppliers' | 'documentos' | 'bitacora' | 'presupuesto' | 'galeria' | 'tareas' | 'trabajadores' | 'crm' | 'compras' | 'finanzas' | 'activos' | 'subcontratistas' | 'tesoreria'
+type ERPPage = 'dashboard' | 'clients' | 'team' | 'inventory' | 'suppliers' | 'documentos' | 'bitacora' | 'presupuesto' | 'galeria' | 'tareas' | 'trabajadores' | 'crm' | 'crm_config' | 'compras' | 'finanzas' | 'activos' | 'subcontratistas' | 'tesoreria'
 
 interface Props {
   currentPage: ERPPage
@@ -54,10 +54,17 @@ const NAV_ITEMS: NavItem[] = [
     ],
   },
   {
-    kind: 'group', id: 'operaciones', label: 'Operaciones', Icon: ClipboardList,
-    pages: ['crm', 'tareas'],
+    kind: 'group', id: 'crm', label: 'CRM', Icon: UserSearch,
+    pages: ['crm', 'crm_config'],
     children: [
-      { page: 'crm',    label: 'CRM',    href: '/erp/crm',    Icon: UserSearch  },
+      { page: 'crm',        label: 'Leads',     href: '/erp/crm',          Icon: Users      },
+      { page: 'crm_config', label: 'Pipelines', href: '/erp/crm?config=1', Icon: GitBranch  },
+    ],
+  },
+  {
+    kind: 'group', id: 'operaciones', label: 'Operaciones', Icon: ClipboardList,
+    pages: ['tareas'],
+    children: [
       { page: 'tareas', label: 'Tareas', href: '/erp/tareas', Icon: CheckSquare },
     ],
   },

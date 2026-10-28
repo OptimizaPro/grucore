@@ -3908,8 +3908,9 @@ export default function ERPProjectDetail() {
                     <option value="residential">Residencial</option>
                     <option value="commercial">Comercial</option>
                     <option value="industrial">Industrial</option>
-                    <option value="infrastructure">Infraestructura</option>
                     <option value="renovation">Remodelación</option>
+                    <option value="kitchens_baths">Cocinas y Baños</option>
+                    <option value="design_build">Diseño y construcción</option>
                     <option value="other">Otro</option>
                   </select>
                 </div>

@@ -62,7 +62,7 @@ The lead-volume numbers below are **planning estimates for Auburn**, built from 
 ### Weeks 1–2 — Foundation (no ad spend yet)
 - [ ] Replace every `TODO` in `src/lib/content.ts`: phone, WhatsApp, email, **HBLB license #**, Google review link, real reviews (or remove the samples), the four homepage counters.
 - [ ] Confirm the **HBLB license** is active, and confirm Georgia licensing status before advertising in Columbus/LaGrange.
-- [ ] Vercel env vars: Resend (email), Twilio (owner SMS alert), webhook to the Google Sheet or CRM, `NEXT_PUBLIC_WHATSAPP`. Submit a test lead and confirm the email, text and sheet row arrive.
+- [ ] Railway env vars: Resend (email), Twilio (owner SMS alert), webhook to the Google Sheet or CRM, `NEXT_PUBLIC_WHATSAPP`. Submit a test lead and confirm the email, text and sheet row arrive.
 - [ ] GA4 + Google Ads account + conversion actions + enhanced conversions ([04](04-google-ads.md)).
 - [ ] **Google Business Profile** fully built ([03](03-seo-local-and-ai-search.md)). Submit the sitemap in Google Search Console and Bing Webmaster Tools.
 - [ ] Claim **Yelp, Bing Places, Apple Business Connect, Facebook, Nextdoor, BBB, Houzz, Angi (free)**. Add each URL to `BRAND.profiles`.

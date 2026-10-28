@@ -165,6 +165,24 @@ export interface CreateSubcontractorCertificationInput {
   notes?:                string
 }
 
+/**
+ * Descarga la OC como PDF abriendo en una nueva pestaña.
+ * Usa el token JWT para autenticar la petición.
+ */
+export async function downloadPurchaseOrderPDF(id: number): Promise<void> {
+  const { getAccessToken } = await import('./api')
+  const API_URL = process.env.NEXT_PUBLIC_API_URL ?? 'http://localhost:8000'
+  const token = getAccessToken()
+  const res = await fetch(`${API_URL}/api/purchasing/orders/${id}/pdf/`, {
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+  })
+  if (!res.ok) throw new Error(`Error generando PDF (${res.status})`)
+  const blob = await res.blob()
+  const url  = URL.createObjectURL(blob)
+  window.open(url, '_blank')
+  setTimeout(() => URL.revokeObjectURL(url), 10_000)
+}
+
 export function getPurchaseOrders(params?: string) {
   return apiFetch<PaginatedResponse<PurchaseOrder>>(
     `/api/purchasing/orders/${params ? `?${params}` : ''}`

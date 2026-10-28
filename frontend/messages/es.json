@@ -67,11 +67,11 @@
           "range": "Q 500,000 – Q 8,000,000"
         },
         {
-          "id": "finishing",
-          "title": "Acabados Premium",
-          "description": "Pisos, cielos, carpintería fina, pintura y detalles de cierre. El último 20% que marca la diferencia visual.",
-          "tags": ["Pisos", "Carpintería", "Pintura"],
-          "range": "Q 30,000 – Q 300,000"
+          "id": "kitchens_baths",
+          "title": "Cocinas y Baños",
+          "description": "Remodelación especializada de cocinas y baños. Diseño funcional, materiales de calidad y ejecución limpia con tiempos definidos.",
+          "tags": ["Cocinas", "Baños", "Remodelación"],
+          "range": "Q 25,000 – Q 250,000"
         }
       ],
       "cta": "Ver todos los servicios"
@@ -210,6 +210,21 @@
       "subtitle": "Sin compromiso. Un asesor especializado revisa tu caso y te entrega una estimación real, no un rango genérico.",
       "button": "Iniciar mi cotización",
       "secondary": "o llama al +502 5712-2606"
+    },
+    "google_review": {
+      "eyebrow": "Google Reviews",
+      "title": "¿Trabajamos juntos? Cuéntaselo a otros.",
+      "subtitle": "Tu opinión ayuda a más personas a tomar la decisión correcta. Solo toma un minuto y significa mucho para nuestro equipo.",
+      "cta": "Dejar mi reseña en Google",
+      "note": "Acceso directo a Google · Sin registro adicional"
+    },
+    "cta_banner": {
+      "headline_1": "¿LISTO PARA EMPEZAR",
+      "headline_2": "TU PROYECTO?",
+      "subtitle": "Cuéntanos tu idea. Visitamos el lugar, evaluamos el alcance y te entregamos un presupuesto escrito y detallado. Sin presión, sin sorpresas.",
+      "cta_primary": "Solicitar cotización gratuita",
+      "cta_phone": "+502 5712-2606",
+      "watermark": "CONSTRUIMOS"
     }
   },
   "Navigation": {
@@ -220,6 +235,35 @@
     "quote": "Cotizar",
     "portal": "Portal cliente",
     "admin": "Panel interno"
+  },
+  "Widget": {
+    "title": "Cotización Rápida",
+    "step1_title": "¿Qué servicio necesitas?",
+    "step2_title": "¿Cuál es tu presupuesto aproximado?",
+    "step3_title": "¿Cómo podemos contactarte?",
+    "services": {
+      "residential":    "Residencial",
+      "renovation":     "Remodelación",
+      "commercial":     "Comercial",
+      "design_build":   "Design & Build",
+      "industrial":     "Industrial",
+      "kitchens_baths": "Cocinas & Baños"
+    },
+    "budgets": {
+      "b1": "Menos de Q150,000",
+      "b2": "Q150k – Q500k",
+      "b3": "Q500k – Q2M",
+      "b4": "Q2,000,000+"
+    },
+    "name_label":       "Nombre completo *",
+    "phone_label":      "Teléfono / WhatsApp *",
+    "email_label":      "Correo electrónico",
+    "city_label":       "Ciudad",
+    "submit":           "Enviar consulta",
+    "submitting":       "Procesando...",
+    "confirm_title":    "¡Solicitud recibida!",
+    "confirm_subtitle": "Un especialista de Grucore te contactará pronto.",
+    "close":            "Cerrar"
   },
   "Common": {
     "loading": "Cargando...",

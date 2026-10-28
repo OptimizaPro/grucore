@@ -1,4 +1,5 @@
 from django.core.exceptions import ValidationError as DjangoValidationError
+from django.http import HttpResponse
 from rest_framework import generics, permissions, status
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -221,6 +222,66 @@ class SupplierPaymentDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset           = SupplierPayment.objects.prefetch_related('allocations')
     serializer_class   = SupplierPaymentSerializer
     permission_classes = [permissions.IsAuthenticated]
+
+
+class PurchaseOrderPDFView(APIView):
+    """GET /api/purchasing/orders/<pk>/pdf/  → application/pdf"""
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request, pk):
+        from django.shortcuts import get_object_or_404
+        from django.template.loader import render_to_string
+        from django.utils.timezone import localtime
+        from django.utils import timezone
+        import weasyprint
+        import base64, os
+
+        po = get_object_or_404(
+            PurchaseOrder.objects.select_related(
+                'supplier', 'project', 'project__client', 'phase',
+                'confirmed_by', 'created_by',
+            ).prefetch_related('lines'),
+            pk=pk,
+        )
+
+        # Company settings (singleton)
+        try:
+            from apps.core.models import CompanySettings
+            company = CompanySettings.objects.first() or CompanySettings(name='Grucore')
+        except Exception:
+            from types import SimpleNamespace
+            company = SimpleNamespace(name='Grucore', tagline='', logo_light=None)
+
+        # Logo as base64 data-URI so weasyprint can embed it without HTTP
+        logo_url = ''
+        try:
+            if company.logo_light and company.logo_light.name:
+                logo_path = company.logo_light.path
+                if os.path.exists(logo_path):
+                    with open(logo_path, 'rb') as f:
+                        ext = os.path.splitext(logo_path)[1].lower().lstrip('.')
+                        mime = {'png': 'image/png', 'jpg': 'image/jpeg', 'jpeg': 'image/jpeg',
+                                'svg': 'image/svg+xml', 'webp': 'image/webp'}.get(ext, 'image/png')
+                        logo_url = f"data:{mime};base64,{base64.b64encode(f.read()).decode()}"
+        except Exception:
+            pass
+
+        po_number = f'PO-{po.year}-{po.sequence:04d}'
+        now_local = localtime(timezone.now())
+
+        html_string = render_to_string('purchasing/po_pdf.html', {
+            'po':           po,
+            'company':      company,
+            'logo_url':     logo_url,
+            'po_number':    po_number,
+            'generated_at': now_local.strftime('%d/%m/%Y %H:%M'),
+        }, request=request)
+
+        pdf_bytes = weasyprint.HTML(string=html_string, base_url=request.build_absolute_uri('/')).write_pdf()
+
+        response = HttpResponse(pdf_bytes, content_type='application/pdf')
+        response['Content-Disposition'] = f'inline; filename="{po_number}.pdf"'
+        return response
 
 
 class SupplierPaymentPostView(APIView):

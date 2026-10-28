@@ -5,6 +5,7 @@ import { routing } from '@/i18n/routing'
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
 import { LanguageSwitcherFloat } from '@/components/ui/language-switcher-float'
+import { LeadQualifierPanel } from '@/components/ui/lead-qualifier-panel'
 import type { Metadata } from 'next'
 
 type Props = {
@@ -56,7 +57,11 @@ export default async function LocaleLayout({ children, params }: Props) {
           <Header />
           <main id="main-content">{children}</main>
           <Footer />
-          <LanguageSwitcherFloat />
+          {/* Floating action bar — centered at bottom */}
+          <div className="fixed bottom-6 right-6 z-50 flex items-end gap-3">
+            <LanguageSwitcherFloat />
+            <LeadQualifierPanel />
+          </div>
         </NextIntlClientProvider>
       </body>
     </html>

@@ -11,6 +11,7 @@ from .views import (
     LeadMoveView,
     LeadConvertView,
     LeadActivityListCreateView,
+    WidgetLeadView,
 )
 
 urlpatterns = [
@@ -31,4 +32,7 @@ urlpatterns = [
 
     # Activities (nested under lead)
     path('leads/<int:lead_pk>/activities/',                  LeadActivityListCreateView.as_view(), name='lead-activity-list-create'),
+
+    # Public widget endpoint
+    path('widget/',                                          WidgetLeadView.as_view(),             name='widget-lead'),
 ]

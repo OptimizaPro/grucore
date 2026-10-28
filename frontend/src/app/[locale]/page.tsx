@@ -1,14 +1,17 @@
 import type { Metadata } from 'next'
-import { getCMSPage, blocks } from '@/lib/cms'
+import { getCMSPage, blocks, getMarqueeItems } from '@/lib/cms'
 import { HeroSection } from '@/components/sections/hero-section'
 import { TrustBar } from '@/components/sections/trust-bar'
+import { ServicesScroll } from '@/components/sections/services-scroll'
 import { ServicesSection } from '@/components/sections/services-section'
 import { ProcessSection } from '@/components/sections/process-section'
 import { PortfolioPreview } from '@/components/sections/portfolio-preview'
 import { BeforeAfterSection } from '@/components/sections/before-after-section'
 import { PricingSection } from '@/components/sections/pricing-section'
 import { TestimonialsSection } from '@/components/sections/testimonials-section'
+import { GoogleReviewCta } from '@/components/sections/google-review-cta'
 import { CtaSection } from '@/components/sections/cta-section'
+import { CtaBanner } from '@/components/sections/cta-banner'
 
 type Props = { params: Promise<{ locale: string }> }
 
@@ -24,7 +27,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function HomePage({ params }: Props) {
   const { locale } = await params
-  const cms = await getCMSPage('home', locale)
+  const [cms, marqueeItems] = await Promise.all([
+    getCMSPage('home', locale),
+    getMarqueeItems(locale),
+  ])
 
   const hero         = blocks(cms, 'hero')
   const trustBar     = blocks(cms, 'trust_bar')
@@ -81,13 +87,18 @@ export default async function HomePage({ params }: Props) {
     <>
       <HeroSection data={heroData} />
       <TrustBar data={trustData} />
+      <ServicesScroll items={marqueeItems} />
       <ServicesSection data={servicesData} />
       <ProcessSection data={processData} />
       <PortfolioPreview />
       <BeforeAfterSection data={beforeAfterData} />
       <PricingSection data={pricingData} />
+      {/* ── Testimonios ───────────────────────────/
       <TestimonialsSection data={testimonialsData} />
+      */}
+      <GoogleReviewCta />
       <CtaSection data={ctaData} />
+      <CtaBanner />
     </>
   )
 }

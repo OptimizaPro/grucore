@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { Menu, ShoppingCart, CheckCircle2, Clock, Truck, FileText, CreditCard, AlertCircle, Loader2, ChevronDown, ChevronUp, RefreshCw, Plus, X, Trash2 } from 'lucide-react'
+import { Menu, ShoppingCart, CheckCircle2, Clock, Truck, FileText, CreditCard, AlertCircle, Loader2, ChevronDown, ChevronUp, RefreshCw, Plus, X, Trash2, FileDown } from 'lucide-react'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
 import ERPSidebar from '@/components/erp/ERPSidebar'
@@ -11,6 +11,7 @@ import {
   getPurchaseOrders, getSupplierInvoices, getSupplierPayments,
   confirmPurchaseOrder, postSupplierInvoice, postSupplierPayment,
   createPurchaseOrder, createSupplierInvoice, createSupplierPayment,
+  downloadPurchaseOrderPDF,
   type PurchaseOrder, type SupplierInvoice, type SupplierPayment,
   type PurchaseOrderLineInput,
 } from '@/lib/api-finance'
@@ -64,7 +65,20 @@ const TABS: { id: Tab; label: string; Icon: React.ElementType }[] = [
 // ─── PO Table ─────────────────────────────────────────────────────────────────
 
 function POTable({ orders, onConfirm, loading }: { orders: PurchaseOrder[]; onConfirm: (id: number) => void; loading: boolean }) {
-  const [expanded, setExpanded] = useState<number | null>(null)
+  const [expanded, setExpanded]   = useState<number | null>(null)
+  const [pdfLoading, setPdfLoading] = useState<number | null>(null)
+
+  async function handlePDF(e: React.MouseEvent, id: number) {
+    e.stopPropagation()
+    setPdfLoading(id)
+    try {
+      await downloadPurchaseOrderPDF(id)
+    } catch {
+      toast.error('Error generando el PDF.')
+    } finally {
+      setPdfLoading(null)
+    }
+  }
 
   if (loading) return <Loader className />
   if (!orders.length) return <Empty text="No hay órdenes de compra." />
@@ -129,15 +143,28 @@ function POTable({ orders, onConfirm, loading }: { orders: PurchaseOrder[]; onCo
                 </div>
               )}
 
-              {(po.status === 'draft' || po.status === 'sent') && (
+              <div className="flex items-center gap-2 flex-wrap">
                 <button
-                  onClick={e => { e.stopPropagation(); onConfirm(po.id) }}
-                  className="flex items-center gap-2 text-xs px-3 py-1.5 bg-[#FF6B35] text-white rounded-lg hover:bg-[#FF6B35]/90 transition-colors"
+                  onClick={e => handlePDF(e, po.id)}
+                  disabled={pdfLoading === po.id}
+                  className="flex items-center gap-2 text-xs px-3 py-1.5 bg-[#1e2a3a] border border-[#27384A] text-[#8A95A5] rounded-lg hover:text-[#F0EDE8] hover:border-[#FF6B35]/40 transition-colors disabled:opacity-50"
                 >
-                  <CheckCircle2 size={12} />
-                  Confirmar orden
+                  {pdfLoading === po.id
+                    ? <Loader2 size={12} className="animate-spin" />
+                    : <FileDown size={12} />
+                  }
+                  PDF
                 </button>
-              )}
+                {(po.status === 'draft' || po.status === 'sent') && (
+                  <button
+                    onClick={e => { e.stopPropagation(); onConfirm(po.id) }}
+                    className="flex items-center gap-2 text-xs px-3 py-1.5 bg-[#FF6B35] text-white rounded-lg hover:bg-[#FF6B35]/90 transition-colors"
+                  >
+                    <CheckCircle2 size={12} />
+                    Confirmar orden
+                  </button>
+                )}
+              </div>
             </div>
           )}
         </div>

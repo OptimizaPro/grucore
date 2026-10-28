@@ -37,7 +37,7 @@ class LeadActivitySerializer(serializers.ModelSerializer):
     class Meta:
         model  = LeadActivity
         fields = '__all__'
-        read_only_fields = ('id', 'created_at')
+        read_only_fields = ('id', 'lead', 'user', 'created_at')
 
     def get_user_name(self, obj):
         return obj.user.get_full_name() if obj.user else None

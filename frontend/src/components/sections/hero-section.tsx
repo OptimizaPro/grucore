@@ -3,8 +3,9 @@
 import Image from 'next/image'
 import { useTranslations } from 'next-intl'
 import { motion } from 'framer-motion'
-import { ArrowRight, ChevronDown } from 'lucide-react'
+import { ArrowRight, ArrowUpRight, ChevronDown } from 'lucide-react'
 import { Link } from '@/i18n/navigation'
+import { BlueprintGrid } from '@/components/ui/blueprint-grid'
 
 const HERO_IMG = 'https://images.unsplash.com/photo-1621511075938-f03482369feb?auto=format&fit=crop&w=1600&q=60'
 
@@ -50,16 +51,7 @@ export function HeroSection({ data }: { data?: HeroData }) {
       </div>
       {/* Capas de oscurecimiento */}
       <div className="absolute inset-0 pointer-events-none bg-[#1A2530]/80" />
-      <div
-        className="absolute inset-0 pointer-events-none opacity-40"
-        style={{
-          backgroundImage: `
-            linear-gradient(rgba(255,107,53,0.06) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(255,107,53,0.06) 1px, transparent 1px)
-          `,
-          backgroundSize: '72px 72px',
-        }}
-      />
+      <BlueprintGrid />
       {/* Gradiente radial central */}
       <div
         className="absolute inset-0 pointer-events-none"
@@ -161,6 +153,62 @@ export function HeroSection({ data }: { data?: HeroData }) {
             transition={{ repeat: Infinity, duration: 1.8, ease: 'easeInOut' }}
           >
             <ChevronDown size={16} className="text-[#8A95A5]" />
+          </motion.div>
+        </motion.div>
+
+        {/* Circle CTA */}
+        <motion.div
+          className="absolute bottom-16 right-8 sm:right-12 lg:right-20 hidden sm:block"
+          initial={{ opacity: 0, scale: 0.75 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ delay: 1.6, duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+        >
+          <motion.div
+            animate={{ scale: [1, 1.07, 1] }}
+            transition={{ repeat: Infinity, duration: 2.8, ease: 'easeInOut' }}
+          >
+          <Link
+            href="/cotizar"
+            aria-label="Cotización rápida"
+            className="relative w-[136px] h-[136px] lg:w-[156px] lg:h-[156px] rounded-full
+                       border border-[#FF6B35]/50 bg-[#1A2530]/70 backdrop-blur-sm
+                       hover:bg-[#FF6B35] hover:border-[#FF6B35] group
+                       transition-colors duration-300 flex items-center justify-center"
+            style={{ WebkitTapHighlightColor: 'transparent' }}
+          >
+            {/* Rotating text ring */}
+            <motion.div
+              className="absolute inset-0 pointer-events-none"
+              animate={{ rotate: 360 }}
+              transition={{ repeat: Infinity, duration: 20, ease: 'linear' }}
+            >
+              <svg viewBox="0 0 100 100" className="w-full h-full overflow-visible">
+                <defs>
+                  <path
+                    id="hero-circle-path"
+                    d="M 50,50 m -39,0 a 39,39 0 1,1 78,0 a 39,39 0 1,1 -78,0"
+                  />
+                </defs>
+                <text
+                  className="fill-[#FF6B35] group-hover:fill-[#1A2530] transition-colors duration-300"
+                  style={{ fontSize: '7.2px', letterSpacing: '0.12em', fontFamily: 'Space Mono, monospace', fontWeight: 700 }}
+                >
+                  <textPath href="#hero-circle-path" startOffset="0%">
+                    GRUCORE · COTIZAR · CONSTRUIMOS · REMODELAMOS ·{' '}
+                  </textPath>
+                </text>
+              </svg>
+            </motion.div>
+
+            {/* Arrow central */}
+            <div className="absolute inset-0 flex items-center justify-center">
+              <ArrowUpRight
+                size={30}
+                className="text-[#FF6B35] group-hover:text-[#1A2530] transition-colors duration-300"
+                strokeWidth={1.5}
+              />
+            </div>
+          </Link>
           </motion.div>
         </motion.div>
       </div>

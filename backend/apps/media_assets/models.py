@@ -24,6 +24,11 @@ class MediaAsset(models.Model):
     )
     alt_es = models.CharField(max_length=200, blank=True, verbose_name='Texto alt (ES)')
     alt_en = models.CharField(max_length=200, blank=True, verbose_name='Texto alt (EN)')
+    context = models.CharField(
+        max_length=200, blank=True,
+        verbose_name='Contexto de uso',
+        help_text='Ej: "Servicios / Cocinas — Portada", "Home / Before-After". Referencia libre para saber dónde se usa.',
+    )
 
     uploaded_by = models.ForeignKey(
         settings.AUTH_USER_MODEL,

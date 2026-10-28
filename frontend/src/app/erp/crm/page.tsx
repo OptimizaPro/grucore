@@ -2,22 +2,25 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react'
 import Link from 'next/link'
+import { useSearchParams } from 'next/navigation'
 import {
-  Plus, X, Menu, Loader2, AlertCircle, ChevronDown,
+  Plus, X, Menu, Loader2, AlertCircle, ChevronDown, ChevronUp,
   GripVertical, Pencil, Trash2, Check, Phone, Mail,
   MessageSquare, CalendarDays, ArrowRightLeft, Trophy,
-  Search, SlidersHorizontal, Users, Kanban, Settings2,
+  Search, SlidersHorizontal, Users, Kanban, Settings2, List,
   Instagram, Linkedin, Youtube, Globe, RefreshCw,
 } from 'lucide-react'
 import ERPSidebar from '@/components/erp/ERPSidebar'
 import ERPAvatar from '@/components/erp/ERPAvatar'
+import { confirmToast } from '@/lib/confirm-toast'
+import { toast } from 'sonner'
 import {
   getPipelines, createPipeline, updatePipeline, deletePipeline,
   createStage, updateStage, deleteStage, reorderStages,
   getLeads, createLead, updateLead, deleteLead, moveLead,
   createLeadActivity,
   type Pipeline, type PipelineStage, type Lead, type LeadActivity,
-  type LeadSourceValue, type ServiceTypeValue, type LeadStatusValue, type ActivityTypeValue,
+  type LeadSourceValue, type ServiceTypeValue, type LeadStatusValue, type ActivityTypeValue, type LeadTierValue,
 } from '@/lib/api'
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -37,11 +40,12 @@ const SOURCE_LABEL: Record<LeadSourceValue, string> = {
 }
 
 const SERVICE_LABEL: Record<ServiceTypeValue, string> = {
-  construction: 'Construcción',
-  renovation:   'Remodelación',
-  commercial:   'Comercial',
-  residential:  'Residencial',
-  other:        'Otro',
+  construction:   'Construcción',
+  renovation:     'Remodelación',
+  kitchens_baths: 'Cocinas y Baños',
+  commercial:     'Comercial',
+  residential:    'Residencial',
+  other:          'Otro',
 }
 
 const STATUS_LABEL: Record<LeadStatusValue, string> = {
@@ -80,6 +84,12 @@ const PRESET_COLORS = [
   '#8A95A5', '#FF6B35', '#4A9E6B', '#3B82F6', '#8B5CF6',
   '#EC4899', '#F59E0B', '#14B8A6', '#EF4444', '#6366F1',
 ]
+
+const TIER_CFG: Record<LeadTierValue, { label: string; color: string; bg: string; bar: string }> = {
+  hot:  { label: '🔥 Caliente', color: '#FF6B35', bg: 'rgba(255,107,53,0.12)', bar: '#FF6B35' },
+  warm: { label: '⚡ Tibio',    color: '#D97706', bg: 'rgba(217,119,6,0.12)',  bar: '#D97706' },
+  cold: { label: '💡 Exploración', color: '#8A95A5', bg: 'rgba(138,149,165,0.12)', bar: '#64748B' },
+}
 
 function fmtDate(d: string | null | undefined) {
   if (!d) return '—'
@@ -152,6 +162,20 @@ function LeadCard({
         )}
       </div>
 
+      {lead.lead_tier && (
+        <div className="mt-2 flex items-center gap-2">
+          <span
+            className="text-[10px] font-semibold px-2 py-0.5 rounded-full"
+            style={{ color: TIER_CFG[lead.lead_tier].color, background: TIER_CFG[lead.lead_tier].bg }}
+          >
+            {TIER_CFG[lead.lead_tier].label}
+          </span>
+          {lead.lead_score !== null && (
+            <span className="text-[10px] text-[#8A95A5] font-mono">{lead.lead_score}/25</span>
+          )}
+        </div>
+      )}
+
       {lead.days_in_stage > 0 && (
         <p className="text-[10px] text-[#8A95A5] mt-1.5">{lead.days_in_stage}d en etapa</p>
       )}
@@ -180,7 +204,7 @@ function KanbanColumn({
 
   return (
     <div
-      className={`flex flex-col min-w-[240px] max-w-[280px] flex-shrink-0 rounded-xl border transition-colors ${
+      className={`flex flex-col min-w-[240px] max-w-[280px] flex-shrink-0 rounded-xl border transition-colors h-full ${
         isDragOver ? 'border-[#FF6B35]/60 bg-[#FF6B35]/5' : 'border-[#2A3A4A] bg-[#1A2535]'
       }`}
       onDragOver={(e) => { e.preventDefault(); setIsDragOver(true); onDragOver(e) }}
@@ -188,7 +212,7 @@ function KanbanColumn({
       onDrop={(e) => { setIsDragOver(false); onDrop(e, stage.id) }}
     >
       {/* Column header */}
-      <div className="flex items-center gap-2 px-3 pt-3 pb-2">
+      <div className="flex items-center gap-2 px-3 pt-3 pb-2 flex-shrink-0">
         <span
           className="w-2.5 h-2.5 rounded-full flex-shrink-0"
           style={{ backgroundColor: stage.color }}
@@ -198,7 +222,7 @@ function KanbanColumn({
       </div>
 
       {/* Cards */}
-      <div className="flex flex-col gap-2 px-3 pb-3 flex-1 min-h-[80px]">
+      <div className="flex flex-col gap-2 px-3 pb-3 overflow-y-auto flex-1 min-h-[80px]">
         {leads.map((lead) => (
           <LeadCard
             key={lead.id}
@@ -264,20 +288,27 @@ function LeadModal({
     }
   }
 
-  async function handleDelete() {
-    if (!confirm(`¿Eliminar el lead "${lead.full_name}"?`)) return
-    try {
-      await deleteLead(lead.id)
-      onDelete(lead.id)
-      onClose()
-    } catch {
-      setError('No se pudo eliminar el lead.')
-    }
+  function handleDelete() {
+    confirmToast({
+      title:        `Eliminar lead`,
+      description:  `"${lead.full_name}" será eliminado permanentemente.`,
+      confirmLabel: 'Eliminar',
+      onConfirm: async () => {
+        try {
+          await deleteLead(lead.id)
+          onDelete(lead.id)
+          onClose()
+          toast.success('Lead eliminado.')
+        } catch {
+          toast.error('No se pudo eliminar el lead.')
+        }
+      },
+    })
   }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-      <div className="bg-[#1A2535] border border-[#2A3A4A] rounded-2xl w-full max-w-lg max-h-[85vh] flex flex-col shadow-2xl">
+      <div className="bg-[#1A2535] border border-[#2A3A4A] rounded-2xl w-full max-w-2xl flex flex-col shadow-2xl">
         {/* Header */}
         <div className="flex items-start gap-3 p-5 border-b border-[#2A3A4A]">
           <div className="flex-1 min-w-0">
@@ -328,84 +359,154 @@ function LeadModal({
           ))}
         </div>
 
-        <div className="overflow-y-auto flex-1 p-5">
+        <div className={tab === 'activity' ? 'overflow-y-auto max-h-[60vh] p-5' : 'p-5'}>
           {tab === 'info' ? (
-            <div className="space-y-4">
-              {/* Status */}
-              <div>
-                <p className="text-[10px] text-[#8A95A5] uppercase tracking-wide mb-1.5">Estado</p>
-                <div className="flex flex-wrap gap-1.5">
-                  {(['active', 'won', 'lost', 'archived'] as LeadStatusValue[]).map((s) => (
-                    <button
-                      key={s}
-                      onClick={() => handleStatusChange(s)}
-                      className={`text-[11px] px-2.5 py-1 rounded-full font-medium transition-colors ${
-                        lead.status === s
-                          ? STATUS_COLOR[s]
-                          : 'bg-[#131D28] text-[#8A95A5] hover:text-[#8A95A5]'
-                      }`}
-                    >
-                      {STATUS_LABEL[s]}
-                    </button>
-                  ))}
-                </div>
-              </div>
+            <div className="grid grid-cols-2 gap-x-5 gap-y-0">
 
-              {/* Contact info */}
-              <div className="grid grid-cols-2 gap-3">
-                {lead.email && (
-                  <div>
-                    <p className="text-[10px] text-[#8A95A5] uppercase tracking-wide mb-1">Email</p>
-                    <a href={`mailto:${lead.email}`} className="text-[12px] text-[#F0EDE8] hover:text-[#FF6B35] transition-colors truncate block">
-                      {lead.email}
-                    </a>
-                  </div>
-                )}
-                {lead.phone && (
-                  <div>
-                    <p className="text-[10px] text-[#8A95A5] uppercase tracking-wide mb-1">Teléfono</p>
-                    <a href={`tel:${lead.phone}`} className="text-[12px] text-[#F0EDE8] hover:text-[#FF6B35] transition-colors">
-                      {lead.phone}
-                    </a>
-                  </div>
-                )}
-                {lead.city && (
-                  <div>
-                    <p className="text-[10px] text-[#8A95A5] uppercase tracking-wide mb-1">Ciudad</p>
-                    <p className="text-[12px] text-[#F0EDE8]">{lead.city}</p>
-                  </div>
-                )}
-                {lead.estimated_value_gtq && (
-                  <div>
-                    <p className="text-[10px] text-[#8A95A5] uppercase tracking-wide mb-1">Valor estimado</p>
-                    <p className="text-[12px] text-[#4A9E6B] font-medium">{fmtGtq(lead.estimated_value_gtq)}</p>
-                  </div>
-                )}
-              </div>
+              {/* ── Columna izquierda: datos de contacto ── */}
+              <div className="space-y-3">
 
-              {/* Source + Service */}
-              <div className="grid grid-cols-2 gap-3">
+                {/* Estado */}
                 <div>
-                  <p className="text-[10px] text-[#8A95A5] uppercase tracking-wide mb-1">Fuente</p>
-                  <SourceBadge source={lead.source} />
+                  <p className="text-[10px] text-[#8A95A5] uppercase tracking-wide mb-1.5">Estado</p>
+                  <div className="flex flex-wrap gap-1.5">
+                    {(['active', 'won', 'lost', 'archived'] as LeadStatusValue[]).map((s) => (
+                      <button
+                        key={s}
+                        onClick={() => handleStatusChange(s)}
+                        className={`text-[11px] px-2.5 py-1 rounded-full font-medium transition-colors ${
+                          lead.status === s
+                            ? STATUS_COLOR[s]
+                            : 'bg-[#131D28] text-[#8A95A5] hover:text-[#8A95A5]'
+                        }`}
+                      >
+                        {STATUS_LABEL[s]}
+                      </button>
+                    ))}
+                  </div>
                 </div>
-                <div>
-                  <p className="text-[10px] text-[#8A95A5] uppercase tracking-wide mb-1">Servicio</p>
-                  <span className="text-[12px] text-[#F0EDE8]">{SERVICE_LABEL[lead.service_type]}</span>
-                </div>
-              </div>
 
-              {/* Notes */}
-              {lead.notes && (
-                <div>
-                  <p className="text-[10px] text-[#8A95A5] uppercase tracking-wide mb-1">Notas</p>
-                  <p className="text-[12px] text-[#8A95A5] leading-relaxed">{lead.notes}</p>
+                {/* Contacto */}
+                <div className="grid grid-cols-2 gap-x-3 gap-y-2.5">
+                  {lead.email && (
+                    <div className="col-span-2">
+                      <p className="text-[10px] text-[#8A95A5] uppercase tracking-wide mb-0.5">Email</p>
+                      <a href={`mailto:${lead.email}`} className="text-[12px] text-[#F0EDE8] hover:text-[#FF6B35] transition-colors truncate block">
+                        {lead.email}
+                      </a>
+                    </div>
+                  )}
+                  {lead.phone && (
+                    <div>
+                      <p className="text-[10px] text-[#8A95A5] uppercase tracking-wide mb-0.5">Teléfono</p>
+                      <a href={`tel:${lead.phone}`} className="text-[12px] text-[#F0EDE8] hover:text-[#FF6B35] transition-colors">
+                        {lead.phone}
+                      </a>
+                    </div>
+                  )}
+                  {lead.city && (
+                    <div>
+                      <p className="text-[10px] text-[#8A95A5] uppercase tracking-wide mb-0.5">Ciudad</p>
+                      <p className="text-[12px] text-[#F0EDE8]">{lead.city}</p>
+                    </div>
+                  )}
+                  {lead.estimated_value_gtq && (
+                    <div>
+                      <p className="text-[10px] text-[#8A95A5] uppercase tracking-wide mb-0.5">Valor estimado</p>
+                      <p className="text-[12px] text-[#4A9E6B] font-medium">{fmtGtq(lead.estimated_value_gtq)}</p>
+                    </div>
+                  )}
+                  <div>
+                    <p className="text-[10px] text-[#8A95A5] uppercase tracking-wide mb-0.5">Fuente</p>
+                    <SourceBadge source={lead.source} />
+                  </div>
+                  <div>
+                    <p className="text-[10px] text-[#8A95A5] uppercase tracking-wide mb-0.5">Servicio</p>
+                    <span className="text-[12px] text-[#F0EDE8]">{SERVICE_LABEL[lead.service_type]}</span>
+                  </div>
                 </div>
-              )}
 
-              <div>
                 <p className="text-[10px] text-[#8A95A5]">Registrado {fmtDate(lead.created_at)}</p>
               </div>
+
+              {/* ── Separador vertical ── */}
+              <div className="border-l border-[#2A3A4A] pl-5 space-y-3">
+
+                {/* Calificación */}
+                {lead.lead_tier && (
+                  <div className="bg-[#131D28] rounded-xl p-3 border border-[#2A3A4A]">
+                    <p className="text-[10px] text-[#8A95A5] uppercase tracking-wide mb-2">Calificación</p>
+                    <div className="flex items-center gap-3">
+                      <span
+                        className="text-[11px] font-semibold px-3 py-1 rounded-full flex-shrink-0"
+                        style={{ color: TIER_CFG[lead.lead_tier].color, background: TIER_CFG[lead.lead_tier].bg }}
+                      >
+                        {TIER_CFG[lead.lead_tier].label}
+                      </span>
+                      {lead.lead_score !== null && (
+                        <div className="flex items-center gap-2 flex-1 min-w-0">
+                          <div className="flex-1 h-1.5 bg-[#2A3A4A] rounded-full overflow-hidden">
+                            <div
+                              className="h-full rounded-full transition-all duration-500"
+                              style={{
+                                width: `${Math.round((lead.lead_score / 25) * 100)}%`,
+                                background: TIER_CFG[lead.lead_tier].bar,
+                              }}
+                            />
+                          </div>
+                          <span className="text-[11px] font-bold font-mono flex-shrink-0" style={{ color: TIER_CFG[lead.lead_tier].color }}>
+                            {lead.lead_score}/25
+                          </span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Quiz answers */}
+                {lead.notes && (() => {
+                  const lines = lead.notes.split('\n').map(l => l.trim()).filter(Boolean)
+                  const pairs = lines.map(l => {
+                    const idx = l.indexOf(':')
+                    return idx > 0
+                      ? { key: l.slice(0, idx).trim(), val: l.slice(idx + 1).trim() }
+                      : { key: null, val: l }
+                  })
+                  const hasPairs = pairs.some(p => p.key)
+                  return (
+                    <div>
+                      <p className="text-[10px] text-[#8A95A5] uppercase tracking-wide mb-2">Respuestas del quiz</p>
+                      {hasPairs ? (
+                        <div className="grid grid-cols-2 gap-x-3 gap-y-2.5">
+                          {pairs.map((p, i) =>
+                            p.key ? (
+                              <div key={i}>
+                                <p className="text-[10px] text-[#8A95A5] uppercase tracking-wide leading-none mb-0.5">{p.key}</p>
+                                <p className="text-[12px] text-[#F0EDE8] font-medium leading-snug">{p.val}</p>
+                              </div>
+                            ) : (
+                              <div key={i} className="col-span-2">
+                                <p className="text-[12px] text-[#8A95A5] leading-relaxed">{p.val}</p>
+                              </div>
+                            )
+                          )}
+                        </div>
+                      ) : (
+                        <div className="space-y-1">
+                          {lines.map((l, i) => (
+                            <p key={i} className="text-[12px] text-[#8A95A5] leading-relaxed">{l}</p>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )
+                })()}
+
+                {!lead.lead_tier && !lead.notes && (
+                  <p className="text-[12px] text-[#4A5568]">Sin calificación registrada</p>
+                )}
+              </div>
+
             </div>
           ) : (
             <div className="space-y-4">
@@ -637,45 +738,41 @@ function NewLeadModal({
   )
 }
 
-// ─── Pipeline Config tab ──────────────────────────────────────────────────────
+// ─── Pipeline Config — stages panel ──────────────────────────────────────────
 
-function PipelineConfig({
+function StagesPanel({
   pipeline,
   onPipelineUpdate,
 }: {
   pipeline: Pipeline
   onPipelineUpdate: (p: Pipeline) => void
 }) {
-  const [stages, setStages]           = useState<PipelineStage[]>(pipeline.stages)
-  const [editingId, setEditingId]     = useState<number | null>(null)
-  const [editName, setEditName]       = useState('')
-  const [editColor, setEditColor]     = useState('')
-  const [newName, setNewName]         = useState('')
-  const [newColor, setNewColor]       = useState('#8A95A5')
-  const [saving, setSaving]           = useState(false)
-  const [error, setError]             = useState('')
-  const dragItem                      = useRef<number | null>(null)
-  const dragOver                      = useRef<number | null>(null)
+  const [stages, setStages]       = useState<PipelineStage[]>(pipeline.stages)
+  const [editingId, setEditingId] = useState<number | null>(null)
+  const [editName, setEditName]   = useState('')
+  const [editColor, setEditColor] = useState('')
+  const [newName, setNewName]     = useState('')
+  const [newColor, setNewColor]   = useState('#8A95A5')
+  const [saving, setSaving]       = useState(false)
+  const [error, setError]         = useState('')
+  const dragItem                  = useRef<number | null>(null)
+  const dragOver                  = useRef<number | null>(null)
+
+  // Sync when pipeline changes
+  useEffect(() => { setStages(pipeline.stages) }, [pipeline.id])
 
   async function handleAddStage() {
     if (!newName.trim()) return
     setSaving(true)
     try {
-      const stage = await createStage(pipeline.id, {
-        name: newName.trim(),
-        color: newColor,
-        order: stages.length + 1,
-      })
+      const stage = await createStage(pipeline.id, { name: newName.trim(), color: newColor, order: stages.length + 1 })
       const updated = [...stages, stage]
       setStages(updated)
       onPipelineUpdate({ ...pipeline, stages: updated })
       setNewName('')
       setNewColor('#8A95A5')
-    } catch {
-      setError('No se pudo crear la etapa.')
-    } finally {
-      setSaving(false)
-    }
+    } catch { setError('No se pudo crear la etapa.') }
+    finally { setSaving(false) }
   }
 
   async function handleSaveEdit(stage: PipelineStage) {
@@ -685,27 +782,27 @@ function PipelineConfig({
       setStages(next)
       onPipelineUpdate({ ...pipeline, stages: next })
       setEditingId(null)
-    } catch {
-      setError('No se pudo actualizar la etapa.')
-    }
+    } catch { setError('No se pudo actualizar la etapa.') }
   }
 
-  async function handleDelete(stageId: number) {
-    if (!confirm('¿Eliminar esta etapa? Los leads asignados quedarán sin etapa.')) return
-    try {
-      await deleteStage(pipeline.id, stageId)
-      const next = stages.filter(s => s.id !== stageId)
-      setStages(next)
-      onPipelineUpdate({ ...pipeline, stages: next })
-    } catch {
-      setError('No se pudo eliminar la etapa.')
-    }
+  function handleDeleteStage(stage: PipelineStage) {
+    confirmToast({
+      title:        'Eliminar etapa',
+      description:  `"${stage.name}" será eliminada. Los leads asignados quedarán sin etapa.`,
+      confirmLabel: 'Eliminar',
+      onConfirm: async () => {
+        try {
+          await deleteStage(pipeline.id, stage.id)
+          const next = stages.filter(s => s.id !== stage.id)
+          setStages(next)
+          onPipelineUpdate({ ...pipeline, stages: next })
+          toast.success('Etapa eliminada.')
+        } catch { toast.error('No se pudo eliminar la etapa.') }
+      },
+    })
   }
 
-  function handleDragStart(index: number) {
-    dragItem.current = index
-  }
-
+  function handleDragStart(index: number) { dragItem.current = index }
   function handleDragEnter(index: number) {
     dragOver.current = index
     const next = [...stages]
@@ -714,36 +811,31 @@ function PipelineConfig({
     dragItem.current = index
     setStages(next)
   }
-
   async function handleDragEnd() {
     try {
       await reorderStages(pipeline.id, stages.map(s => s.id))
       onPipelineUpdate({ ...pipeline, stages })
-    } catch {
-      setError('No se pudo reordenar las etapas.')
-    }
+    } catch { setError('No se pudo reordenar las etapas.') }
     dragItem.current = null
     dragOver.current = null
   }
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
+    <div className="space-y-4">
       <div>
-        <h2 className="text-[15px] font-semibold text-[#F0EDE8] mb-1">{pipeline.name}</h2>
-        {pipeline.description && <p className="text-[12px] text-[#8A95A5]">{pipeline.description}</p>}
+        <p className="text-[15px] font-semibold text-[#F0EDE8]">{pipeline.name}</p>
+        {pipeline.description && <p className="text-[12px] text-[#8A95A5] mt-0.5">{pipeline.description}</p>}
       </div>
 
       {error && (
         <div className="flex items-center gap-2 text-red-400 text-[12px] bg-red-500/10 rounded-lg px-3 py-2">
-          <AlertCircle size={12} />
-          {error}
+          <AlertCircle size={12} />{error}
         </div>
       )}
 
       {/* Stage list */}
       <div className="space-y-2">
-        <p className="text-[11px] text-[#8A95A5] uppercase tracking-wide">Etapas ({stages.length})</p>
-
+        <p className="text-[10px] text-[#8A95A5] uppercase tracking-wide">Etapas ({stages.length})</p>
         {stages.map((stage, index) => (
           <div
             key={stage.id}
@@ -751,12 +843,11 @@ function PipelineConfig({
             onDragStart={() => handleDragStart(index)}
             onDragEnter={() => handleDragEnter(index)}
             onDragEnd={handleDragEnd}
-            className="flex items-center gap-3 bg-[#1A2535] border border-[#2A3A4A] rounded-xl px-4 py-3
+            className="flex items-center gap-3 bg-[#131D28] border border-[#2A3A4A] rounded-xl px-3 py-2.5
                        cursor-grab active:cursor-grabbing hover:border-[#3A4A5A] transition-colors"
           >
-            <GripVertical size={14} className="text-[#8A95A5] flex-shrink-0" />
-            <span className="w-3 h-3 rounded-full flex-shrink-0" style={{ backgroundColor: stage.color }} />
-
+            <GripVertical size={13} className="text-[#8A95A5] flex-shrink-0" />
+            <span className="w-2.5 h-2.5 rounded-full flex-shrink-0" style={{ backgroundColor: stage.color }} />
             {editingId === stage.id ? (
               <div className="flex items-center gap-2 flex-1">
                 <input
@@ -764,80 +855,62 @@ function PipelineConfig({
                   value={editName}
                   onChange={(e) => setEditName(e.target.value)}
                   onKeyDown={(e) => e.key === 'Enter' && handleSaveEdit(stage)}
-                  className="flex-1 bg-[#131D28] text-[#F0EDE8] text-[13px] rounded-lg px-2 py-1 border border-[#FF6B35]/40 focus:outline-none"
+                  className="flex-1 bg-[#1A2535] text-[#F0EDE8] text-[12px] rounded-lg px-2 py-1 border border-[#FF6B35]/40 focus:outline-none"
                 />
                 <div className="flex gap-1">
                   {PRESET_COLORS.map((c) => (
-                    <button
-                      key={c}
-                      onClick={() => setEditColor(c)}
-                      className={`w-4 h-4 rounded-full flex-shrink-0 transition-transform ${editColor === c ? 'scale-125 ring-1 ring-white/40' : ''}`}
+                    <button key={c} onClick={() => setEditColor(c)}
+                      className={`w-3.5 h-3.5 rounded-full flex-shrink-0 transition-transform ${editColor === c ? 'scale-125 ring-1 ring-white/40' : ''}`}
                       style={{ backgroundColor: c }}
                     />
                   ))}
                 </div>
-                <button onClick={() => handleSaveEdit(stage)} className="p-1 text-[#4A9E6B] hover:text-[#5BBF7F]">
-                  <Check size={14} />
-                </button>
-                <button onClick={() => setEditingId(null)} className="p-1 text-[#8A95A5] hover:text-[#8A95A5]">
-                  <X size={14} />
-                </button>
+                <button onClick={() => handleSaveEdit(stage)} className="p-1 text-[#4A9E6B]"><Check size={13} /></button>
+                <button onClick={() => setEditingId(null)} className="p-1 text-[#8A95A5]"><X size={13} /></button>
               </div>
             ) : (
               <>
-                <span className="flex-1 text-[13px] text-[#F0EDE8]">{stage.name}</span>
-                <span className="text-[11px] text-[#8A95A5]">{stage.leads_count} leads</span>
-                {stage.is_won && <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#4A9E6B]/20 text-[#4A9E6B]">Won</span>}
+                <span className="flex-1 text-[12px] text-[#F0EDE8]">{stage.name}</span>
+                <span className="text-[10px] text-[#8A95A5]">{stage.leads_count} leads</span>
+                {stage.is_won  && <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#4A9E6B]/20 text-[#4A9E6B]">Won</span>}
                 {stage.is_lost && <span className="text-[10px] px-1.5 py-0.5 rounded bg-red-500/20 text-red-400">Lost</span>}
-                <button
-                  onClick={() => { setEditingId(stage.id); setEditName(stage.name); setEditColor(stage.color) }}
-                  className="p-1.5 text-[#8A95A5] hover:text-[#F0EDE8] hover:bg-[#2A3A4A] rounded-lg transition-colors"
-                >
-                  <Pencil size={13} />
+                <button onClick={() => { setEditingId(stage.id); setEditName(stage.name); setEditColor(stage.color) }}
+                  className="p-1.5 text-[#8A95A5] hover:text-[#F0EDE8] hover:bg-[#2A3A4A] rounded-lg transition-colors">
+                  <Pencil size={12} />
                 </button>
-                <button
-                  onClick={() => handleDelete(stage.id)}
-                  className="p-1.5 text-[#8A95A5] hover:text-red-400 hover:bg-red-400/10 rounded-lg transition-colors"
-                >
-                  <Trash2 size={13} />
+                <button onClick={() => handleDeleteStage(stage)}
+                  className="p-1.5 text-[#8A95A5] hover:text-red-400 hover:bg-red-400/10 rounded-lg transition-colors">
+                  <Trash2 size={12} />
                 </button>
               </>
             )}
           </div>
         ))}
-
         {stages.length === 0 && (
-          <div className="text-center py-8 text-[#8A95A5] text-[13px]">
-            No hay etapas. Crea la primera abajo.
-          </div>
+          <p className="text-center py-6 text-[#8A95A5] text-[12px]">Sin etapas. Crea la primera abajo.</p>
         )}
       </div>
 
       {/* Add stage */}
-      <div className="bg-[#1A2535] border border-[#2A3A4A] rounded-xl p-4 space-y-3">
-        <p className="text-[12px] font-medium text-[#F0EDE8]">Agregar etapa</p>
+      <div className="bg-[#131D28] border border-[#2A3A4A] rounded-xl p-3 space-y-2.5">
+        <p className="text-[11px] font-medium text-[#F0EDE8]">Agregar etapa</p>
         <div className="flex gap-2">
           <input
             value={newName}
             onChange={(e) => setNewName(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleAddStage()}
             placeholder="Nombre de la etapa"
-            className="flex-1 bg-[#131D28] text-[#F0EDE8] text-[13px] rounded-lg px-3 py-2 border border-[#2A3A4A] focus:outline-none focus:ring-1 focus:ring-[#FF6B35]/50 placeholder-[#4A5568]"
+            className="flex-1 bg-[#1A2535] text-[#F0EDE8] text-[12px] rounded-lg px-3 py-2 border border-[#2A3A4A] focus:outline-none focus:ring-1 focus:ring-[#FF6B35]/50 placeholder-[#4A5568]"
           />
-          <button
-            onClick={handleAddStage}
-            disabled={!newName.trim() || saving}
-            className="px-4 py-2 rounded-lg text-[13px] font-medium bg-[#FF6B35] text-white hover:bg-[#e85d2a] disabled:opacity-40 transition-colors"
-          >
-            {saving ? <Loader2 size={14} className="animate-spin" /> : <Plus size={14} />}
+          <button onClick={handleAddStage} disabled={!newName.trim() || saving}
+            className="px-3 py-2 rounded-lg text-[12px] font-medium bg-[#FF6B35] text-white hover:bg-[#e85d2a] disabled:opacity-40 transition-colors">
+            {saving ? <Loader2 size={13} className="animate-spin" /> : <Plus size={13} />}
           </button>
         </div>
-        <div className="flex gap-2 flex-wrap">
+        <div className="flex gap-1.5 flex-wrap">
           {PRESET_COLORS.map((c) => (
-            <button
-              key={c}
-              onClick={() => setNewColor(c)}
-              className={`w-5 h-5 rounded-full transition-transform ${newColor === c ? 'scale-125 ring-1 ring-white/40' : 'hover:scale-110'}`}
+            <button key={c} onClick={() => setNewColor(c)}
+              className={`w-4 h-4 rounded-full transition-transform ${newColor === c ? 'scale-125 ring-1 ring-white/40' : 'hover:scale-110'}`}
               style={{ backgroundColor: c }}
             />
           ))}
@@ -847,22 +920,468 @@ function PipelineConfig({
   )
 }
 
+// ─── Pipeline Config — pipelines panel (left) ─────────────────────────────────
+
+function PipelinesPanel({
+  pipelines,
+  selectedId,
+  onSelect,
+  onPipelinesChange,
+}: {
+  pipelines: Pipeline[]
+  selectedId: number | null
+  onSelect: (id: number) => void
+  onPipelinesChange: (pipelines: Pipeline[]) => void
+}) {
+  const [editingId, setEditingId]   = useState<number | null>(null)
+  const [editName, setEditName]     = useState('')
+  const [editDesc, setEditDesc]     = useState('')
+  const [newName, setNewName]       = useState('')
+  const [newDesc, setNewDesc]       = useState('')
+  const [creating, setCreating]     = useState(false)
+  const [showForm, setShowForm]     = useState(false)
+  const [error, setError]           = useState('')
+
+  async function handleCreate() {
+    if (!newName.trim()) return
+    setCreating(true)
+    setError('')
+    try {
+      const p = await createPipeline({ name: newName.trim(), description: newDesc.trim() })
+      onPipelinesChange([...pipelines, p])
+      onSelect(p.id)
+      setNewName('')
+      setNewDesc('')
+      setShowForm(false)
+      toast.success(`Pipeline "${p.name}" creado.`)
+    } catch { setError('No se pudo crear el pipeline.') }
+    finally { setCreating(false) }
+  }
+
+  async function handleSaveEdit(p: Pipeline) {
+    try {
+      const updated = await updatePipeline(p.id, { name: editName, description: editDesc })
+      onPipelinesChange(pipelines.map(x => x.id === updated.id ? { ...x, ...updated } : x))
+      setEditingId(null)
+      toast.success('Pipeline actualizado.')
+    } catch { toast.error('No se pudo actualizar el pipeline.') }
+  }
+
+  async function handleSetDefault(p: Pipeline) {
+    try {
+      await updatePipeline(p.id, { is_default: true })
+      onPipelinesChange(pipelines.map(x => ({ ...x, is_default: x.id === p.id })))
+    } catch { toast.error('No se pudo cambiar el pipeline por defecto.') }
+  }
+
+  function handleDelete(p: Pipeline) {
+    confirmToast({
+      title:        'Eliminar pipeline',
+      description:  `"${p.name}" y todas sus etapas serán eliminados.`,
+      confirmLabel: 'Eliminar',
+      onConfirm: async () => {
+        try {
+          await deletePipeline(p.id)
+          const next = pipelines.filter(x => x.id !== p.id)
+          onPipelinesChange(next)
+          if (selectedId === p.id && next.length > 0) onSelect(next[0].id)
+          toast.success('Pipeline eliminado.')
+        } catch { toast.error('No se pudo eliminar el pipeline.') }
+      },
+    })
+  }
+
+  const inputCls = 'w-full bg-[#1A2535] text-[#F0EDE8] text-[12px] rounded-lg px-3 py-2 border border-[#2A3A4A] focus:outline-none focus:ring-1 focus:ring-[#FF6B35]/50 placeholder-[#4A5568]'
+
+  return (
+    <div className="flex flex-col h-full">
+      <div className="flex items-center justify-between mb-3">
+        <p className="text-[10px] text-[#8A95A5] uppercase tracking-wide">Pipelines ({pipelines.length})</p>
+        <button
+          onClick={() => setShowForm(v => !v)}
+          className="flex items-center gap-1 text-[11px] text-[#FF6B35] hover:text-[#FF8557] transition-colors font-medium"
+        >
+          <Plus size={12} />
+          Nuevo
+        </button>
+      </div>
+
+      {error && (
+        <div className="flex items-center gap-2 text-red-400 text-[11px] bg-red-500/10 rounded-lg px-3 py-2 mb-3">
+          <AlertCircle size={11} />{error}
+        </div>
+      )}
+
+      {/* New pipeline form */}
+      {showForm && (
+        <div className="bg-[#131D28] border border-[#FF6B35]/30 rounded-xl p-3 space-y-2 mb-3">
+          <input
+            autoFocus
+            value={newName}
+            onChange={(e) => setNewName(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && handleCreate()}
+            placeholder="Nombre del pipeline *"
+            className={inputCls}
+          />
+          <input
+            value={newDesc}
+            onChange={(e) => setNewDesc(e.target.value)}
+            placeholder="Descripción (opcional)"
+            className={inputCls}
+          />
+          <div className="flex gap-2">
+            <button onClick={handleCreate} disabled={!newName.trim() || creating}
+              className="flex-1 py-1.5 rounded-lg text-[12px] font-medium bg-[#FF6B35] text-white hover:bg-[#e85d2a] disabled:opacity-40 transition-colors">
+              {creating ? <Loader2 size={12} className="animate-spin mx-auto" /> : 'Crear pipeline'}
+            </button>
+            <button onClick={() => { setShowForm(false); setNewName(''); setNewDesc('') }}
+              className="px-3 py-1.5 rounded-lg text-[12px] text-[#8A95A5] bg-[#1A2535] hover:bg-[#2A3A4A] transition-colors">
+              <X size={12} />
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Pipeline list */}
+      <div className="flex flex-col gap-1.5 overflow-y-auto flex-1">
+        {pipelines.map((p) => (
+          <div
+            key={p.id}
+            onClick={() => { if (editingId !== p.id) onSelect(p.id) }}
+            className={`rounded-xl border transition-colors cursor-pointer ${
+              selectedId === p.id
+                ? 'border-[#FF6B35]/50 bg-[#FF6B35]/5'
+                : 'border-[#2A3A4A] bg-[#131D28] hover:border-[#3A4A5A]'
+            }`}
+          >
+            {editingId === p.id ? (
+              <div className="p-3 space-y-2" onClick={(e) => e.stopPropagation()}>
+                <input
+                  autoFocus
+                  value={editName}
+                  onChange={(e) => setEditName(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleSaveEdit(p)}
+                  className={inputCls}
+                />
+                <input
+                  value={editDesc}
+                  onChange={(e) => setEditDesc(e.target.value)}
+                  placeholder="Descripción (opcional)"
+                  className={inputCls}
+                />
+                <div className="flex gap-2">
+                  <button onClick={() => handleSaveEdit(p)}
+                    className="flex-1 py-1.5 rounded-lg text-[12px] font-medium bg-[#FF6B35] text-white hover:bg-[#e85d2a] transition-colors">
+                    Guardar
+                  </button>
+                  <button onClick={() => setEditingId(null)}
+                    className="px-3 py-1.5 rounded-lg text-[12px] text-[#8A95A5] bg-[#1A2535] hover:bg-[#2A3A4A] transition-colors">
+                    <X size={12} />
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="px-3 py-2.5">
+                <div className="flex items-center gap-2 mb-0.5">
+                  <span className="text-[13px] font-medium text-[#F0EDE8] flex-1 truncate">{p.name}</span>
+                  {p.is_default && (
+                    <span className="text-[9px] px-1.5 py-0.5 rounded bg-[#FF6B35]/15 text-[#FF6B35] font-semibold flex-shrink-0">
+                      DEFAULT
+                    </span>
+                  )}
+                </div>
+                {p.description && (
+                  <p className="text-[11px] text-[#8A95A5] truncate mb-1.5">{p.description}</p>
+                )}
+                <div className="flex items-center gap-1 mt-1" onClick={(e) => e.stopPropagation()}>
+                  {!p.is_default && (
+                    <button onClick={() => handleSetDefault(p)}
+                      className="text-[10px] text-[#8A95A5] hover:text-[#FF6B35] transition-colors px-1.5 py-0.5 rounded hover:bg-[#FF6B35]/10">
+                      Set default
+                    </button>
+                  )}
+                  <div className="flex-1" />
+                  <button onClick={() => { setEditingId(p.id); setEditName(p.name); setEditDesc(p.description) }}
+                    className="p-1 text-[#8A95A5] hover:text-[#F0EDE8] hover:bg-[#2A3A4A] rounded transition-colors">
+                    <Pencil size={11} />
+                  </button>
+                  {pipelines.length > 1 && (
+                    <button onClick={() => handleDelete(p)}
+                      className="p-1 text-[#8A95A5] hover:text-red-400 hover:bg-red-400/10 rounded transition-colors">
+                      <Trash2 size={11} />
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
+// ─── Lead list view ──────────────────────────────────────────────────────────
+
+const PAGE_SIZE = 25
+
+type SortField = 'full_name' | 'lead_score' | 'estimated_value_gtq' | 'created_at' | 'stage_name'
+type SortDir   = 'asc' | 'desc'
+
+function LeadListView({
+  leads,
+  pipeline,
+  onLeadClick,
+}: {
+  leads: Lead[]
+  pipeline: Pipeline
+  onLeadClick: (lead: Lead) => void
+}) {
+  const [sortField, setSortField] = useState<SortField>('created_at')
+  const [sortDir, setSortDir]     = useState<SortDir>('desc')
+  const [page, setPage]           = useState(1)
+
+  function toggleSort(field: SortField) {
+    if (sortField === field) {
+      setSortDir(d => d === 'asc' ? 'desc' : 'asc')
+    } else {
+      setSortField(field)
+      setSortDir('desc')
+    }
+    setPage(1)
+  }
+
+  const sorted = [...leads].sort((a, b) => {
+    let va: any = a[sortField]
+    let vb: any = b[sortField]
+    if (sortField === 'estimated_value_gtq') { va = Number(va) || 0; vb = Number(vb) || 0 }
+    if (sortField === 'lead_score')          { va = va ?? -1; vb = vb ?? -1 }
+    if (typeof va === 'string') va = va.toLowerCase()
+    if (typeof vb === 'string') vb = vb.toLowerCase()
+    if (va < vb) return sortDir === 'asc' ? -1 : 1
+    if (va > vb) return sortDir === 'asc' ?  1 : -1
+    return 0
+  })
+
+  const totalPages = Math.max(1, Math.ceil(sorted.length / PAGE_SIZE))
+  const paginated  = sorted.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE)
+
+  function SortIcon({ field }: { field: SortField }) {
+    if (sortField !== field) return <ChevronDown size={11} className="text-[#4A5568]" />
+    return sortDir === 'asc'
+      ? <ChevronUp   size={11} className="text-[#FF6B35]" />
+      : <ChevronDown size={11} className="text-[#FF6B35]" />
+  }
+
+  const thCls = 'text-left text-[10px] text-[#8A95A5] uppercase tracking-wide px-3 py-2.5 select-none'
+  const thBtn = 'flex items-center gap-1 hover:text-[#F0EDE8] transition-colors cursor-pointer'
+
+  return (
+    <div className="flex flex-col flex-1 min-h-0">
+      <div className="flex-1 overflow-auto">
+        <table className="w-full border-collapse min-w-[700px]">
+          <thead className="sticky top-0 bg-[#131D28] border-b border-[#2A3A4A] z-10">
+            <tr>
+              <th className={thCls} style={{ minWidth: 180 }}>
+                <button className={thBtn} onClick={() => toggleSort('full_name')}>
+                  Nombre <SortIcon field="full_name" />
+                </button>
+              </th>
+              <th className={thCls} style={{ minWidth: 130 }}>
+                <button className={thBtn} onClick={() => toggleSort('lead_score')}>
+                  Calificación <SortIcon field="lead_score" />
+                </button>
+              </th>
+              <th className={thCls} style={{ minWidth: 120 }}>
+                <button className={thBtn} onClick={() => toggleSort('stage_name')}>
+                  Etapa <SortIcon field="stage_name" />
+                </button>
+              </th>
+              <th className={thCls} style={{ minWidth: 110 }}>Servicio</th>
+              <th className={thCls} style={{ minWidth: 110 }}>
+                <button className={thBtn} onClick={() => toggleSort('estimated_value_gtq')}>
+                  Valor <SortIcon field="estimated_value_gtq" />
+                </button>
+              </th>
+              <th className={thCls} style={{ minWidth: 100 }}>Fuente</th>
+              <th className={thCls} style={{ minWidth: 100 }}>
+                <button className={thBtn} onClick={() => toggleSort('created_at')}>
+                  Registro <SortIcon field="created_at" />
+                </button>
+              </th>
+              <th className={thCls} style={{ minWidth: 80 }}>Estado</th>
+            </tr>
+          </thead>
+          <tbody>
+            {paginated.length === 0 && (
+              <tr>
+                <td colSpan={8} className="text-center py-12 text-[#8A95A5] text-[13px]">
+                  Sin leads en este pipeline
+                </td>
+              </tr>
+            )}
+            {paginated.map((lead) => (
+              <tr
+                key={lead.id}
+                onClick={() => onLeadClick(lead)}
+                className="border-b border-[#2A3A4A]/60 hover:bg-[#1A2535] cursor-pointer transition-colors group"
+              >
+                {/* Nombre */}
+                <td className="px-3 py-2.5">
+                  <p className="text-[13px] font-medium text-[#F0EDE8] group-hover:text-[#FF6B35] transition-colors leading-snug">
+                    {lead.full_name}
+                  </p>
+                  {lead.company && (
+                    <p className="text-[11px] text-[#8A95A5] mt-0.5 truncate max-w-[160px]">{lead.company}</p>
+                  )}
+                </td>
+
+                {/* Calificación */}
+                <td className="px-3 py-2.5">
+                  {lead.lead_tier ? (
+                    <div className="flex flex-col gap-1">
+                      <span
+                        className="text-[10px] font-semibold px-2 py-0.5 rounded-full w-fit"
+                        style={{ color: TIER_CFG[lead.lead_tier].color, background: TIER_CFG[lead.lead_tier].bg }}
+                      >
+                        {TIER_CFG[lead.lead_tier].label}
+                      </span>
+                      {lead.lead_score !== null && (
+                        <div className="flex items-center gap-1.5">
+                          <div className="w-16 h-1 bg-[#2A3A4A] rounded-full overflow-hidden">
+                            <div
+                              className="h-full rounded-full"
+                              style={{
+                                width: `${Math.round((lead.lead_score / 25) * 100)}%`,
+                                background: TIER_CFG[lead.lead_tier].bar,
+                              }}
+                            />
+                          </div>
+                          <span className="text-[10px] font-mono text-[#8A95A5]">{lead.lead_score}/25</span>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <span className="text-[11px] text-[#4A5568]">—</span>
+                  )}
+                </td>
+
+                {/* Etapa */}
+                <td className="px-3 py-2.5">
+                  <span className="inline-flex items-center gap-1.5">
+                    <span className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: lead.stage_color }} />
+                    <span className="text-[12px] text-[#F0EDE8]">{lead.stage_name}</span>
+                  </span>
+                </td>
+
+                {/* Servicio */}
+                <td className="px-3 py-2.5">
+                  <span className="text-[12px] text-[#8A95A5]">{SERVICE_LABEL[lead.service_type]}</span>
+                </td>
+
+                {/* Valor */}
+                <td className="px-3 py-2.5">
+                  <span className="text-[12px] font-medium text-[#4A9E6B]">
+                    {fmtGtq(lead.estimated_value_gtq) ?? '—'}
+                  </span>
+                </td>
+
+                {/* Fuente */}
+                <td className="px-3 py-2.5">
+                  <SourceBadge source={lead.source} />
+                </td>
+
+                {/* Registro */}
+                <td className="px-3 py-2.5">
+                  <span className="text-[11px] text-[#8A95A5]">{fmtDate(lead.created_at)}</span>
+                </td>
+
+                {/* Estado */}
+                <td className="px-3 py-2.5">
+                  <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${STATUS_COLOR[lead.status]}`}>
+                    {STATUS_LABEL[lead.status]}
+                  </span>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Pagination */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between px-4 md:px-6 py-3 border-t border-[#2A3A4A] flex-shrink-0">
+          <span className="text-[11px] text-[#8A95A5]">
+            {(page - 1) * PAGE_SIZE + 1}–{Math.min(page * PAGE_SIZE, sorted.length)} de {sorted.length} leads
+          </span>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={() => setPage(p => Math.max(1, p - 1))}
+              disabled={page === 1}
+              className="px-2.5 py-1 rounded-lg text-[12px] text-[#8A95A5] hover:text-[#F0EDE8] hover:bg-[#2A3A4A] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            >
+              ‹ Anterior
+            </button>
+            {Array.from({ length: totalPages }, (_, i) => i + 1)
+              .filter(n => n === 1 || n === totalPages || Math.abs(n - page) <= 1)
+              .reduce<(number | '…')[]>((acc, n, i, arr) => {
+                if (i > 0 && n - (arr[i - 1] as number) > 1) acc.push('…')
+                acc.push(n)
+                return acc
+              }, [])
+              .map((n, i) =>
+                n === '…' ? (
+                  <span key={`ellipsis-${i}`} className="px-1 text-[#8A95A5] text-[12px]">…</span>
+                ) : (
+                  <button
+                    key={n}
+                    onClick={() => setPage(n as number)}
+                    className={`w-7 h-7 rounded-lg text-[12px] font-medium transition-colors ${
+                      page === n
+                        ? 'bg-[#FF6B35] text-white'
+                        : 'text-[#8A95A5] hover:text-[#F0EDE8] hover:bg-[#2A3A4A]'
+                    }`}
+                  >
+                    {n}
+                  </button>
+                )
+              )}
+            <button
+              onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+              disabled={page === totalPages}
+              className="px-2.5 py-1 rounded-lg text-[12px] text-[#8A95A5] hover:text-[#F0EDE8] hover:bg-[#2A3A4A] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+            >
+              Siguiente ›
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
+
 // ─── Main page ────────────────────────────────────────────────────────────────
 
 export default function CRMPage() {
-  const [sidebarOpen, setSidebarOpen] = useState(false)
-  const [view, setView]               = useState<'kanban' | 'config'>('kanban')
-  const [pipelines, setPipelines]     = useState<Pipeline[]>([])
-  const [activePipelineId, setActivePipelineId] = useState<number | null>(null)
-  const [leads, setLeads]             = useState<Lead[]>([])
-  const [loading, setLoading]         = useState(true)
-  const [error, setError]             = useState('')
-  const [search, setSearch]           = useState('')
+  const searchParams = useSearchParams()
+
+  const [sidebarOpen, setSidebarOpen]   = useState(false)
+  const [view, setView]                 = useState<'kanban' | 'list' | 'config'>(
+    searchParams.get('config') === '1' ? 'config' : 'kanban'
+  )
+  const [pipelines, setPipelines]       = useState<Pipeline[]>([])
+  const [activePipelineId, setActivePipelineId]   = useState<number | null>(null)
+  const [configPipelineId, setConfigPipelineId]   = useState<number | null>(null)
+  const [leads, setLeads]               = useState<Lead[]>([])
+  const [loading, setLoading]           = useState(true)
+  const [error, setError]               = useState('')
+  const [search, setSearch]             = useState('')
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null)
   const [showNewLead, setShowNewLead]   = useState(false)
   const [draggedLead, setDraggedLead]   = useState<Lead | null>(null)
 
   const activePipeline = pipelines.find(p => p.id === activePipelineId) ?? null
+  const configPipeline = pipelines.find(p => p.id === (configPipelineId ?? activePipelineId)) ?? pipelines[0] ?? null
 
   // Load pipelines + leads
   const load = useCallback(async () => {
@@ -925,7 +1444,7 @@ export default function CRMPage() {
   return (
     <div className="flex h-screen bg-[#131D28] overflow-hidden">
       <ERPSidebar
-        currentPage="crm"
+        currentPage={view === 'config' ? 'crm_config' : 'crm'}
         open={sidebarOpen}
         onToggle={() => setSidebarOpen(prev => !prev)}
       />
@@ -958,25 +1477,7 @@ export default function CRMPage() {
             </select>
           )}
 
-          {/* View toggle */}
-          <div className="flex items-center bg-[#1A2535] rounded-lg p-0.5 border border-[#2A3A4A]">
-            <button
-              onClick={() => setView('kanban')}
-              className={`p-1.5 rounded-md transition-colors ${view === 'kanban' ? 'bg-[#2A3A4A] text-[#F0EDE8]' : 'text-[#8A95A5] hover:text-[#8A95A5]'}`}
-              title="Kanban"
-            >
-              <Kanban size={14} />
-            </button>
-            <button
-              onClick={() => setView('config')}
-              className={`p-1.5 rounded-md transition-colors ${view === 'config' ? 'bg-[#2A3A4A] text-[#F0EDE8]' : 'text-[#8A95A5] hover:text-[#8A95A5]'}`}
-              title="Configurar pipeline"
-            >
-              <Settings2 size={14} />
-            </button>
-          </div>
-
-          {view === 'kanban' && (
+          {(view === 'kanban' || view === 'list') && (
             <button
               onClick={() => setShowNewLead(true)}
               className="flex items-center gap-1.5 px-3 py-1.5 bg-[#FF6B35] text-white text-[12px] font-medium rounded-lg hover:bg-[#e85d2a] transition-colors"
@@ -1008,17 +1509,41 @@ export default function CRMPage() {
             <p className="text-[#8A95A5] text-[14px]">No hay pipelines configurados</p>
           </div>
         ) : view === 'config' ? (
-          <div className="flex-1 overflow-y-auto p-6">
-            <PipelineConfig
-              pipeline={activePipeline}
-              onPipelineUpdate={(updated) => {
-                setPipelines(ps => ps.map(p => p.id === updated.id ? updated : p))
-              }}
-            />
+          <div className="flex-1 flex min-h-0 overflow-hidden">
+            {/* Left: pipelines list */}
+            <div className="w-64 flex-shrink-0 border-r border-[#2A3A4A] p-4 flex flex-col min-h-0">
+              <PipelinesPanel
+                pipelines={pipelines}
+                selectedId={configPipelineId ?? activePipelineId}
+                onSelect={(id) => setConfigPipelineId(id)}
+                onPipelinesChange={(updated) => {
+                  setPipelines(updated)
+                  // keep activePipelineId valid
+                  if (updated.length > 0 && !updated.find(p => p.id === activePipelineId)) {
+                    setActivePipelineId(updated[0].id)
+                  }
+                }}
+              />
+            </div>
+            {/* Right: stages for selected pipeline */}
+            <div className="flex-1 overflow-y-auto p-6">
+              {configPipeline ? (
+                <StagesPanel
+                  pipeline={configPipeline}
+                  onPipelineUpdate={(updated) => {
+                    setPipelines(ps => ps.map(p => p.id === updated.id ? updated : p))
+                  }}
+                />
+              ) : (
+                <div className="flex items-center justify-center h-full text-[#8A95A5] text-[13px]">
+                  Selecciona un pipeline
+                </div>
+              )}
+            </div>
           </div>
         ) : (
           <>
-            {/* Search bar */}
+            {/* Search + view toggle bar */}
             <div className="px-4 md:px-6 py-3 border-b border-[#2A3A4A] flex items-center gap-3">
               <div className="relative flex-1 max-w-xs">
                 <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#8A95A5]" />
@@ -1030,6 +1555,27 @@ export default function CRMPage() {
                 />
               </div>
               <span className="text-[11px] text-[#8A95A5]">{pipelineLeads.length} leads</span>
+
+              <div className="flex-1" />
+
+              {/* View toggle */}
+              <div className="flex items-center bg-[#1A2535] rounded-lg p-0.5 border border-[#2A3A4A]">
+                <button
+                  onClick={() => setView('kanban')}
+                  className={`p-1.5 rounded-md transition-colors ${view === 'kanban' ? 'bg-[#2A3A4A] text-[#F0EDE8]' : 'text-[#8A95A5] hover:text-[#F0EDE8]'}`}
+                  title="Kanban"
+                >
+                  <Kanban size={14} />
+                </button>
+                <button
+                  onClick={() => setView('list')}
+                  className={`p-1.5 rounded-md transition-colors ${view === 'list' ? 'bg-[#2A3A4A] text-[#F0EDE8]' : 'text-[#8A95A5] hover:text-[#F0EDE8]'}`}
+                  title="Lista"
+                >
+                  <List size={14} />
+                </button>
+              </div>
+
               <button
                 onClick={load}
                 className="p-1.5 rounded-lg text-[#8A95A5] hover:text-[#F0EDE8] hover:bg-[#2A3A4A] transition-colors"
@@ -1039,35 +1585,43 @@ export default function CRMPage() {
               </button>
             </div>
 
-            {/* Kanban board */}
-            <div className="flex-1 overflow-x-auto overflow-y-hidden">
-              <div className="flex gap-3 h-full px-4 md:px-6 py-4 min-w-max">
-                {activePipeline.stages.map((stage) => (
-                  <KanbanColumn
-                    key={stage.id}
-                    stage={stage}
-                    leads={leadsPerStage(stage.id)}
-                    onDragStart={handleDragStart}
-                    onDragOver={handleDragOver}
-                    onDrop={handleDrop}
-                    onLeadClick={(lead) => setSelectedLead(lead)}
-                  />
-                ))}
+            {view === 'list' ? (
+              <LeadListView
+                leads={pipelineLeads}
+                pipeline={activePipeline}
+                onLeadClick={(lead) => setSelectedLead(lead)}
+              />
+            ) : (
+              /* Kanban board */
+              <div className="flex-1 overflow-x-auto overflow-y-hidden min-h-0">
+                <div className="flex gap-3 h-full px-4 md:px-6 py-4 min-w-max">
+                  {activePipeline.stages.map((stage) => (
+                    <KanbanColumn
+                      key={stage.id}
+                      stage={stage}
+                      leads={leadsPerStage(stage.id)}
+                      onDragStart={handleDragStart}
+                      onDragOver={handleDragOver}
+                      onDrop={handleDrop}
+                      onLeadClick={(lead) => setSelectedLead(lead)}
+                    />
+                  ))}
 
-                {activePipeline.stages.length === 0 && (
-                  <div className="flex-1 flex flex-col items-center justify-center gap-3 text-center">
-                    <Settings2 size={32} className="text-[#8A95A5]" />
-                    <p className="text-[#8A95A5] text-[14px]">No hay etapas configuradas</p>
-                    <button
-                      onClick={() => setView('config')}
-                      className="text-[12px] text-[#FF6B35] hover:underline"
-                    >
-                      Configurar pipeline
-                    </button>
-                  </div>
-                )}
+                  {activePipeline.stages.length === 0 && (
+                    <div className="flex-1 flex flex-col items-center justify-center gap-3 text-center">
+                      <Settings2 size={32} className="text-[#8A95A5]" />
+                      <p className="text-[#8A95A5] text-[14px]">No hay etapas configuradas</p>
+                      <button
+                        onClick={() => setView('config')}
+                        className="text-[12px] text-[#FF6B35] hover:underline"
+                      >
+                        Configurar pipeline
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
+            )}
           </>
         )}
       </div>

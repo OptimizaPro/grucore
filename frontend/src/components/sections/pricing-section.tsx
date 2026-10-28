@@ -17,7 +17,7 @@ export function PricingSection({ data }: { data?: PricingData }) {
   const items = (data?.tiers ?? t.raw('items')) as PricingTier[]
 
   return (
-    <section className="py-24 bg-[#1A2530]" aria-label="Transparencia de precios">
+    <section className="py-24 bg-[#131D28] border-t border-[#27384A]/60" aria-label="Transparencia de precios">
       <div className="max-w-7xl mx-auto px-6">
         {/* Header */}
         <SectionReveal className="mb-6">
@@ -50,8 +50,8 @@ export function PricingSection({ data }: { data?: PricingData }) {
               key={idx}
               className={`relative flex flex-col rounded-xl border p-8 ${
                 item.featured
-                  ? 'border-[#FF6B35]/50 bg-[#1F2D3A]'
-                  : 'border-[#27384A] bg-[#1A2530]'
+                  ? 'border-[#FF6B35]/50 bg-[#243344]'
+                  : 'border-[#2E4156] bg-[#1F2D3A]'
               }`}
             >
               {item.featured && (
@@ -90,7 +90,7 @@ export function PricingSection({ data }: { data?: PricingData }) {
                 </div>
                 {item.range_usd && (
                 <div
-                  className="text-sm text-[#8A95A5]"
+                  className="text-sm text-[#B0B8C4]"
                   style={{ fontFamily: 'Space Mono, monospace' }}
                 >
                   ≈ {item.range_usd}

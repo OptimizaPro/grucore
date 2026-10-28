@@ -64,11 +64,12 @@ class LeadSource(models.TextChoices):
 
 
 class ServiceType(models.TextChoices):
-    CONSTRUCTION = 'construction', 'Construcción'
-    RENOVATION   = 'renovation',   'Remodelación'
-    COMMERCIAL   = 'commercial',   'Comercial'
-    RESIDENTIAL  = 'residential',  'Residencial'
-    OTHER        = 'other',        'Otro'
+    CONSTRUCTION   = 'construction',   'Construcción'
+    RENOVATION     = 'renovation',     'Remodelación'
+    KITCHENS_BATHS = 'kitchens_baths', 'Cocinas y Baños'
+    COMMERCIAL     = 'commercial',     'Comercial'
+    RESIDENTIAL    = 'residential',    'Residencial'
+    OTHER          = 'other',          'Otro'
 
 
 class LeadStatus(models.TextChoices):
@@ -76,6 +77,12 @@ class LeadStatus(models.TextChoices):
     WON      = 'won',      'Ganado'
     LOST     = 'lost',     'Perdido'
     ARCHIVED = 'archived', 'Archivado'
+
+
+class LeadTier(models.TextChoices):
+    HOT  = 'hot',  '🔥 Caliente'
+    WARM = 'warm', '⚡ Tibio'
+    COLD = 'cold', '💡 Exploración'
 
 
 class Lead(models.Model):
@@ -115,6 +122,16 @@ class Lead(models.Model):
         null=True,
         blank=True,
         verbose_name='Valor estimado (GTQ)',
+    )
+    lead_score        = models.IntegerField(
+        null=True, blank=True,
+        verbose_name='Puntuación (0-25)',
+    )
+    lead_tier         = models.CharField(
+        max_length=10,
+        choices=LeadTier.choices,
+        null=True, blank=True,
+        verbose_name='Clasificación del lead',
     )
     assigned_to       = models.ForeignKey(
         settings.AUTH_USER_MODEL,

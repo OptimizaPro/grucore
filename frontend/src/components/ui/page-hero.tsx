@@ -31,6 +31,8 @@ interface PageHeroProps {
 function applyAccent(title: string, accent?: string, accentLast?: boolean): string {
   const strokeSpan = (word: string) =>
     `<span style="color:transparent;-webkit-text-stroke:2px #FF6B35">${word}</span>`
+  const nowrap = (content: string) =>
+    `<span style="white-space:nowrap">${content}</span>`
 
   if (accent) {
     return title.replace(accent, strokeSpan(accent))
@@ -38,8 +40,13 @@ function applyAccent(title: string, accent?: string, accentLast?: boolean): stri
   if (accentLast) {
     const words = title.split(' ')
     if (words.length > 1) {
-      const last = words.pop()!
-      return `${words.join(' ')} ${strokeSpan(last)}`
+      const last       = words.pop()!
+      const secondLast = words.length > 0 ? words.pop() : null
+      const group      = secondLast
+        ? `${secondLast} ${strokeSpan(last)}`
+        : strokeSpan(last)
+      const prefix = words.length > 0 ? `${words.join(' ')} ` : ''
+      return `${prefix}${nowrap(group)}`
     }
   }
   return title

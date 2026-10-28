@@ -12,7 +12,7 @@ export function PortfolioPreview() {
   const t = useTranslations('Home.portfolio')
 
   return (
-    <section className="py-24 bg-[#1A2530]" aria-label="Portafolio de proyectos">
+    <section className="pt-24 pb-12 bg-[#1F2D3A] border-t border-[#27384A]/60" aria-label="Portafolio de proyectos">
       <div className="max-w-7xl mx-auto px-6">
         {/* Header */}
         <SectionReveal className="mb-16 flex flex-col md:flex-row md:items-end justify-between gap-6">

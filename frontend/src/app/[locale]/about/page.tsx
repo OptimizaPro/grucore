@@ -70,21 +70,32 @@ export default async function AboutPage({ params }: Props) {
       {/* Stats bar */}
       <section className="bg-[#131D28] border-y border-[#27384A]">
         <div className="max-w-7xl mx-auto px-6 py-10">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
-            {c.stats.map((stat) => (
-              <div key={stat.label} className="text-center">
-                <p
-                  className="text-4xl font-bold text-[#FF6B35] mb-1"
-                  style={{ fontFamily: 'Montserrat, sans-serif' }}
-                >
-                  {stat.value}
-                </p>
-                <p className="text-xs text-[#8A95A5] uppercase tracking-widest" style={{ fontFamily: 'Space Mono, monospace' }}>
-                  {stat.label}
-                </p>
+          {/* proyectos(+), años(+), respuesta(h), asesor('') */}
+          {(() => {
+            const DEFAULT_SUFFIXES = ['+', '+', 'h', '']
+            return (
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+                {c.stats.map((stat, i) => {
+                  const extracted = stat.value.replace(/[\d.]/g, '')
+                  const num       = stat.value.replace(/\D/g, '')
+                  const suffix    = extracted || DEFAULT_SUFFIXES[i] || ''
+                  return (
+                    <div key={stat.label} className="text-center">
+                      <p
+                        className="text-4xl font-bold text-[#FF6B35] mb-1"
+                        style={{ fontFamily: 'Montserrat, sans-serif' }}
+                      >
+                        {num}{suffix}
+                      </p>
+                      <p className="text-xs text-[#8A95A5] uppercase tracking-widest" style={{ fontFamily: 'Space Mono, monospace' }}>
+                        {stat.label}
+                      </p>
+                    </div>
+                  )
+                })}
               </div>
-            ))}
-          </div>
+            )
+          })()}
         </div>
       </section>
 

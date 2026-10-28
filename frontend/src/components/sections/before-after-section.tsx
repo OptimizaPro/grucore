@@ -8,7 +8,7 @@ export function BeforeAfterSection({ data }: { data?: BeforeAfterData }) {
   const t = useTranslations('Home.before_after')
 
   return (
-    <section className="py-24 bg-[#1F2D3A]" aria-label="Comparación antes y después">
+    <section className="pt-12 pb-24 bg-[#1F2D3A]" aria-label="Comparación antes y después">
       <div className="max-w-7xl mx-auto px-6">
         <SectionReveal className="mb-12">
           <span

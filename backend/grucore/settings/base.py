@@ -130,40 +130,29 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
-# ─── Storage de archivos ──────────────────────────────────────────────────────
-# Por defecto: filesystem local / Railway Volume (montar en /app/media)
-#
-# Para activar Supabase Storage (S3-compatible), añade en .env:
-#   USE_S3=True
-#   SUPABASE_S3_ENDPOINT=https://<project-ref>.supabase.co/storage/v1/s3
-#   SUPABASE_S3_BUCKET=progress-photos
-#   SUPABASE_ACCESS_KEY_ID=<tu-access-key>
-#   SUPABASE_SECRET_ACCESS_KEY=<tu-secret-key>
-#   SUPABASE_S3_REGION=ap-southeast-1   # región de tu proyecto Supabase
-#
-# Instalar también: pip install django-storages[s3] boto3
-
-USE_S3 = env.bool('USE_S3', default=False)
+# ─── Storage de archivos (Supabase S3-compatible) ────────────────────────────
+USE_S3 = env.bool('USE_S3', default=bool(env('SUPABASE_S3_ACCESS_KEY', default='')))
 
 if USE_S3:
+    _S3_BUCKET = env('SUPABASE_S3_BUCKET', default='grucore-media')
     STORAGES = {
         'default': {
             'BACKEND': 'storages.backends.s3boto3.S3Boto3Storage',
             'OPTIONS': {
-                'endpoint_url':     env('SUPABASE_S3_ENDPOINT'),
-                'bucket_name':      env('SUPABASE_S3_BUCKET'),
-                'access_key':       env('SUPABASE_ACCESS_KEY_ID'),
-                'secret_key':       env('SUPABASE_SECRET_ACCESS_KEY'),
-                'region_name':      env('SUPABASE_S3_REGION', default='ap-southeast-1'),
-                'default_acl':      'public-read',
-                'file_overwrite':   False,
+                'endpoint_url': env('SUPABASE_S3_ENDPOINT'),
+                'bucket_name':  _S3_BUCKET,
+                'access_key':   env('SUPABASE_S3_ACCESS_KEY'),
+                'secret_key':   env('SUPABASE_S3_SECRET_KEY'),
+                'region_name':  env('SUPABASE_S3_REGION', default='us-east-1'),
+                'default_acl':  'public-read',
+                'file_overwrite': False,
             },
         },
         'staticfiles': {
             'BACKEND': 'whitenoise.storage.CompressedManifestStaticFilesStorage',
         },
     }
-    MEDIA_URL = f"{env('SUPABASE_S3_ENDPOINT')}/{env('SUPABASE_S3_BUCKET')}/"
+    MEDIA_URL = f"{env('SUPABASE_URL')}/storage/v1/object/public/{_S3_BUCKET}/"
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
@@ -340,11 +329,11 @@ UNFOLD = {
                 "separator": True,
                 "collapsible": True,
                 "items": [
-                    {"title": _("Proyectos"),           "icon": "construction",    "link": reverse_lazy("admin:projects_project_changelist")},
-                    {"title": _("Clientes"),            "icon": "people",          "link": reverse_lazy("admin:projects_client_changelist")},
-                    {"title": _("Cotizaciones"),        "icon": "request_quote",   "link": reverse_lazy("admin:projects_quote_changelist")},
-                    {"title": _("Plantillas de cot."),  "icon": "description",     "link": reverse_lazy("admin:projects_quotetemplate_changelist")},
-                    {"title": _("Presupuestos"),        "icon": "calculate",       "link": reverse_lazy("admin:projects_projectbudget_changelist")},
+                    {"title": _("Proyectos"),           "icon": "construction",    "link": reverse_lazy("admin:projects_project_changelist"),                          "permission": "grucore.config.sidebar_permissions.perm_projects"},
+                    {"title": _("Clientes"),            "icon": "people",          "link": reverse_lazy("admin:projects_client_changelist"),                           "permission": "grucore.config.sidebar_permissions.perm_clients"},
+                    {"title": _("Cotizaciones"),        "icon": "request_quote",   "link": reverse_lazy("admin:projects_quote_changelist"),                            "permission": "grucore.config.sidebar_permissions.perm_quotes"},
+                    {"title": _("Plantillas de cot."),  "icon": "description",     "link": reverse_lazy("admin:projects_quotetemplate_changelist"),                    "permission": "grucore.config.sidebar_permissions.perm_quote_templates"},
+                    {"title": _("Presupuestos"),        "icon": "calculate",       "link": reverse_lazy("admin:projects_projectbudget_changelist"),                    "permission": "grucore.config.sidebar_permissions.perm_budgets"},
                 ],
             },
 
@@ -354,16 +343,16 @@ UNFOLD = {
                 "separator": True,
                 "collapsible": True,
                 "items": [
-                    {"title": _("Fases"),               "icon": "account_tree",        "link": reverse_lazy("admin:projects_phase_changelist")},
-                    {"title": _("Tareas"),              "icon": "task_alt",            "link": reverse_lazy("admin:projects_task_changelist")},
-                    {"title": _("Avance de obra"),      "icon": "edit_note",           "link": reverse_lazy("admin:projects_progressupdate_changelist")},
-                    {"title": _("Hitos de pago"),       "icon": "payments",            "link": reverse_lazy("admin:projects_paymentmilestone_changelist")},
-                    {"title": _("Aprobaciones"),        "icon": "verified",            "link": reverse_lazy("admin:projects_milestoneapproval_changelist")},
-                    {"title": _("Documentos"),          "icon": "folder_open",         "link": reverse_lazy("admin:documents_document_changelist")},
-                    {"title": _("RFIs"),                "icon": "help_outline",        "link": reverse_lazy("admin:documents_rfi_changelist")},
-                    {"title": _("Submittals"),          "icon": "assignment_turned_in","link": reverse_lazy("admin:documents_submittal_changelist")},
-                    {"title": _("Punch items"),         "icon": "checklist",           "link": reverse_lazy("admin:documents_punchitem_changelist")},
-                    {"title": _("Órdenes de cambio"),   "icon": "change_circle",       "link": reverse_lazy("admin:change_orders_changeorder_changelist")},
+                    {"title": _("Fases"),               "icon": "account_tree",        "link": reverse_lazy("admin:projects_phase_changelist"),                        "permission": "grucore.config.sidebar_permissions.perm_phases"},
+                    {"title": _("Tareas"),              "icon": "task_alt",            "link": reverse_lazy("admin:projects_task_changelist"),                         "permission": "grucore.config.sidebar_permissions.perm_tasks"},
+                    {"title": _("Avance de obra"),      "icon": "edit_note",           "link": reverse_lazy("admin:projects_progressupdate_changelist"),               "permission": "grucore.config.sidebar_permissions.perm_progress"},
+                    {"title": _("Hitos de pago"),       "icon": "payments",            "link": reverse_lazy("admin:projects_paymentmilestone_changelist"),             "permission": "grucore.config.sidebar_permissions.perm_milestones"},
+                    {"title": _("Aprobaciones"),        "icon": "verified",            "link": reverse_lazy("admin:projects_milestoneapproval_changelist"),            "permission": "grucore.config.sidebar_permissions.perm_approvals"},
+                    {"title": _("Documentos"),          "icon": "folder_open",         "link": reverse_lazy("admin:documents_document_changelist"),                    "permission": "grucore.config.sidebar_permissions.perm_documents"},
+                    {"title": _("RFIs"),                "icon": "help_outline",        "link": reverse_lazy("admin:documents_rfi_changelist"),                        "permission": "grucore.config.sidebar_permissions.perm_rfis"},
+                    {"title": _("Submittals"),          "icon": "assignment_turned_in","link": reverse_lazy("admin:documents_submittal_changelist"),                   "permission": "grucore.config.sidebar_permissions.perm_submittals"},
+                    {"title": _("Punch items"),         "icon": "checklist",           "link": reverse_lazy("admin:documents_punchitem_changelist"),                   "permission": "grucore.config.sidebar_permissions.perm_punch"},
+                    {"title": _("Órdenes de cambio"),   "icon": "change_circle",       "link": reverse_lazy("admin:change_orders_changeorder_changelist"),             "permission": "grucore.config.sidebar_permissions.perm_change_orders"},
                 ],
             },
 
@@ -373,17 +362,17 @@ UNFOLD = {
                 "separator": True,
                 "collapsible": True,
                 "items": [
-                    {"title": _("Proveedores"),         "icon": "local_shipping",  "link": reverse_lazy("admin:suppliers_supplier_changelist")},
-                    {"title": _("Requisiciones"),       "icon": "list_alt",        "link": reverse_lazy("admin:purchasing_purchaserequisition_changelist")},
-                    {"title": _("Órdenes de compra"),   "icon": "shopping_cart",   "link": reverse_lazy("admin:purchasing_purchaseorder_changelist")},
-                    {"title": _("Recepciones"),         "icon": "move_to_inbox",   "link": reverse_lazy("admin:purchasing_goodsreceipt_changelist")},
-                    {"title": _("Fact. proveedor"),     "icon": "receipt",         "link": reverse_lazy("admin:purchasing_supplierinvoice_changelist")},
-                    {"title": _("Pagos a proveedor"),   "icon": "payments",        "link": reverse_lazy("admin:purchasing_supplierpayment_changelist")},
-                    {"title": _("Subcontratos"),        "icon": "handshake",       "link": reverse_lazy("admin:subcontractors_subcontractorcontract_changelist")},
-                    {"title": _("Certificaciones"),     "icon": "verified",        "link": reverse_lazy("admin:subcontractors_subcontractorcertification_changelist")},
-                    {"title": _("Productos"),           "icon": "inventory_2",     "link": reverse_lazy("admin:inventory_product_changelist")},
-                    {"title": _("Categorías"),          "icon": "category",        "link": reverse_lazy("admin:inventory_inventorycategory_changelist")},
-                    {"title": _("Movimientos de stock"),"icon": "swap_vert",       "link": reverse_lazy("admin:inventory_stockmovement_changelist")},
+                    {"title": _("Proveedores"),         "icon": "local_shipping",  "link": reverse_lazy("admin:suppliers_supplier_changelist"),                        "permission": "grucore.config.sidebar_permissions.perm_suppliers"},
+                    {"title": _("Requisiciones"),       "icon": "list_alt",        "link": reverse_lazy("admin:purchasing_purchaserequisition_changelist"),            "permission": "grucore.config.sidebar_permissions.perm_requisitions"},
+                    {"title": _("Órdenes de compra"),   "icon": "shopping_cart",   "link": reverse_lazy("admin:purchasing_purchaseorder_changelist"),                  "permission": "grucore.config.sidebar_permissions.perm_po"},
+                    {"title": _("Recepciones"),         "icon": "move_to_inbox",   "link": reverse_lazy("admin:purchasing_goodsreceipt_changelist"),                   "permission": "grucore.config.sidebar_permissions.perm_receipts"},
+                    {"title": _("Fact. proveedor"),     "icon": "receipt",         "link": reverse_lazy("admin:purchasing_supplierinvoice_changelist"),                "permission": "grucore.config.sidebar_permissions.perm_sup_invoices"},
+                    {"title": _("Pagos a proveedor"),   "icon": "payments",        "link": reverse_lazy("admin:purchasing_supplierpayment_changelist"),                "permission": "grucore.config.sidebar_permissions.perm_sup_payments"},
+                    {"title": _("Subcontratos"),        "icon": "handshake",       "link": reverse_lazy("admin:subcontractors_subcontractorcontract_changelist"),      "permission": "grucore.config.sidebar_permissions.perm_subcontracts"},
+                    {"title": _("Certificaciones"),     "icon": "verified",        "link": reverse_lazy("admin:subcontractors_subcontractorcertification_changelist"), "permission": "grucore.config.sidebar_permissions.perm_certifications"},
+                    {"title": _("Productos"),           "icon": "inventory_2",     "link": reverse_lazy("admin:inventory_product_changelist"),                        "permission": "grucore.config.sidebar_permissions.perm_products"},
+                    {"title": _("Categorías"),          "icon": "category",        "link": reverse_lazy("admin:inventory_inventorycategory_changelist"),               "permission": "grucore.config.sidebar_permissions.perm_inv_categories"},
+                    {"title": _("Movimientos de stock"),"icon": "swap_vert",       "link": reverse_lazy("admin:inventory_stockmovement_changelist"),                   "permission": "grucore.config.sidebar_permissions.perm_stock"},
                 ],
             },
 
@@ -393,11 +382,11 @@ UNFOLD = {
                 "separator": True,
                 "collapsible": True,
                 "items": [
-                    {"title": _("Activos"),             "icon": "precision_manufacturing", "link": reverse_lazy("admin:assets_fixedasset_changelist")},
-                    {"title": _("Categorías"),          "icon": "category",                "link": reverse_lazy("admin:assets_assetcategory_changelist")},
-                    {"title": _("Uso de equipos"),      "icon": "timer",                   "link": reverse_lazy("admin:assets_equipmentusagelog_changelist")},
-                    {"title": _("Mantenimiento"),       "icon": "build",                   "link": reverse_lazy("admin:assets_maintenancerecord_changelist")},
-                    {"title": _("Depreciación"),        "icon": "trending_down",           "link": reverse_lazy("admin:assets_assetdepreciationentry_changelist")},
+                    {"title": _("Activos"),             "icon": "precision_manufacturing", "link": reverse_lazy("admin:assets_fixedasset_changelist"),                 "permission": "grucore.config.sidebar_permissions.perm_assets"},
+                    {"title": _("Categorías"),          "icon": "category",                "link": reverse_lazy("admin:assets_assetcategory_changelist"),              "permission": "grucore.config.sidebar_permissions.perm_asset_cats"},
+                    {"title": _("Uso de equipos"),      "icon": "timer",                   "link": reverse_lazy("admin:assets_equipmentusagelog_changelist"),          "permission": "grucore.config.sidebar_permissions.perm_usage_logs"},
+                    {"title": _("Mantenimiento"),       "icon": "build",                   "link": reverse_lazy("admin:assets_maintenancerecord_changelist"),          "permission": "grucore.config.sidebar_permissions.perm_maintenance"},
+                    {"title": _("Depreciación"),        "icon": "trending_down",           "link": reverse_lazy("admin:assets_assetdepreciationentry_changelist"),     "permission": "grucore.config.sidebar_permissions.perm_depreciation"},
                 ],
             },
 
@@ -407,8 +396,8 @@ UNFOLD = {
                 "separator": True,
                 "collapsible": True,
                 "items": [
-                    {"title": _("Gastos"),              "icon": "receipt_long",    "link": reverse_lazy("admin:financials_expense_changelist")},
-                    {"title": _("Facturas"),            "icon": "description",     "link": reverse_lazy("admin:financials_invoice_changelist")},
+                    {"title": _("Gastos"),              "icon": "receipt_long",    "link": reverse_lazy("admin:financials_expense_changelist"),                        "permission": "grucore.config.sidebar_permissions.perm_expenses"},
+                    {"title": _("Facturas"),            "icon": "description",     "link": reverse_lazy("admin:financials_invoice_changelist"),                       "permission": "grucore.config.sidebar_permissions.perm_invoices"},
                 ],
             },
 
@@ -418,14 +407,14 @@ UNFOLD = {
                 "separator": False,
                 "collapsible": True,
                 "items": [
-                    {"title": _("Asientos"),            "icon": "menu_book",       "link": reverse_lazy("admin:ledger_journalentry_changelist")},
-                    {"title": _("Catálogo de cuentas"), "icon": "account_tree",    "link": reverse_lazy("admin:ledger_account_changelist")},
-                    {"title": _("Períodos"),            "icon": "calendar_month",  "link": reverse_lazy("admin:ledger_accountingperiod_changelist")},
-                    {"title": _("Centros de costo"),    "icon": "workspaces",      "link": reverse_lazy("admin:core_costcenter_changelist")},
-                    {"title": _("Códigos de costo"),    "icon": "tag",             "link": reverse_lazy("admin:core_costcode_changelist")},
-                    {"title": _("Reglas fiscales"),     "icon": "gavel",           "link": reverse_lazy("admin:ledger_taxrule_changelist")},
-                    {"title": _("Mapeos de cuentas"),   "icon": "swap_horiz",      "link": reverse_lazy("admin:ledger_accountmapping_changelist")},
-                    {"title": _("Logs de cierre"),      "icon": "lock_clock",      "link": reverse_lazy("admin:ledger_periodcloselog_changelist")},
+                    {"title": _("Asientos"),            "icon": "menu_book",       "link": reverse_lazy("admin:ledger_journalentry_changelist"),                      "permission": "grucore.config.sidebar_permissions.perm_journal"},
+                    {"title": _("Catálogo de cuentas"), "icon": "account_tree",    "link": reverse_lazy("admin:ledger_account_changelist"),                           "permission": "grucore.config.sidebar_permissions.perm_accounts"},
+                    {"title": _("Períodos"),            "icon": "calendar_month",  "link": reverse_lazy("admin:ledger_accountingperiod_changelist"),                  "permission": "grucore.config.sidebar_permissions.perm_periods"},
+                    {"title": _("Centros de costo"),    "icon": "workspaces",      "link": reverse_lazy("admin:core_costcenter_changelist"),                          "permission": "grucore.config.sidebar_permissions.perm_cost_centers"},
+                    {"title": _("Códigos de costo"),    "icon": "tag",             "link": reverse_lazy("admin:core_costcode_changelist"),                            "permission": "grucore.config.sidebar_permissions.perm_cost_codes"},
+                    {"title": _("Reglas fiscales"),     "icon": "gavel",           "link": reverse_lazy("admin:ledger_taxrule_changelist"),                           "permission": "grucore.config.sidebar_permissions.perm_tax_rules"},
+                    {"title": _("Mapeos de cuentas"),   "icon": "swap_horiz",      "link": reverse_lazy("admin:ledger_accountmapping_changelist"),                    "permission": "grucore.config.sidebar_permissions.perm_mappings"},
+                    {"title": _("Logs de cierre"),      "icon": "lock_clock",      "link": reverse_lazy("admin:ledger_periodcloselog_changelist"),                    "permission": "grucore.config.sidebar_permissions.perm_close_logs"},
                 ],
             },
 
@@ -435,8 +424,8 @@ UNFOLD = {
                 "separator": True,
                 "collapsible": True,
                 "items": [
-                    {"title": _("Trabajadores"),        "icon": "engineering",     "link": reverse_lazy("admin:workers_worker_changelist")},
-                    {"title": _("Registros de trabajo"),"icon": "punch_clock",     "link": reverse_lazy("admin:workers_worklog_changelist")},
+                    {"title": _("Trabajadores"),        "icon": "engineering",     "link": reverse_lazy("admin:workers_worker_changelist"),                           "permission": "grucore.config.sidebar_permissions.perm_workers"},
+                    {"title": _("Registros de trabajo"),"icon": "punch_clock",     "link": reverse_lazy("admin:workers_worklog_changelist"),                          "permission": "grucore.config.sidebar_permissions.perm_worklogs"},
                 ],
             },
 
@@ -446,9 +435,9 @@ UNFOLD = {
                 "separator": True,
                 "collapsible": True,
                 "items": [
-                    {"title": _("Leads"),               "icon": "contacts",        "link": reverse_lazy("admin:crm_lead_changelist")},
-                    {"title": _("Pipelines"),           "icon": "view_kanban",     "link": reverse_lazy("admin:crm_pipeline_changelist")},
-                    {"title": _("Actividades"),         "icon": "timeline",        "link": reverse_lazy("admin:crm_leadactivity_changelist")},
+                    {"title": _("Leads"),               "icon": "contacts",        "link": reverse_lazy("admin:crm_lead_changelist"),                                 "permission": "grucore.config.sidebar_permissions.perm_leads"},
+                    {"title": _("Pipelines"),           "icon": "view_kanban",     "link": reverse_lazy("admin:crm_pipeline_changelist"),                             "permission": "grucore.config.sidebar_permissions.perm_pipelines"},
+                    {"title": _("Actividades"),         "icon": "timeline",        "link": reverse_lazy("admin:crm_leadactivity_changelist"),                         "permission": "grucore.config.sidebar_permissions.perm_activities"},
                 ],
             },
 
@@ -458,8 +447,8 @@ UNFOLD = {
                 "separator": True,
                 "collapsible": True,
                 "items": [
-                    {"title": _("Notificaciones"),      "icon": "notifications",   "link": reverse_lazy("admin:communications_notification_changelist")},
-                    {"title": _("Mensajes"),            "icon": "forum",           "link": reverse_lazy("admin:communications_projectmessage_changelist")},
+                    {"title": _("Notificaciones"),      "icon": "notifications",   "link": reverse_lazy("admin:communications_notification_changelist"),              "permission": "grucore.config.sidebar_permissions.perm_notifications"},
+                    {"title": _("Mensajes"),            "icon": "forum",           "link": reverse_lazy("admin:communications_projectmessage_changelist"),            "permission": "grucore.config.sidebar_permissions.perm_messages"},
                 ],
             },
 
@@ -469,11 +458,11 @@ UNFOLD = {
                 "separator": True,
                 "collapsible": True,
                 "items": [
-                    {"title": _("Páginas"),             "icon": "article",         "link": reverse_lazy("admin:cms_page_changelist")},
-                    {"title": _("Secciones"),           "icon": "view_module",     "link": reverse_lazy("admin:cms_section_changelist")},
-                    {"title": _("Bloques"),             "icon": "text_fields",     "link": reverse_lazy("admin:cms_block_changelist")},
-                    {"title": _("Multimedia"),          "icon": "photo_library",   "link": reverse_lazy("admin:media_assets_mediaasset_changelist")},
-                    {"title": _("Portafolio"),          "icon": "collections",     "link": reverse_lazy("admin:portfolio_portfolioproject_changelist")},
+                    {"title": _("Páginas"),             "icon": "article",         "link": reverse_lazy("admin:cms_page_changelist"),                                 "permission": "grucore.config.sidebar_permissions.perm_cms_pages"},
+                    {"title": _("Secciones"),           "icon": "view_module",     "link": reverse_lazy("admin:cms_section_changelist"),                              "permission": "grucore.config.sidebar_permissions.perm_cms_sections"},
+                    {"title": _("Bloques"),             "icon": "text_fields",     "link": reverse_lazy("admin:cms_block_changelist"),                                "permission": "grucore.config.sidebar_permissions.perm_cms_blocks"},
+                    {"title": _("Multimedia"),          "icon": "photo_library",   "link": reverse_lazy("admin:media_assets_mediaasset_changelist"),                  "permission": "grucore.config.sidebar_permissions.perm_media"},
+                    {"title": _("Portafolio"),          "icon": "collections",     "link": reverse_lazy("admin:portfolio_portfolioproject_changelist"),                "permission": "grucore.config.sidebar_permissions.perm_portfolio"},
                 ],
             },
 
@@ -483,11 +472,11 @@ UNFOLD = {
                 "separator": True,
                 "collapsible": True,
                 "items": [
-                    {"title": _("Usuarios"),            "icon": "manage_accounts", "link": reverse_lazy("admin:users_user_changelist")},
-                    {"title": _("Grupos"),              "icon": "group",           "link": reverse_lazy("admin:auth_group_changelist")},
-                    {"title": _("Tareas periódicas"),   "icon": "schedule",        "link": reverse_lazy("admin:django_celery_beat_periodictask_changelist")},
-                    {"title": _("Resultados Celery"),   "icon": "assignment",      "link": reverse_lazy("admin:django_celery_results_taskresult_changelist")},
-                    {"title": _("Empresa"),             "icon": "domain",          "link": reverse_lazy("admin:core_companysettings_changelist")},
+                    {"title": _("Usuarios"),            "icon": "manage_accounts", "link": reverse_lazy("admin:users_user_changelist"),                               "permission": "grucore.config.sidebar_permissions.perm_users"},
+                    {"title": _("Grupos"),              "icon": "group",           "link": reverse_lazy("admin:auth_group_changelist"),                               "permission": "grucore.config.sidebar_permissions.perm_groups"},
+                    {"title": _("Tareas periódicas"),   "icon": "schedule",        "link": reverse_lazy("admin:django_celery_beat_periodictask_changelist"),          "permission": "grucore.config.sidebar_permissions.perm_celery_tasks"},
+                    {"title": _("Resultados Celery"),   "icon": "assignment",      "link": reverse_lazy("admin:django_celery_results_taskresult_changelist"),         "permission": "grucore.config.sidebar_permissions.perm_celery_results"},
+                    {"title": _("Empresa"),             "icon": "domain",          "link": reverse_lazy("admin:core_companysettings_changelist"),                     "permission": "grucore.config.sidebar_permissions.perm_company"},
                 ],
             },
         ],

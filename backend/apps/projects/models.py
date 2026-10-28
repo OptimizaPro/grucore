@@ -5,11 +5,12 @@ from django.utils import timezone
 
 
 class ProjectType(models.TextChoices):
-    RESIDENTIAL  = 'residential',  'Residencial'
-    COMMERCIAL   = 'commercial',   'Comercial'
-    INDUSTRIAL   = 'industrial',   'Industrial'
-    RENOVATION   = 'renovation',   'Remodelación'
-    DESIGN_BUILD = 'design_build', 'Diseño y construcción'
+    RESIDENTIAL    = 'residential',    'Residencial'
+    COMMERCIAL     = 'commercial',     'Comercial'
+    INDUSTRIAL     = 'industrial',     'Industrial'
+    RENOVATION     = 'renovation',     'Remodelación'
+    KITCHENS_BATHS = 'kitchens_baths', 'Cocinas y Baños'
+    DESIGN_BUILD   = 'design_build',   'Diseño y construcción'
 
 
 class ProjectStatus(models.TextChoices):

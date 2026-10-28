@@ -67,11 +67,11 @@
           "range": "Q 500,000 – Q 8,000,000"
         },
         {
-          "id": "finishing",
-          "title": "Premium Finishes",
-          "description": "Flooring, ceilings, fine carpentry, paint and closing details. The last 20% that makes the visual difference.",
-          "tags": ["Flooring", "Carpentry", "Paint"],
-          "range": "Q 30,000 – Q 300,000"
+          "id": "kitchens_baths",
+          "title": "Kitchens & Baths",
+          "description": "Specialized kitchen and bathroom remodeling. Functional design, quality materials and clean execution with defined timelines.",
+          "tags": ["Kitchens", "Bathrooms", "Remodeling"],
+          "range": "Q 25,000 – Q 250,000"
         }
       ],
       "cta": "View all services"
@@ -210,6 +210,21 @@
       "subtitle": "No commitment. A specialized advisor reviews your case and delivers a real estimate, not a generic range.",
       "button": "Start my estimate",
       "secondary": "or call +502 5712-2606"
+    },
+    "google_review": {
+      "eyebrow": "Google Reviews",
+      "title": "Did we work together? Tell others about it.",
+      "subtitle": "Your review helps more people make the right decision. It only takes a minute and means a lot to our team.",
+      "cta": "Leave my Google review",
+      "note": "Direct link to Google · No extra sign-up needed"
+    },
+    "cta_banner": {
+      "headline_1": "READY TO START",
+      "headline_2": "YOUR PROJECT?",
+      "subtitle": "Tell us what you have in mind. We visit the site, assess the scope, and deliver a detailed written estimate. No pressure, no surprises.",
+      "cta_primary": "Get a free estimate",
+      "cta_phone": "+502 5712-2606",
+      "watermark": "LET'S BUILD"
     }
   },
   "Navigation": {
@@ -220,6 +235,35 @@
     "quote": "Get a quote",
     "portal": "Client portal",
     "admin": "Internal panel"
+  },
+  "Widget": {
+    "title": "Quick Quote",
+    "step1_title": "What service do you need?",
+    "step2_title": "What is your approximate budget?",
+    "step3_title": "How can we reach you?",
+    "services": {
+      "residential":    "Residential",
+      "renovation":     "Remodeling",
+      "commercial":     "Commercial",
+      "design_build":   "Design & Build",
+      "industrial":     "Industrial",
+      "kitchens_baths": "Kitchens & Baths"
+    },
+    "budgets": {
+      "b1": "Under Q150,000",
+      "b2": "Q150k – Q500k",
+      "b3": "Q500k – Q2M",
+      "b4": "Q2,000,000+"
+    },
+    "name_label":       "Full name *",
+    "phone_label":      "Phone / WhatsApp *",
+    "email_label":      "Email address",
+    "city_label":       "City",
+    "submit":           "Send request",
+    "submitting":       "Processing...",
+    "confirm_title":    "Request received!",
+    "confirm_subtitle": "A Grucore specialist will contact you soon.",
+    "close":            "Close"
   },
   "Common": {
     "loading": "Loading...",

@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter', 'Liberation Sans', Arial, sans-serif;
+    font-size: 9pt;
+    color: #1a1a2e;
+    background: #ffffff;
+  }
+
+  /* ── Page layout ── */
+  @page {
+    size: letter;
+    margin: 15mm 18mm 20mm 18mm;
+    @bottom-center {
+      content: "Página " counter(page) " de " counter(pages);
+      font-size: 7pt;
+      color: #888;
+    }
+  }
+
+  /* ── Header ── */
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding-bottom: 10pt;
+    border-bottom: 2pt solid #FF6B35;
+    margin-bottom: 12pt;
+  }
+
+  .company-block { flex: 1; }
+  .company-logo  { max-height: 40pt; max-width: 120pt; margin-bottom: 4pt; }
+  .company-name  { font-size: 13pt; font-weight: 700; color: #0f172a; }
+  .company-tag   { font-size: 7.5pt; color: #64748b; margin-top: 2pt; }
+
+  .doc-block {
+    text-align: right;
+    flex-shrink: 0;
+  }
+  .doc-type {
+    font-size: 18pt;
+    font-weight: 700;
+    color: #FF6B35;
+    line-height: 1;
+    letter-spacing: -0.5pt;
+  }
+  .doc-number {
+    font-size: 11pt;
+    font-weight: 600;
+    color: #0f172a;
+    margin-top: 3pt;
+    font-family: 'Courier New', monospace;
+  }
+
+  .status-badge {
+    display: inline-block;
+    margin-top: 5pt;
+    padding: 2pt 8pt;
+    border-radius: 20pt;
+    font-size: 7pt;
+    font-weight: 600;
+    letter-spacing: 0.5pt;
+    text-transform: uppercase;
+  }
+  .status-draft              { background: #e2e8f0; color: #475569; }
+  .status-sent               { background: #dbeafe; color: #1d4ed8; }
+  .status-confirmed          { background: #ffedd5; color: #c2410c; }
+  .status-partially_received { background: #fef3c7; color: #92400e; }
+  .status-received           { background: #dcfce7; color: #15803d; }
+  .status-invoiced           { background: #f3e8ff; color: #7e22ce; }
+  .status-cancelled          { background: #fee2e2; color: #b91c1c; }
+
+  /* ── Info grid (proveedor + proyecto + detalles) ── */
+  .info-grid {
+    display: flex;
+    gap: 10pt;
+    margin-bottom: 12pt;
+  }
+  .info-card {
+    flex: 1;
+    border: 0.5pt solid #e2e8f0;
+    border-radius: 5pt;
+    padding: 8pt 10pt;
+    background: #f8fafc;
+  }
+  .info-card h4 {
+    font-size: 6.5pt;
+    text-transform: uppercase;
+    letter-spacing: 0.8pt;
+    color: #FF6B35;
+    font-weight: 600;
+    margin-bottom: 5pt;
+  }
+  .info-card p {
+    font-size: 8.5pt;
+    color: #1e293b;
+    line-height: 1.5;
+  }
+  .info-card p.label {
+    font-size: 7pt;
+    color: #94a3b8;
+    margin-top: 4pt;
+  }
+  .info-card p.val {
+    font-weight: 500;
+  }
+
+  /* ── Lines table ── */
+  table.lines {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 12pt;
+    font-size: 8pt;
+  }
+  table.lines thead tr {
+    background: #0f172a;
+    color: #f1f5f9;
+  }
+  table.lines thead th {
+    padding: 6pt 8pt;
+    text-align: left;
+    font-weight: 600;
+    font-size: 7.5pt;
+    letter-spacing: 0.3pt;
+  }
+  table.lines thead th.right { text-align: right; }
+
+  table.lines tbody tr { border-bottom: 0.5pt solid #e2e8f0; }
+  table.lines tbody tr:nth-child(even) { background: #f8fafc; }
+  table.lines tbody td {
+    padding: 5.5pt 8pt;
+    color: #1e293b;
+    vertical-align: top;
+  }
+  table.lines tbody td.right {
+    text-align: right;
+    font-family: 'Courier New', monospace;
+    font-size: 7.5pt;
+  }
+  table.lines tbody td.desc { font-weight: 500; }
+  table.lines tbody td.unit { color: #64748b; }
+
+  /* ── Totals ── */
+  .totals-block {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 14pt;
+  }
+  .totals-table {
+    width: 200pt;
+    border-collapse: collapse;
+  }
+  .totals-table td {
+    padding: 4pt 8pt;
+    font-size: 8.5pt;
+  }
+  .totals-table td.label { color: #64748b; }
+  .totals-table td.val   { text-align: right; font-family: 'Courier New', monospace; font-weight: 500; }
+  .totals-table tr.total-row { background: #FF6B35; }
+  .totals-table tr.total-row td {
+    color: #ffffff;
+    font-weight: 700;
+    font-size: 9.5pt;
+    padding: 6pt 8pt;
+    border-radius: 0;
+  }
+  .totals-table tr.subtotal-row td { border-top: 0.5pt solid #e2e8f0; }
+
+  /* ── Notes ── */
+  .notes-block {
+    border: 0.5pt solid #e2e8f0;
+    border-radius: 5pt;
+    padding: 8pt 10pt;
+    background: #f8fafc;
+    margin-bottom: 14pt;
+  }
+  .notes-block h4 {
+    font-size: 6.5pt;
+    text-transform: uppercase;
+    letter-spacing: 0.8pt;
+    color: #64748b;
+    font-weight: 600;
+    margin-bottom: 4pt;
+  }
+  .notes-block p { font-size: 8pt; color: #334155; line-height: 1.5; }
+
+  /* ── Signatures ── */
+  .sig-row {
+    display: flex;
+    gap: 20pt;
+    margin-top: 28pt;
+    page-break-inside: avoid;
+  }
+  .sig-box {
+    flex: 1;
+    border-top: 0.5pt solid #94a3b8;
+    padding-top: 5pt;
+  }
+  .sig-box p { font-size: 7.5pt; color: #64748b; }
+  .sig-box p.name { font-weight: 600; color: #1e293b; font-size: 8pt; }
+
+  /* ── Footer ── */
+  .footer {
+    margin-top: 14pt;
+    border-top: 0.5pt solid #e2e8f0;
+    padding-top: 6pt;
+    font-size: 6.5pt;
+    color: #94a3b8;
+    text-align: center;
+  }
+
+  .accent { color: #FF6B35; }
+  .mono   { font-family: 'Courier New', monospace; }
+</style>
+</head>
+<body>
+
+<!-- ── Header ───────────────────────────────────────────────────── -->
+<div class="header">
+  <div class="company-block">
+    {% if company.logo_light %}
+      <img class="company-logo" src="{{ logo_url }}" alt="{{ company.name }}">
+    {% else %}
+      <p class="company-name">{{ company.name }}</p>
+    {% endif %}
+    {% if company.tagline %}<p class="company-tag">{{ company.tagline }}</p>{% endif %}
+  </div>
+  <div class="doc-block">
+    <p class="doc-type">ORDEN DE<br>COMPRA</p>
+    <p class="doc-number">{{ po_number }}</p>
+    <span class="status-badge status-{{ po.status }}">{{ po.get_status_display }}</span>
+  </div>
+</div>
+
+<!-- ── Info grid ─────────────────────────────────────────────────── -->
+<div class="info-grid">
+
+  <!-- Proveedor -->
+  <div class="info-card">
+    <h4>Proveedor</h4>
+    <p class="val">{{ po.supplier.name }}</p>
+    {% if po.supplier.nit    %}<p class="label">NIT</p><p class="val">{{ po.supplier.nit }}</p>{% endif %}
+    {% if po.supplier.address%}<p class="label">Dirección</p><p>{{ po.supplier.address }}</p>{% endif %}
+    {% if po.supplier.contact_person %}<p class="label">Contacto</p><p>{{ po.supplier.contact_person }}</p>{% endif %}
+    {% if po.supplier.phone  %}<p class="label">Teléfono</p><p>{{ po.supplier.phone }}</p>{% endif %}
+    {% if po.supplier.email  %}<p class="label">Email</p><p>{{ po.supplier.email }}</p>{% endif %}
+  </div>
+
+  <!-- Proyecto -->
+  <div class="info-card">
+    <h4>Proyecto</h4>
+    <p class="val">{{ po.project.name }}</p>
+    {% if po.project.client %}<p class="label">Cliente</p><p>{{ po.project.client }}</p>{% endif %}
+    {% if po.phase %}<p class="label">Fase</p><p>{{ po.phase.name }}</p>{% endif %}
+    {% if po.delivery_address %}<p class="label">Dirección de entrega</p><p>{{ po.delivery_address }}</p>{% endif %}
+  </div>
+
+  <!-- Detalle OC -->
+  <div class="info-card">
+    <h4>Detalle</h4>
+    <p class="label">Fecha de emisión</p>
+    <p class="val">{{ po.created_at|date:"d/m/Y" }}</p>
+    {% if po.delivery_date %}
+    <p class="label">Entrega esperada</p>
+    <p class="val">{{ po.delivery_date|date:"d/m/Y" }}</p>
+    {% endif %}
+    {% if po.confirmed_by %}
+    <p class="label">Confirmada por</p>
+    <p class="val">{{ po.confirmed_by.get_full_name|default:po.confirmed_by.email }}</p>
+    {% endif %}
+    <p class="label">IVA aplicado</p>
+    <p class="val">{{ po.tax_percentage }}%</p>
+  </div>
+
+</div>
+
+<!-- ── Line items ─────────────────────────────────────────────────── -->
+<table class="lines">
+  <thead>
+    <tr>
+      <th style="width:5%">#</th>
+      <th style="width:42%">Descripción</th>
+      <th style="width:10%" class="right">Cant.</th>
+      <th style="width:10%">Unidad</th>
+      <th style="width:15%" class="right">P. Unitario</th>
+      <th style="width:18%" class="right">Subtotal</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for line in po.lines.all %}
+    <tr>
+      <td>{{ forloop.counter }}</td>
+      <td class="desc">{{ line.description }}</td>
+      <td class="right">{{ line.quantity|floatformat:2 }}</td>
+      <td class="unit">{{ line.unit }}</td>
+      <td class="right">Q {{ line.unit_cost_gtq|floatformat:2 }}</td>
+      <td class="right">Q {{ line.line_subtotal_gtq|floatformat:2 }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+
+<!-- ── Totals ─────────────────────────────────────────────────────── -->
+<div class="totals-block">
+  <table class="totals-table">
+    <tr>
+      <td class="label">Subtotal</td>
+      <td class="val">Q {{ po.subtotal_gtq|floatformat:2 }}</td>
+    </tr>
+    <tr>
+      <td class="label">IVA ({{ po.tax_percentage }}%)</td>
+      <td class="val">Q {{ po.tax_amount_gtq|floatformat:2 }}</td>
+    </tr>
+    <tr class="total-row">
+      <td>TOTAL GTQ</td>
+      <td class="val" style="text-align:right; font-family:'Courier New',monospace;">Q {{ po.total_gtq|floatformat:2 }}</td>
+    </tr>
+  </table>
+</div>
+
+<!-- ── Notes ──────────────────────────────────────────────────────── -->
+{% if po.notes %}
+<div class="notes-block">
+  <h4>Notas y condiciones</h4>
+  <p>{{ po.notes }}</p>
+</div>
+{% endif %}
+
+<!-- ── Signatures ─────────────────────────────────────────────────── -->
+<div class="sig-row">
+  <div class="sig-box">
+    <p class="name">{{ company.name }}</p>
+    <p>Autorizado por</p>
+  </div>
+  <div class="sig-box">
+    <p class="name">{{ po.supplier.name }}</p>
+    <p>Aceptado por proveedor</p>
+  </div>
+</div>
+
+<!-- ── Footer ─────────────────────────────────────────────────────── -->
+<div class="footer">
+  {{ po_number }} · Generado el {{ generated_at }} · {{ company.name }}
+</div>
+
+</body>
+</html>

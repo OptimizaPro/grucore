@@ -34,9 +34,12 @@ const ICONS: Record<string, React.FC<{ size?: number; className?: string }>> = {
       <path d="M2 22V12l5-5 5 5V7l5-5 5 5v15H2z" />
     </svg>
   ),
-  finishing: ({ size = 20, className }) => (
+  kitchens_baths: ({ size = 20, className }) => (
     <svg width={size} height={size} className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-      <path d="M12 2L9.5 8.5H3l5.5 4-2 6.5L12 15l5.5 4-2-6.5L21 8.5h-6.5L12 2z" />
+      <path d="M2 12h20v6a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2v-6z" />
+      <path d="M6 12V6a2 2 0 0 1 2-2h1" />
+      <circle cx="10" cy="4" r="1" />
+      <path d="M22 12H2" />
     </svg>
   ),
 }

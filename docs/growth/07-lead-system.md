@@ -34,7 +34,7 @@ Every channel is **optional and independent**. If one fails, the others still ru
 
 ## Turning it on
 
-All settings are environment variables in **Vercel → Project → Settings → Environment Variables**. The full list with comments is in `.env.example`. Redeploy after changing them.
+All settings are environment variables in **Railway → Service → Variables**. The full list with comments is in `.env.example`. Redeploy after changing them.
 
 | Step | What to set | Cost |
 |---|---|---|

@@ -124,6 +124,13 @@ const SPOTLIGHT_STEPS = [
     iconColor: '#8B5CF6',
   },
   {
+    selector: '[data-tour="portal-cotizacion"]',
+    title: 'Cotización',
+    description: 'Revisa el desglose económico de tu proyecto: materiales, mano de obra y costos adicionales detallados.',
+    Icon: DollarSign,
+    iconColor: '#FF6B35',
+  },
+  {
     selector: '[data-tour="portal-documentos"]',
     title: 'Documentos',
     description: 'Accede a contratos, planos, permisos y toda la documentación oficial de tu proyecto en un solo lugar.',

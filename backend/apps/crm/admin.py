@@ -1,4 +1,5 @@
 from django.contrib import admin
+from django.utils.html import format_html
 from unfold.admin import ModelAdmin, TabularInline, StackedInline
 from apps.core.admin_mixins import CRUDActionsMixin
 from .models import Pipeline, PipelineStage, Lead, LeadActivity
@@ -49,13 +50,50 @@ class PipelineStageAdmin(CRUDActionsMixin, ModelAdmin):
 
 @admin.register(Lead)
 class LeadAdmin(CRUDActionsMixin, ModelAdmin):
-    list_display  = ('full_name', 'company', 'stage', 'status', 'source', 'service_type', 'assigned_to', 'estimated_value_gtq', 'created_at')
-    list_filter   = ('status', 'source', 'service_type', 'pipeline', 'stage')
-    search_fields = ('full_name', 'email', 'phone', 'company', 'city')
-    ordering      = ('-created_at',)
-    raw_id_fields = ('assigned_to', 'converted_project')
-    readonly_fields = ('converted_at', 'created_at', 'updated_at')
-    inlines       = [LeadActivityInline]
+    list_display    = ('full_name', 'tier_badge', 'score_bar', 'service_type', 'stage', 'status', 'estimated_value_gtq', 'created_at')
+    list_filter     = ('status', 'source', 'service_type', 'pipeline', 'stage', 'lead_tier')
+    search_fields   = ('full_name', 'email', 'phone', 'company', 'city')
+    ordering        = ('-created_at',)
+    raw_id_fields   = ('assigned_to', 'converted_project')
+    readonly_fields = ('converted_at', 'created_at', 'updated_at', 'lead_score', 'lead_tier', 'tier_badge', 'score_bar')
+    inlines         = [LeadActivityInline]
+
+    # ── Display helpers ───────────────────────────────────────────────────────
+
+    @admin.display(description='Tier', ordering='lead_tier')
+    def tier_badge(self, obj):
+        cfg = {
+            'hot':  ('#FF6B35', '#FFF3EE', '🔥 Caliente'),
+            'warm': ('#D97706', '#FFFBEB', '⚡ Tibio'),
+            'cold': ('#64748B', '#F1F5F9', '💡 Exploración'),
+        }
+        if not obj.lead_tier:
+            return '—'
+        color, bg, label = cfg.get(obj.lead_tier, ('#64748B', '#F1F5F9', obj.lead_tier))
+        return format_html(
+            '<span style="display:inline-flex;align-items:center;gap:4px;'
+            'padding:2px 10px;border-radius:999px;font-size:11px;font-weight:600;'
+            'color:{};background:{};white-space:nowrap;">{}</span>',
+            color, bg, label,
+        )
+
+    @admin.display(description='Puntuación')
+    def score_bar(self, obj):
+        if obj.lead_score is None:
+            return '—'
+        pct   = int((obj.lead_score / 25) * 100)
+        color = '#FF6B35' if obj.lead_score >= 20 else '#D97706' if obj.lead_score >= 13 else '#64748B'
+        return format_html(
+            '<div style="display:flex;align-items:center;gap:8px;min-width:120px;">'
+            '<div style="flex:1;height:6px;background:#E2E8F0;border-radius:999px;overflow:hidden;">'
+            '<div style="width:{}%;height:100%;background:{};border-radius:999px;"></div>'
+            '</div>'
+            '<span style="font-size:11px;font-weight:700;color:{};">{}/25</span>'
+            '</div>',
+            pct, color, color, obj.lead_score,
+        )
+
+    # ── Fieldsets ─────────────────────────────────────────────────────────────
 
     fieldsets = (
         ('Contacto', {
@@ -63,6 +101,12 @@ class LeadAdmin(CRUDActionsMixin, ModelAdmin):
                 'full_name',
                 ('email', 'phone'),
                 ('company', 'city'),
+            ),
+        }),
+        ('Calificación del Lead', {
+            'fields': (
+                ('tier_badge', 'score_bar'),
+                ('lead_tier', 'lead_score'),
             ),
         }),
         ('Pipeline', {

@@ -6,7 +6,7 @@ from rest_framework.response import Response
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework.filters import SearchFilter, OrderingFilter
 
-from .models import Pipeline, PipelineStage, Lead, LeadActivity, ActivityType
+from .models import Pipeline, PipelineStage, Lead, LeadActivity, ActivityType, LeadSource, ServiceType, LeadTier
 from .serializers import (
     PipelineSerializer,
     PipelineStageSerializer,
@@ -182,6 +182,93 @@ class LeadConvertView(APIView):
 
         serializer = LeadSerializer(lead, context={'request': request})
         return Response(serializer.data)
+
+
+# ─── Public Widget Lead ───────────────────────────────────────────────────────
+
+class WidgetLeadView(APIView):
+    """Public endpoint — receives leads from the website qualification widget."""
+    permission_classes = [permissions.AllowAny]
+
+    def post(self, request):
+        data = request.data
+
+        full_name = (data.get('full_name') or '').strip()
+        phone     = (data.get('phone') or '').strip()
+
+        if not full_name or not phone:
+            return Response(
+                {'detail': 'Los campos nombre y teléfono son requeridos.'},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # Validate service_type
+        valid_services = {choice[0] for choice in ServiceType.choices}
+        service_type   = data.get('service_type', ServiceType.OTHER)
+        if service_type not in valid_services:
+            service_type = ServiceType.OTHER
+
+        # Resolve pipeline + first stage
+        pipeline = (
+            Pipeline.objects.filter(is_default=True).first()
+            or Pipeline.objects.order_by('id').first()
+        )
+        if not pipeline:
+            return Response(
+                {'detail': 'No existe ningún pipeline configurado. Crea uno desde el admin.'},
+                status=status.HTTP_503_SERVICE_UNAVAILABLE,
+            )
+
+        stage = PipelineStage.objects.filter(pipeline=pipeline).order_by('order').first()
+        if not stage:
+            return Response(
+                {'detail': 'El pipeline no tiene etapas configuradas.'},
+                status=status.HTTP_503_SERVICE_UNAVAILABLE,
+            )
+
+        # Build notes
+        budget_range = (data.get('budget_range') or '').strip()
+        notes_parts  = []
+        if budget_range:
+            notes_parts.append(f'Presupuesto: {budget_range}')
+        extra_notes = (data.get('notes') or '').strip()
+        if extra_notes:
+            notes_parts.append(extra_notes)
+        notes = '\n'.join(notes_parts)
+
+        # Validate lead_tier
+        raw_tier   = (data.get('lead_tier') or '').strip()
+        valid_tiers = {choice[0] for choice in LeadTier.choices}
+        lead_tier  = raw_tier if raw_tier in valid_tiers else None
+
+        # Validate lead_score (0-25)
+        raw_score  = data.get('lead_score')
+        try:
+            lead_score = int(raw_score) if raw_score is not None else None
+            if lead_score is not None and not (0 <= lead_score <= 25):
+                lead_score = None
+        except (TypeError, ValueError):
+            lead_score = None
+
+        lead, created = Lead.objects.update_or_create(
+            phone    = phone,
+            defaults = dict(
+                full_name           = full_name,
+                email               = (data.get('email') or '').strip(),
+                city                = (data.get('city') or '').strip(),
+                service_type        = service_type,
+                source              = LeadSource.WIDGET,
+                notes               = notes,
+                estimated_value_gtq = data.get('estimated_value_gtq') or None,
+                lead_score          = lead_score,
+                lead_tier           = lead_tier,
+                pipeline            = pipeline,
+                stage               = stage,
+            ),
+        )
+
+        detail = 'Lead creado exitosamente.' if created else 'Lead actualizado exitosamente.'
+        return Response({'id': lead.id, 'created': created, 'detail': detail}, status=status.HTTP_201_CREATED)
 
 
 # ─── Lead Activities ──────────────────────────────────────────────────────────

@@ -8,12 +8,18 @@ interface TrustStat { value: string; label: string }
 export function TrustBar({ data }: { data?: TrustStat[] }) {
   const t = useTranslations('Home.trust')
 
+  // Sufijos conocidos por posición: proyectos(+), años(+), respuesta(h), asesor('')
+  const DEFAULT_SUFFIXES = ['+', '+', 'h', '']
+
   const items = data
-    ? data.map((s, i) => ({
-        value:  Number(s.value.replace(/\D/g, '')) || 0,
-        suffix: s.value.replace(/[\d.]/g, ''),
-        label:  s.label,
-      }))
+    ? data.map((s, i) => {
+        const extracted = s.value.replace(/[\d.]/g, '')
+        return {
+          value:  Number(s.value.replace(/\D/g, '')) || 0,
+          suffix: extracted || DEFAULT_SUFFIXES[i] || '',
+          label:  s.label,
+        }
+      })
     : [
         { value: Number(t('projects_value')), suffix: '+', label: t('projects_label') },
         { value: Number(t('years_value')),    suffix: '+', label: t('years_label') },

@@ -128,7 +128,7 @@ export async function Footer() {
         </div>
 
         {/* Bottom bar */}
-        <div className="mt-16 pt-8 border-t border-[#27384A] flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div className="mt-16 pt-8 pb-12 border-t border-[#27384A] flex flex-col sm:flex-row items-center justify-between gap-4">
           <p className="text-xs text-[#8A95A5]">
             © {year} Grucore. Todos los derechos reservados.
           </p>

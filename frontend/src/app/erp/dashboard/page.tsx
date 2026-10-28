@@ -52,11 +52,12 @@ function ProjectStatusChip({ status }: { status: string }) {
 // ─── Project type labels ──────────────────────────────────────────────────────
 
 const PROJECT_TYPES = [
-  { value: 'residential',   label: 'Residencial' },
-  { value: 'commercial',    label: 'Comercial' },
-  { value: 'industrial',    label: 'Industrial' },
-  { value: 'renovation',    label: 'Renovación' },
-  { value: 'design_build',  label: 'Diseño y construcción' },
+  { value: 'residential',    label: 'Residencial' },
+  { value: 'commercial',     label: 'Comercial' },
+  { value: 'industrial',     label: 'Industrial' },
+  { value: 'renovation',     label: 'Remodelación' },
+  { value: 'kitchens_baths', label: 'Cocinas y Baños' },
+  { value: 'design_build',   label: 'Diseño y construcción' },
 ]
 
 // ─── New project modal ────────────────────────────────────────────────────────

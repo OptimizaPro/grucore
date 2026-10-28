@@ -133,14 +133,9 @@ export function Header() {
             >
               {t('portal')}
             </NextLink>
-            <Button
-              size="sm"
-              onClick={() => {
-                document.getElementById('cta-section')?.scrollIntoView({ behavior: 'smooth' })
-              }}
-            >
-              {t('quote')}
-            </Button>
+            <Link href="/cotizar">
+              <Button size="sm">{t('quote')}</Button>
+            </Link>
           </div>
 
           {/* Burger mobile */}
@@ -194,9 +189,9 @@ export function Header() {
             >
               {t('portal')}
             </NextLink>
-            <Button size="lg" className="w-full" onClick={() => setMenuOpen(false)}>
-              {t('quote')}
-            </Button>
+            <Link href="/cotizar" onClick={() => setMenuOpen(false)}>
+              <Button size="lg" className="w-full">{t('quote')}</Button>
+            </Link>
           </div>
         </nav>
       </div>
@@ -222,12 +217,12 @@ export function Header() {
             </svg>
             WhatsApp
           </a>
-          <button
-            onClick={() => document.getElementById('cta-section')?.scrollIntoView({ behavior: 'smooth' })}
+          <Link
+            href="/cotizar"
             className="flex-1 h-11 flex items-center justify-center gap-2 bg-[#FF6B35] rounded-lg text-sm font-semibold text-[#1A2530] hover:bg-[#FF8557] transition-colors"
           >
             Cotizar
-          </button>
+          </Link>
         </div>
       </div>
     </>

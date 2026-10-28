@@ -1569,7 +1569,7 @@ export type LeadSourceValue =
   | 'widget' | 'direct' | 'other'
 
 export type ServiceTypeValue =
-  | 'construction' | 'renovation' | 'commercial' | 'residential' | 'other'
+  | 'construction' | 'renovation' | 'kitchens_baths' | 'commercial' | 'residential' | 'other'
 
 export type LeadStatusValue = 'active' | 'won' | 'lost' | 'archived'
 
@@ -1609,6 +1609,8 @@ export interface LeadActivity {
   created_at: string
 }
 
+export type LeadTierValue = 'hot' | 'warm' | 'cold'
+
 export interface Lead {
   id: number
   pipeline: number
@@ -1625,6 +1627,8 @@ export interface Lead {
   status: LeadStatusValue
   estimated_value_gtq: string | null
   notes: string
+  lead_score: number | null
+  lead_tier: LeadTierValue | null
   assigned_to: number | null
   assigned_to_name: string | null
   converted_project: number | null

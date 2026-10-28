@@ -13,7 +13,7 @@ export function ProcessSection({ data }: { data?: ProcessData }) {
   const steps = (data?.steps ?? t.raw('steps')) as Array<{ number: string; title: string; description: string }>
 
   return (
-    <section className="py-24 bg-[#1F2D3A]" aria-label="Proceso de trabajo">
+    <section className="py-24 bg-[#131D28] border-t border-[#27384A]/60" aria-label="Proceso de trabajo">
       <div className="max-w-7xl mx-auto px-6">
         {/* Header */}
         <SectionReveal className="mb-20">
@@ -66,7 +66,7 @@ export function ProcessSection({ data }: { data?: ProcessData }) {
             {steps.map((step) => (
               <div
                 key={step.number}
-                className="group relative flex flex-col overflow-hidden rounded-2xl bg-[#1A2530] border border-[#27384A]/80 hover:border-[#FF6B35]/30 hover:-translate-y-2 hover:shadow-[0_24px_48px_rgba(0,0,0,0.4)] transition-all duration-300 cursor-default"
+                className="group relative flex flex-col overflow-hidden rounded-2xl bg-[#1F2D3A] border border-[#2E4156] hover:border-[#FF6B35]/30 hover:-translate-y-2 hover:shadow-[0_24px_48px_rgba(0,0,0,0.4)] transition-all duration-300 cursor-default"
               >
                 {/* Top accent line */}
                 <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-[#FF6B35]/0 to-transparent group-hover:via-[#FF6B35] transition-all duration-500" />

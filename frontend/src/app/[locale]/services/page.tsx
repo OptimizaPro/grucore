@@ -85,7 +85,7 @@ export default async function ServicesPage({ params }: Props) {
                         {formatRangeGtq(service.range_gtq)}
                       </span>
                       <span
-                        className="text-xs text-[#8A95A5]"
+                        className="text-xs text-[#B0B8C4]"
                         style={{ fontFamily: 'Space Mono, monospace' }}
                       >
                         ≈ {formatRangeUsd(service.range_gtq)}
@@ -119,9 +119,9 @@ export default async function ServicesPage({ params }: Props) {
                       </div>
                     </div>
 
-                    {/* Highlights */}
+                    {/* Highlights — solo los 4 principales */}
                     <ul className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-2">
-                      {highlights.map((h) => (
+                      {highlights.slice(0, 4).map((h) => (
                         <li key={h} className="flex items-start gap-2 text-sm text-[#8A95A5]">
                           <Check size={13} className="text-[#FF6B35] mt-0.5 flex-shrink-0" />
                           {h}
