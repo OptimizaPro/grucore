@@ -10,7 +10,17 @@ class CompanySettingsAdmin(ModelAdmin):
             'fields': (('logo', 'logo_light'),),
         }),
         ('Textos', {
-            'fields': ('name', 'tagline'),
+            'fields': ('name', 'tagline', 'description'),
+        }),
+        ('Contacto público (sitio web y footer)', {
+            'fields': ('phone', 'email', 'address'),
+        }),
+        ('Redes sociales', {
+            'fields': ('whatsapp', 'instagram', 'linkedin', 'facebook'),
+        }),
+        ('Auditoría', {
+            'fields': ('updated_at',),
+            'classes': ('collapse',),
         }),
     )
     readonly_fields = ('updated_at',)
