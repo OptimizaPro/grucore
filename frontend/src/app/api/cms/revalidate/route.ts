@@ -10,6 +10,13 @@ export async function POST(request: NextRequest) {
   }
 
   const slug = request.nextUrl.searchParams.get('slug')
+  const type = request.nextUrl.searchParams.get('type')
+
+  // CompanySettings affects the layout (footer/header) — revalidate all pages
+  if (type === 'settings') {
+    revalidatePath('/', 'layout')
+    return NextResponse.json({ revalidated: true, type: 'settings', scope: 'layout' })
+  }
 
   // Map CMS page slugs to Next.js locale-aware paths
   const pathMap: Record<string, string[]> = {
