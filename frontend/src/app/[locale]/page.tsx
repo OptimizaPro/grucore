@@ -96,7 +96,7 @@ export default async function HomePage({ params }: Props) {
       {/* ── Testimonios ───────────────────────────/
       <TestimonialsSection data={testimonialsData} />
       */}
-      <GoogleReviewCta />
+      {/* <GoogleReviewCta /> */}
       <CtaSection data={ctaData} />
       <CtaBanner />
     </>
