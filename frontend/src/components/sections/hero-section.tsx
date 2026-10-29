@@ -95,18 +95,18 @@ export function HeroSection({ data }: { data?: HeroData }) {
           >
             <motion.h1 variants={lineVariants} className="leading-none overflow-visible">
               <span
-                className="block text-[clamp(3rem,9vw,8rem)] font-semibold text-[#F0EDE8] tracking-tight"
+                className="block text-[clamp(1.75rem,7.5vw,8rem)] font-semibold text-[#F0EDE8] tracking-tight"
               >
                 {data?.headline_1 ?? t('headline_1')}
               </span>
               <span
-                className="block text-[clamp(3rem,9vw,8rem)] font-semibold tracking-tight"
+                className="block text-[clamp(1.75rem,7.5vw,8rem)] font-semibold tracking-tight"
                 style={{ color: 'transparent', WebkitTextStroke: '2px #FF6B35' }}
               >
                 {data?.headline_2 ?? t('headline_2')}
               </span>
               <span
-                className="block text-[clamp(3rem,9vw,8rem)] font-semibold text-[#F0EDE8] tracking-tight"
+                className="block text-[clamp(1.75rem,7.5vw,8rem)] font-semibold text-[#F0EDE8] tracking-tight"
               >
                 {data?.headline_3 ?? t('headline_3')}
               </span>
