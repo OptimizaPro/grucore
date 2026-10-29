@@ -31,8 +31,8 @@ export interface ServiceDefinition {
 }
 
 export const SERVICES: Record<string, ServiceDefinition> = {
-  residential_construction: {
-    id: 'residential_construction',
+  residential: {
+    id: 'residential',
     icon: 'Home',
     cover_image: 'https://images.unsplash.com/photo-1593786267440-550458cc882a?auto=format&fit=crop&w=900&q=80',
     before_image: '/residencial-antes.webp',

@@ -86,7 +86,7 @@ export default async function ServiceDetailPage({ params }: Props) {
   ]
 
   const FAQ_BY_SERVICE: Record<string, Array<{ q: { es: string; en: string }; a: { es: string; en: string } }>> = {
-    residential_construction: [
+    residential: [
       {
         q: { es: '¿Necesito tener los planos antes de contactarlos?', en: 'Do I need plans before contacting you?' },
         a: { es: 'No. Podemos partir desde cero: diseño arquitectónico y planos estructurales son parte del servicio. Si ya tienes planos, los revisamos y cotizamos sobre ellos.', en: 'No. We can start from scratch: architectural design and structural drawings are part of the service. If you already have plans, we review and quote from them.' },
