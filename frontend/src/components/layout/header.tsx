@@ -9,7 +9,6 @@ import { Menu, X, Globe } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 import { Link, useRouter, usePathname } from '@/i18n/navigation'
-import { getCompanySettings } from '@/lib/company-settings'
 
 const NAV_LINKS = [
   { key: 'services', href: '/services' },
@@ -52,21 +51,16 @@ function LocaleSwitcher({ className }: { className?: string }) {
   )
 }
 
-export function Header() {
+export function Header({ logoUrl }: { logoUrl: string | null }) {
   const t = useTranslations('Navigation')
   const pathname = usePathname()
-  const [scrolled, setScrolled]   = useState(false)
-  const [menuOpen, setMenuOpen]   = useState(false)
-  const [logoUrl, setLogoUrl]     = useState<string | null>(null)
+  const [scrolled, setScrolled] = useState(false)
+  const [menuOpen, setMenuOpen] = useState(false)
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40)
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
-  }, [])
-
-  useEffect(() => {
-    getCompanySettings().then(s => setLogoUrl(s.logo_light_url ?? s.logo_url))
   }, [])
 
   useEffect(() => {

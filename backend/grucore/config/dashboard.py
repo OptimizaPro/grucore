@@ -149,6 +149,12 @@ def dashboard_callback(request: HttpRequest, context: dict) -> dict:
     for group in QUICK_ACCESS_GROUPS:
         cards = []
         for m in group["items"]:
+            # Filtrar por permiso view del modelo
+            app_label, model_name = m["model"].split(".")
+            perm = f"{app_label}.view_{model_name.lower()}"
+            if not request.user.has_perm(perm):
+                continue
+
             try:
                 Model = apps.get_model(m["model"])
                 count = Model.objects.count()

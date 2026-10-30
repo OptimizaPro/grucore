@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { usePathname } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   Building2, TrendingUp, CreditCard, MessageSquare,
@@ -349,6 +350,9 @@ function SpotlightOverlay({
 // ─── Main component ───────────────────────────────────────────────────────────
 
 export default function PortalOnboarding() {
+  const pathname = usePathname()
+  const isAuthPage = pathname.includes('/login') || pathname.includes('/register')
+
   const [wizardOpen,    setWizardOpen]    = useState(false)
   const [spotlightOpen, setSpotlightOpen] = useState(false)
   const [spotlightStep, setSpotlightStep] = useState(0)
@@ -359,6 +363,7 @@ export default function PortalOnboarding() {
 
   useEffect(() => {
     setMounted(true)
+    if (isAuthPage) return
     try {
       const raw = localStorage.getItem(STORAGE_KEY)
       if (!raw) {
@@ -369,7 +374,7 @@ export default function PortalOnboarding() {
         if (saved.completedSteps) setCompletedSteps(new Set(saved.completedSteps))
       }
     } catch {}
-  }, [])
+  }, [isAuthPage])
 
   useEffect(() => {
     if (!mounted) return

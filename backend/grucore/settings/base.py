@@ -485,6 +485,11 @@ UNFOLD = {
     },
 }
 
+# ─── Auth redirects ──────────────────────────────────────────────────────────
+LOGIN_REDIRECT_URL  = '/djamasy/'
+LOGOUT_REDIRECT_URL = '/djamasy/login/'
+LOGIN_URL           = '/djamasy/login/'
+
 # ─── Email (Brevo SMTP) ───────────────────────────────────────────────────────
 EMAIL_BACKEND         = env('EMAIL_BACKEND', default='django.core.mail.backends.smtp.EmailBackend')
 EMAIL_HOST            = env('EMAIL_HOST',    default='smtp-relay.brevo.com')

@@ -1,68 +1,203 @@
-/* ── BlockInline: ajuste de columnas ──────────────────────── */
-/* El related_name='blocks' hace que el prefix del formset sea "blocks" */
+/* ══════════════════════════════════════════════════════════════
+   CMS BlockInline — UI mejorada
+   ══════════════════════════════════════════════════════════════ */
 
-/* Forzar layout fijo para que los anchos se respeten */
+/* ── Wrapper con scroll horizontal ──────────────────────────── */
+#blocks-group .tabular-inline-material,
+#blocks-group > .inline-related,
+#blocks-group > fieldset {
+    overflow-x: auto !important;
+}
+
+/* ── Tabla base ──────────────────────────────────────────────── */
 #blocks-group table,
 .dynamic-blocks table {
     table-layout: fixed;
     width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
 }
 
-/* Orden — muy estrecho */
+/* ── Cabecera ────────────────────────────────────────────────── */
+#blocks-group thead th {
+    font-size: 10px !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.12em !important;
+    text-transform: uppercase !important;
+    color: #8A95A5 !important;
+    padding: 10px 10px 10px !important;
+    border-bottom: 1px solid #27384A !important;
+    background: #111C25 !important;
+}
+
+/* ── Filas ───────────────────────────────────────────────────── */
+#blocks-group tbody tr.dynamic-blocks {
+    border-bottom: 1px solid #1E2D3D;
+    transition: background 0.15s;
+}
+#blocks-group tbody tr.dynamic-blocks:hover {
+    background: #1A2530 !important;
+}
+
+/* Borde izquierdo de color según tipo — añadido por JS */
+#blocks-group tbody tr.dynamic-blocks td:first-child {
+    border-left: 3px solid transparent;
+    transition: border-color 0.2s;
+}
+#blocks-group tbody tr.type-text       td:first-child { border-left-color: #8A95A5; }
+#blocks-group tbody tr.type-richtext   td:first-child { border-left-color: #6B8CFF; }
+#blocks-group tbody tr.type-json       td:first-child { border-left-color: #34D399; }
+#blocks-group tbody tr.type-url        td:first-child { border-left-color: #F59E0B; }
+#blocks-group tbody tr.type-number     td:first-child { border-left-color: #A78BFA; }
+#blocks-group tbody tr.type-boolean    td:first-child { border-left-color: #EC4899; }
+#blocks-group tbody tr.type-image_asset td:first-child { border-left-color: #FF6B35; }
+
+/* ── Celdas ──────────────────────────────────────────────────── */
+#blocks-group tbody td {
+    padding: 10px 8px !important;
+    vertical-align: top !important;
+}
+
+/* ── Anchos de columna ───────────────────────────────────────── */
+/* Anchos fijos para columnas estrechas — las textareas se reparten el resto */
 #blocks-group .column-order,
-#blocks-group .field-order {
-    width: 60px !important;
-    min-width: 60px !important;
-}
+#blocks-group .field-order      { width: 60px  !important; }
 
-/* Key — estrecho */
 #blocks-group .column-key,
-#blocks-group .field-key {
-    width: 110px !important;
-    min-width: 110px !important;
-}
+#blocks-group .field-key        { width: 120px !important; }
 
-/* Label — medio */
 #blocks-group .column-label,
-#blocks-group .field-label {
-    width: 130px !important;
-    min-width: 130px !important;
-}
+#blocks-group .field-label      { width: 140px !important; }
 
-/* Tipo — medio */
 #blocks-group .column-block_type,
-#blocks-group .field-block_type {
-    width: 110px !important;
-    min-width: 110px !important;
-}
+#blocks-group .field-block_type { width: 120px !important; }
 
-/* Valor ES y Valor EN — se reparten el espacio restante */
+/* Columna eliminar — fija y pequeña */
+#blocks-group .column-DELETE,
+#blocks-group .field-DELETE     { width: 44px  !important; text-align: center !important; }
+
+/* Valor ES y EN — se reparten el ancho restante automáticamente */
 #blocks-group .column-value_es,
 #blocks-group .field-value_es,
 #blocks-group .column-value_en,
-#blocks-group .field-value_en {
-    width: auto !important;
-    min-width: 180px !important;
-}
+#blocks-group .field-value_en   { width: auto  !important; }
 
-/* Inputs de order y key — sobrescribir clases Tailwind de Unfold */
-#blocks-group .field-order input,
-#blocks-group .field-key input {
-    min-width: 0 !important;
+/* ── Campo order ─────────────────────────────────────────────── */
+#blocks-group .field-order input {
     width: 100% !important;
     max-width: 100% !important;
-    padding-left: 0.375rem !important;
-    padding-right: 0.375rem !important;
-    padding-top: 0.25rem !important;
-    padding-bottom: 0.25rem !important;
-    font-size: 0.75rem !important;
+    min-width: 0 !important;
+    padding: 4px 6px !important;
+    font-size: 12px !important;
+    font-family: 'Space Mono', monospace !important;
+    text-align: center !important;
+    box-sizing: border-box;
+    border-radius: 4px !important;
+    background: #111C25 !important;
+    border: 1px solid #27384A !important;
+    color: #8A95A5 !important;
+}
+
+/* ── Campo key — monospace destacado ─────────────────────────── */
+#blocks-group .field-key input {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    padding: 4px 7px !important;
+    font-size: 11px !important;
+    font-family: 'Space Mono', monospace !important;
+    box-sizing: border-box;
+    border-radius: 4px !important;
+    background: #0D1820 !important;
+    border: 1px solid #27384A !important;
+    color: #FF6B35 !important;
+    letter-spacing: 0.03em;
+}
+
+/* ── Campo label ─────────────────────────────────────────────── */
+#blocks-group .field-label input {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    padding: 4px 7px !important;
+    font-size: 12px !important;
     box-sizing: border-box;
 }
 
-/* Textareas — ancho completo de su celda */
+/* ── Select block_type — badge de color ──────────────────────── */
+#blocks-group .field-block_type select {
+    width: 100% !important;
+    min-width: 0 !important;
+    padding: 4px 6px !important;
+    font-size: 11px !important;
+    font-family: 'Space Mono', monospace !important;
+    box-sizing: border-box;
+    border-radius: 4px !important;
+    font-weight: 600 !important;
+    cursor: pointer;
+    appearance: none !important;
+    -webkit-appearance: none !important;
+    text-align: center;
+}
+
+/* Colores por tipo aplicados via JS en el select mismo */
+#blocks-group select.btype-text        { background:#8A95A522 !important; color:#8A95A5 !important; border:1px solid #8A95A544 !important; }
+#blocks-group select.btype-richtext    { background:#6B8CFF22 !important; color:#6B8CFF !important; border:1px solid #6B8CFF44 !important; }
+#blocks-group select.btype-json        { background:#34D39922 !important; color:#34D399 !important; border:1px solid #34D39944 !important; }
+#blocks-group select.btype-url         { background:#F59E0B22 !important; color:#F59E0B !important; border:1px solid #F59E0B44 !important; }
+#blocks-group select.btype-number      { background:#A78BFA22 !important; color:#A78BFA !important; border:1px solid #A78BFA44 !important; }
+#blocks-group select.btype-boolean     { background:#EC489922 !important; color:#EC4899 !important; border:1px solid #EC489944 !important; }
+#blocks-group select.btype-image_asset { background:#FF6B3522 !important; color:#FF6B35 !important; border:1px solid #FF6B3544 !important; }
+
+/* ── Textareas valor ─────────────────────────────────────────── */
 #blocks-group .field-value_es textarea,
 #blocks-group .field-value_en textarea {
     width: 100% !important;
     min-width: 0 !important;
+    max-width: 100% !important;
     box-sizing: border-box;
+    font-size: 12px !important;
+    padding: 6px 8px !important;
+    border-radius: 4px !important;
+    resize: vertical !important;
+    min-height: 52px !important;
+    line-height: 1.5 !important;
+    background: #0D1820 !important;
+    border: 1px solid #27384A !important;
+    color: #B8C4CE !important;
+    font-family: 'Space Mono', monospace !important;
 }
+#blocks-group .field-value_es textarea:focus,
+#blocks-group .field-value_en textarea:focus {
+    border-color: #FF6B35 !important;
+    outline: none !important;
+    box-shadow: 0 0 0 2px #FF6B3520 !important;
+}
+
+/* ── image_asset — oculto por defecto ───────────────────────── */
+#blocks-group .column-image_asset,
+#blocks-group .field-image_asset { display: none !important; }
+
+#blocks-group tr.show-asset .field-image_asset          { display: table-cell !important; }
+#blocks-group thead tr.show-asset-header .column-image_asset { display: table-cell !important; }
+
+/* ── Botón delete (papelera) — solo icono, sin texto ─────────── */
+#blocks-group .delete label { display: none !important; }
+#blocks-group .delete input[type="checkbox"] {
+    width: 16px !important;
+    height: 16px !important;
+    accent-color: #FF6B35;
+    cursor: pointer;
+}
+
+/* ── "Agregar bloque adicional" ──────────────────────────────── */
+#blocks-group .add-row a {
+    font-size: 12px !important;
+    color: #FF6B35 !important;
+    font-family: 'Space Mono', monospace !important;
+    letter-spacing: 0.05em;
+    text-decoration: none !important;
+    opacity: 0.85;
+    transition: opacity 0.15s;
+}
+#blocks-group .add-row a:hover { opacity: 1; }

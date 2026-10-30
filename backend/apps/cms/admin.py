@@ -25,6 +25,7 @@ class BlockInline(TabularInline):
 
     class Media:
         css = {'all': ('css/cms_admin.css',)}
+        js  = ('js/cms_block_inline.js',)
 
 
 class SectionInline(TabularInline):

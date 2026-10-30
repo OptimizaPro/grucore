@@ -42,11 +42,14 @@ function applyAccent(title: string, accent?: string, accentLast?: boolean): stri
     if (words.length > 1) {
       const last       = words.pop()!
       const secondLast = words.length > 0 ? words.pop() : null
+      // Solo aplicar nowrap si hay un prefijo (3+ palabras), para evitar
+      // que el grupo se parta. Con 2 palabras solo stroke sin nowrap.
       const group      = secondLast
         ? `${secondLast} ${strokeSpan(last)}`
         : strokeSpan(last)
       const prefix = words.length > 0 ? `${words.join(' ')} ` : ''
-      return `${prefix}${nowrap(group)}`
+      const wrapped = (prefix && secondLast) ? `${prefix}${nowrap(group)}` : `${prefix}${group}`
+      return wrapped
     }
   }
   return title
@@ -162,7 +165,6 @@ export function PageHero({
           animate="visible"
           className="flex items-center gap-3 mb-7"
         >
-          <span className="w-8 h-px bg-[#FF6B35]" />
           <span
             className="text-xs font-semibold tracking-[0.2em] text-[#FF6B35] uppercase"
             style={{ fontFamily: 'Space Mono, monospace' }}

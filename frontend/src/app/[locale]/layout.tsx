@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation'
 import { routing } from '@/i18n/routing'
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
+import { fetchCompanySettings } from '@/lib/company-settings'
 import { LanguageSwitcherFloat } from '@/components/ui/language-switcher-float'
 import { LeadQualifierPanel } from '@/components/ui/lead-qualifier-panel'
 import type { Metadata } from 'next'
@@ -41,6 +42,8 @@ export default async function LocaleLayout({ children, params }: Props) {
   }
 
   const messages = await getMessages()
+  const settings = await fetchCompanySettings()
+  const logoUrl = settings.logo_light_url ?? settings.logo_url ?? null
 
   return (
     <html lang={locale}>
@@ -54,7 +57,7 @@ export default async function LocaleLayout({ children, params }: Props) {
       </head>
       <body>
         <NextIntlClientProvider messages={messages}>
-          <Header />
+          <Header logoUrl={logoUrl} />
           <main id="main-content">{children}</main>
           <Footer />
           {/* Floating action bar — centered at bottom */}
