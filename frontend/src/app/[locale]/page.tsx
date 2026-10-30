@@ -83,20 +83,24 @@ export default async function HomePage({ params }: Props) {
     trust_1: cta.trust_1, trust_2: cta.trust_2, trust_3: cta.trust_3,
   } : undefined
 
+  // Returns true when: no CMS (show everything as fallback) OR the section key
+  // exists in the response (serializer already excludes is_visible=False sections).
+  const sv = (key: string) => !cms || key in (cms.sections ?? {})
+
   return (
     <>
-      <HeroSection data={heroData} />
-      <TrustBar data={trustData} />
-      <ServicesScroll items={marqueeItems} />
-      <ServicesSection data={servicesData} />
-      <ProcessSection data={processData} />
-      <PortfolioPreview />
-      <BeforeAfterSection data={beforeAfterData} />
-      <PricingSection data={pricingData} />
-      <TestimonialsSection data={testimonialsData} />
-      {/* <GoogleReviewCta /> */}
-      <CtaSection data={ctaData} />
-      <CtaBanner />
+      {sv('hero')             && <HeroSection data={heroData} />}
+      {sv('trust_bar')        && <TrustBar data={trustData} />}
+      {sv('services_scroll')  && <ServicesScroll items={marqueeItems} />}
+      {sv('services')         && <ServicesSection data={servicesData} />}
+      {sv('process')          && <ProcessSection data={processData} />}
+      {sv('portfolio')        && <PortfolioPreview />}
+      {sv('before_after')     && <BeforeAfterSection data={beforeAfterData} />}
+      {sv('pricing')          && <PricingSection data={pricingData} />}
+      {sv('testimonials')     && testimonialsData && <TestimonialsSection data={testimonialsData} />}
+      {sv('google_review_cta') && <GoogleReviewCta />}
+      {sv('cta')              && <CtaSection data={ctaData} />}
+      {sv('cta_banner')       && <CtaBanner />}
     </>
   )
 }
