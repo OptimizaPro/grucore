@@ -485,6 +485,10 @@ UNFOLD = {
     },
 }
 
+# ─── Frontend / revalidation ─────────────────────────────────────────────────
+FRONTEND_URL       = env('FRONTEND_URL',       default='http://localhost:3000')
+REVALIDATE_SECRET  = env('REVALIDATE_SECRET',  default='')
+
 # ─── Auth redirects ──────────────────────────────────────────────────────────
 LOGIN_REDIRECT_URL  = '/djamasy/'
 LOGOUT_REDIRECT_URL = '/djamasy/login/'
