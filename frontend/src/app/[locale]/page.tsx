@@ -93,9 +93,7 @@ export default async function HomePage({ params }: Props) {
       <PortfolioPreview />
       <BeforeAfterSection data={beforeAfterData} />
       <PricingSection data={pricingData} />
-      {/* ── Testimonios ───────────────────────────/
       <TestimonialsSection data={testimonialsData} />
-      */}
       {/* <GoogleReviewCta /> */}
       <CtaSection data={ctaData} />
       <CtaBanner />
