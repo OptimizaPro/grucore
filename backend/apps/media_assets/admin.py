@@ -144,6 +144,11 @@ class MediaAssetAdmin(CRUDActionsMixin, ModelAdmin):
 
     # ── auto-assign uploader on create ─────────────────────────────────────
     def save_model(self, request, obj, form, change):
-        if not change:
-            obj.uploaded_by = request.user
-        super().save_model(request, obj, form, change)
+        import traceback, sys
+        try:
+            if not change:
+                obj.uploaded_by = request.user
+            super().save_model(request, obj, form, change)
+        except Exception:
+            traceback.print_exc(file=sys.stdout)
+            raise
