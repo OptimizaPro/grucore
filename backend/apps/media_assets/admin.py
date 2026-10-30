@@ -104,6 +104,9 @@ class MediaAssetAdmin(CRUDActionsMixin, ModelAdmin):
     # ── uso real (reverse FK lookup) ────────────────────────────────────────
     @admin.display(description='Usado en')
     def usage_summary(self, obj: MediaAsset) -> str:
+        if not obj.pk:
+            return format_html('<span style="color:#64748b;font-size:11px;">Guarda el archivo primero</span>')
+
         refs = []
 
         # ServicePage
