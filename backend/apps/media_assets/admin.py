@@ -143,12 +143,15 @@ class MediaAssetAdmin(CRUDActionsMixin, ModelAdmin):
         return format_html(''.join(b for b in badges))
 
     # ── auto-assign uploader on create ─────────────────────────────────────
-    def save_model(self, request, obj, form, change):
+    def changeform_view(self, request, *args, **kwargs):
         import traceback, sys
         try:
-            if not change:
-                obj.uploaded_by = request.user
-            super().save_model(request, obj, form, change)
+            return super().changeform_view(request, *args, **kwargs)
         except Exception:
             traceback.print_exc(file=sys.stdout)
             raise
+
+    def save_model(self, request, obj, form, change):
+        if not change:
+            obj.uploaded_by = request.user
+        super().save_model(request, obj, form, change)
