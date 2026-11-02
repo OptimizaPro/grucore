@@ -144,28 +144,35 @@ class MediaAssetAdmin(CRUDActionsMixin, ModelAdmin):
 
     # ── custom add view: bypasses Unfold form (avoids ImageField 500 bug) ──────
     def add_view(self, request, form_url='', extra_context=None):
+        import os
+        from django.http import HttpResponse, HttpResponseRedirect
+        error_msg = ''
+        success_msg = ''
+
         if request.method == 'POST':
-            import os
-            from django.http import HttpResponseRedirect
-            from django.contrib import messages
             file = request.FILES.get('file')
             if not file:
-                messages.error(request, 'Selecciona un archivo.')
+                error_msg = 'Selecciona un archivo de imagen.'
             elif not file.content_type.startswith('image/'):
-                messages.error(request, 'Solo se permiten imágenes.')
+                error_msg = 'Solo se permiten imágenes (JPG, PNG, WebP).'
             else:
-                asset = MediaAsset(
-                    name=request.POST.get('name', '') or os.path.splitext(file.name)[0],
-                    context=request.POST.get('context', ''),
-                    alt_es=request.POST.get('alt_es', ''),
-                    alt_en=request.POST.get('alt_en', ''),
-                    uploaded_by=request.user,
-                )
-                asset.file.save(file.name, file, save=True)
-                messages.success(request, f'"{asset.name}" subido correctamente.')
-                return HttpResponseRedirect('../')
+                try:
+                    name = request.POST.get('name', '').strip() or os.path.splitext(os.path.basename(file.name))[0]
+                    asset = MediaAsset(
+                        name=name,
+                        context=request.POST.get('context', ''),
+                        alt_es=request.POST.get('alt_es', ''),
+                        alt_en=request.POST.get('alt_en', ''),
+                        uploaded_by=request.user,
+                    )
+                    asset.file.save(os.path.basename(file.name), file, save=True)
+                    from django.contrib import messages
+                    messages.success(request, f'"{asset.name}" subido correctamente.')
+                    return HttpResponseRedirect('../')
+                except Exception as exc:
+                    error_msg = f'Error al subir: {exc}'
 
-        from django.http import HttpResponse
+        from django.middleware.csrf import get_token
         html = """
         <!DOCTYPE html><html lang="es"><head><meta charset="UTF-8">
         <title>Subir imagen — Media Assets</title>
@@ -230,11 +237,11 @@ class MediaAssetAdmin(CRUDActionsMixin, ModelAdmin):
           });
         </script></body></html>
         """
-        from django.middleware.csrf import get_token
         msgs = ''
-        for m in request._messages if hasattr(request, '_messages') else []:
-            cls = 'error' if m.level >= 40 else 'success'
-            msgs += f'<div class="msg {cls}">{m.message}</div>'
+        if error_msg:
+            msgs = f'<div class="msg error">{error_msg}</div>'
+        elif success_msg:
+            msgs = f'<div class="msg success">{success_msg}</div>'
         return HttpResponse(html.replace('{csrf}', get_token(request)).replace('{messages_html}', msgs))
 
     # ── auto-assign uploader on create ─────────────────────────────────────
