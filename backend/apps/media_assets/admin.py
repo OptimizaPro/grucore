@@ -162,8 +162,10 @@ class MediaAssetAdmin(CRUDActionsMixin, ModelAdmin):
                     from django.conf import settings
                     from django.contrib import messages
 
-                    basename = os.path.basename(file.name)
-                    s3_key   = f"assets/{date.today().strftime('%Y/%m')}/{basename}"
+                    import re, traceback as tb
+                    # Sanitizar nombre: solo alfanuméricos, guiones y puntos
+                    safe_name = re.sub(r'[^a-zA-Z0-9._-]', '_', os.path.basename(file.name))
+                    s3_key    = f"assets/{date.today().strftime('%Y/%m')}/{safe_name}"
 
                     # Upload directo con boto3 (bypasa django-storages)
                     opts   = settings.STORAGES['default']['OPTIONS']
@@ -175,11 +177,13 @@ class MediaAssetAdmin(CRUDActionsMixin, ModelAdmin):
                         region_name           = opts.get('region_name', 'us-east-1'),
                     )
                     file.seek(0)
+                    content = file.read()
+                    # Debug info en caso de error
+                    _debug = f"key={s3_key} size={len(content)} ctype={file.content_type}"
                     client.put_object(
-                        Bucket      = opts['bucket_name'],
-                        Key         = s3_key,
-                        Body        = file.read(),
-                        ContentType = file.content_type,
+                        Bucket = opts['bucket_name'],
+                        Key    = s3_key,
+                        Body   = content,
                     )
 
                     # Crear MediaAsset apuntando al path S3
@@ -197,44 +201,56 @@ class MediaAssetAdmin(CRUDActionsMixin, ModelAdmin):
                     messages.success(request, f'"{asset.name}" subido correctamente.')
                     return HttpResponseRedirect('../')
                 except Exception as exc:
-                    error_msg = f'Error al subir: {exc}'
+                    error_msg = f'Error al subir [{_debug if "_debug" in dir() else "?"}]: {exc}'
 
         from django.middleware.csrf import get_token
         html = """
         <!DOCTYPE html><html lang="es"><head><meta charset="UTF-8">
         <title>Subir imagen — Media Assets</title>
         <style>
+          *{box-sizing:border-box}
           body{font-family:system-ui,sans-serif;background:#131D28;color:#F0EDE8;margin:0;padding:40px}
-          .card{max-width:560px;margin:0 auto;background:#1F2D3A;border:1px solid #27384A;border-radius:12px;padding:32px}
-          h1{font-size:1.25rem;margin:0 0 8px;color:#F0EDE8}
-          p.sub{color:#8A95A5;font-size:.85rem;margin:0 0 28px}
-          label{display:block;font-size:.75rem;color:#8A95A5;margin-bottom:6px;font-weight:500}
-          input,textarea{width:100%;box-sizing:border-box;background:#131D28;border:1px solid #27384A;
-            border-radius:8px;padding:10px 14px;color:#F0EDE8;font-size:.875rem;margin-bottom:16px}
-          input:focus,textarea:focus{outline:none;border-color:#FF6B35}
-          .drop{border:2px dashed #27384A;border-radius:8px;padding:32px;text-align:center;
-            color:#8A95A5;font-size:.85rem;cursor:pointer;margin-bottom:16px;transition:.2s}
-          .drop:hover,.drop.over{border-color:#FF6B35;color:#FF6B35}
-          .actions{display:flex;gap:12px;align-items:center;margin-top:8px}
-          .btn-primary{background:#FF6B35;color:#131D28;border:none;padding:10px 24px;
-            border-radius:8px;font-weight:600;font-size:.875rem;cursor:pointer}
-          .btn-secondary{color:#8A95A5;text-decoration:none;font-size:.875rem}
-          .msg{padding:10px 16px;border-radius:8px;margin-bottom:20px;font-size:.875rem}
-          .msg.error{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.2);color:#f87171}
-          .msg.success{background:rgba(74,158,107,.1);border:1px solid rgba(74,158,107,.2);color:#4ade80}
+          .card{max-width:580px;margin:0 auto;background:#1F2D3A;border:1px solid #27384A;border-radius:12px;padding:36px}
+          h1{font-size:1.25rem;margin:0 0 6px;color:#F0EDE8;font-weight:600}
+          p.sub{color:#8A95A5;font-size:.82rem;margin:0 0 28px}
+          label{display:block;font-size:.72rem;color:#8A95A5;margin-bottom:5px;font-weight:500;text-transform:uppercase;letter-spacing:.05em}
+          input{width:100%;background:#131D28;border:1px solid #27384A;border-radius:8px;
+            padding:10px 14px;color:#F0EDE8;font-size:.875rem;margin-bottom:16px;transition:border-color .15s}
+          input:focus{outline:none;border-color:#FF6B35}
+          .drop{border:2px dashed #27384A;border-radius:10px;padding:36px 24px;text-align:center;
+            color:#8A95A5;font-size:.85rem;cursor:pointer;margin-bottom:20px;transition:all .2s;background:#131D28}
+          .drop:hover,.drop.over{border-color:#FF6B35;color:#FF6B35;background:rgba(255,107,53,.04)}
+          .drop-icon{font-size:2rem;margin-bottom:8px;display:block}
+          .drop-hint{font-size:.75rem;color:#4A5568;margin-top:4px}
+          .actions{display:flex;gap:12px;align-items:center;margin-top:20px}
+          .btn-primary{background:#FF6B35;color:#131D28;border:none;padding:11px 28px;
+            border-radius:8px;font-weight:700;font-size:.875rem;cursor:pointer;
+            display:inline-flex;align-items:center;gap:8px;transition:background .15s;min-width:140px;justify-content:center}
+          .btn-primary:hover:not(:disabled){background:#ff8255}
+          .btn-primary:disabled{opacity:.6;cursor:not-allowed}
+          .btn-secondary{color:#8A95A5;text-decoration:none;font-size:.875rem;padding:11px 0;transition:color .15s}
+          .btn-secondary:hover{color:#F0EDE8}
+          .msg{padding:12px 16px;border-radius:8px;margin-bottom:20px;font-size:.85rem;line-height:1.5}
+          .msg.error{background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);color:#fca5a5}
+          .msg.success{background:rgba(74,158,107,.08);border:1px solid rgba(74,158,107,.2);color:#86efac}
+          .spinner{width:14px;height:14px;border:2px solid rgba(0,0,0,.2);border-top-color:#131D28;
+            border-radius:50%;animation:spin .6s linear infinite;display:none}
+          @keyframes spin{to{transform:rotate(360deg)}}
         </style></head><body>
         <div class="card">
-          <a href="../" style="color:#8A95A5;font-size:.8rem;text-decoration:none;">← Volver a Media Assets</a>
-          <h1 style="margin-top:20px">Subir imagen</h1>
-          <p class="sub">JPG, PNG o WebP · Máx. 15 MB</p>
+          <a href="../" style="color:#8A95A5;font-size:.8rem;text-decoration:none;display:inline-flex;align-items:center;gap:4px;margin-bottom:20px;">← Volver a Media Assets</a>
+          <h1>Subir imagen</h1>
+          <p class="sub">JPG, PNG o WebP · Máx. 15 MB · Se almacena en Supabase</p>
           {messages_html}
-          <form method="post" enctype="multipart/form-data" id="uploadForm">
+          <form method="post" enctype="multipart/form-data" id="uploadForm" onsubmit="handleSubmit(event)">
             <input type="hidden" name="csrfmiddlewaretoken" value="{csrf}">
             <div class="drop" id="drop" onclick="document.getElementById('fileInput').click()">
+              <span class="drop-icon">🖼️</span>
               <div id="dropLabel">Arrastra tu imagen aquí o haz clic para seleccionar</div>
+              <div class="drop-hint">JPG · PNG · WebP</div>
             </div>
             <input type="file" id="fileInput" name="file" accept="image/*" style="display:none"
-              onchange="document.getElementById('dropLabel').textContent=this.files[0]?.name||'Selecciona una imagen'">
+              onchange="onFileSelect(this)">
             <label>Nombre descriptivo (opcional)</label>
             <input type="text" name="name" placeholder="Ej. Cocina renovada — Cliente García">
             <label>Contexto de uso (opcional)</label>
@@ -244,12 +260,28 @@ class MediaAssetAdmin(CRUDActionsMixin, ModelAdmin):
             <label>Texto alt EN (opcional)</label>
             <input type="text" name="alt_en" placeholder="Image description in English">
             <div class="actions">
-              <button type="submit" class="btn-primary">Subir imagen</button>
+              <button type="submit" class="btn-primary" id="submitBtn">
+                <div class="spinner" id="spinner"></div>
+                <span id="btnText">Subir imagen</span>
+              </button>
               <a href="../" class="btn-secondary">Cancelar</a>
             </div>
           </form>
         </div>
         <script>
+          function onFileSelect(input){
+            const f=input.files[0];
+            if(f){document.getElementById('dropLabel').textContent=f.name;
+              document.getElementById('drop').style.borderColor='#FF6B35';}
+          }
+          function handleSubmit(e){
+            const btn=document.getElementById('submitBtn');
+            const spinner=document.getElementById('spinner');
+            const txt=document.getElementById('btnText');
+            btn.disabled=true;
+            spinner.style.display='block';
+            txt.textContent='Subiendo…';
+          }
           const drop=document.getElementById('drop');
           drop.addEventListener('dragover',e=>{e.preventDefault();drop.classList.add('over')});
           drop.addEventListener('dragleave',()=>drop.classList.remove('over'));
