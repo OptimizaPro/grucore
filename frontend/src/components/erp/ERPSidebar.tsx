@@ -1,7 +1,7 @@
 'use client'
 
 import Image from 'next/image'
-import { LayoutDashboard, Users, Package, Truck, FolderOpen, ClipboardList, BarChart2, Images, Settings, LogOut, X, CheckSquare, HardHat, UserSearch, Building2, ChevronDown, BookOpen, ShoppingCart, TrendingUp, Wrench, Landmark, GitBranch } from 'lucide-react'
+import { LayoutDashboard, Users, Package, Truck, FolderOpen, ClipboardList, BarChart2, Images, Settings, LogOut, X, CheckSquare, HardHat, UserSearch, Building2, ChevronDown, BookOpen, ShoppingCart, TrendingUp, Wrench, Landmark, GitBranch, Sparkles } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { cn } from '@/lib/utils'
 import { logoutERP, type User as UserType } from '@/lib/api'
@@ -9,7 +9,7 @@ import { getCompanySettings } from '@/lib/company-settings'
 import ERPAvatar from './ERPAvatar'
 import ERPSettingsModal from './ERPSettingsModal'
 
-type ERPPage = 'dashboard' | 'clients' | 'team' | 'inventory' | 'suppliers' | 'documentos' | 'bitacora' | 'presupuesto' | 'galeria' | 'tareas' | 'trabajadores' | 'crm' | 'crm_config' | 'compras' | 'finanzas' | 'activos' | 'subcontratistas' | 'tesoreria'
+type ERPPage = 'dashboard' | 'clients' | 'team' | 'inventory' | 'suppliers' | 'documentos' | 'bitacora' | 'presupuesto' | 'galeria' | 'tareas' | 'trabajadores' | 'crm' | 'crm_config' | 'compras' | 'finanzas' | 'activos' | 'subcontratistas' | 'tesoreria' | 'design_studio'
 
 interface Props {
   currentPage: ERPPage
@@ -68,6 +68,7 @@ const NAV_ITEMS: NavItem[] = [
       { page: 'tareas', label: 'Tareas', href: '/erp/tareas', Icon: CheckSquare },
     ],
   },
+  { kind: 'link',  page: 'design_studio', label: 'Estudio Visual', Icon: Sparkles, href: '/erp/design-studio' },
   { kind: 'link',  page: 'presupuesto', label: 'Presupuesto', Icon: BarChart2, href: '/erp/presupuesto' },
   {
     kind: 'group', id: 'financiero', label: 'Financiero', Icon: TrendingUp,

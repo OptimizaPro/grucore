@@ -33,6 +33,7 @@ api_v1_patterns = [
     path('ledger/',         include('apps.ledger.urls')),
     path('media-assets/',   include('apps.media_assets.urls')),
     path('portfolio/',      include('apps.portfolio.urls')),
+    path('design-studio/', include('apps.design_studio.urls')),
 ]
 
 urlpatterns = [

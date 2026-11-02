@@ -59,6 +59,7 @@ LOCAL_APPS = [
     'apps.subcontractors',
     'apps.media_assets',
     'apps.portfolio',
+    'apps.design_studio',
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS
@@ -502,3 +503,8 @@ EMAIL_USE_TLS         = True
 EMAIL_HOST_USER       = env('EMAIL_HOST_USER',     default='')
 EMAIL_HOST_PASSWORD   = env('EMAIL_HOST_PASSWORD', default='')
 DEFAULT_FROM_EMAIL    = env('DEFAULT_FROM_EMAIL',  default='noreply@grucore.com')
+
+# ─── Design Studio — AI providers ────────────────────────────────────────────
+HUGGINGFACE_API_TOKEN = env('HUGGINGFACE_API_TOKEN', default='')
+OPENAI_API_KEY        = env('OPENAI_API_KEY',        default='')
+FAL_API_KEY           = env('FAL_API_KEY',           default='')

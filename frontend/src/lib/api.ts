@@ -1885,3 +1885,57 @@ export function updateQuoteTemplate(id: number, data: Partial<Pick<QuoteTemplate
 export function deleteQuoteTemplate(id: number): Promise<void> {
   return apiFetch<void>(`/api/projects/quote-templates/${id}/`, { method: 'DELETE' })
 }
+
+// ─── Design Studio ────────────────────────────────────────────────────────────
+
+export type SessionTypeValue  = 'new_construction' | 'remodel'
+export type ArchStyleValue    = 'modern' | 'minimalist' | 'mediterranean' | 'industrial' | 'rustic' | 'contemporary' | 'colonial'
+export type ProjectTypeValue  = 'house' | 'apartment' | 'commercial' | 'office' | 'other'
+export type SessionStatusValue = 'pending' | 'generating' | 'completed' | 'failed'
+export type ModelKeyValue     = 'flux_schnell_hf' | 'dalle3_openai' | 'flux_pro_fal'
+
+export interface AvailableModel {
+  key:         ModelKeyValue
+  label:       string
+  is_free:     boolean
+  description: string
+}
+
+export interface DesignSession {
+  id:                 number
+  session_type:       SessionTypeValue
+  style:              ArchStyleValue
+  project_type:       ProjectTypeValue
+  floors:             number | null
+  extra_description:  string
+  model_key:          ModelKeyValue
+  input_images:       string[]
+  input_images_urls:  string[]
+  renders:            string[]
+  renders_urls:       string[]
+  status:             SessionStatusValue
+  error_message:      string
+  prompt_used:        string
+  lead:               number | null
+  created_at:         string
+  updated_at:         string
+}
+
+export function getDesignModels(): Promise<AvailableModel[]> {
+  return apiFetch<AvailableModel[]>('/api/design-studio/models/')
+}
+
+export function generateDesign(formData: FormData): Promise<DesignSession> {
+  return apiFetch<DesignSession>('/api/design-studio/generate/', {
+    method: 'POST',
+    body:   formData,
+  })
+}
+
+export function getDesignSession(id: number): Promise<DesignSession> {
+  return apiFetch<DesignSession>(`/api/design-studio/sessions/${id}/`)
+}
+
+export function getDesignSessions(): Promise<DesignSession[]> {
+  return apiFetch<DesignSession[]>('/api/design-studio/sessions/')
+}
