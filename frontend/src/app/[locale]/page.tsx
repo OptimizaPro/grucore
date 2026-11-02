@@ -44,6 +44,7 @@ export default async function HomePage({ params }: Props) {
   const heroData = Object.keys(hero).length ? {
     eyebrow: hero.eyebrow, headline_1: hero.headline_1, headline_2: hero.headline_2,
     headline_3: hero.headline_3, cta_primary: hero.cta_primary, cta_secondary: hero.cta_secondary,
+    background_image: hero.background_image,
   } : undefined
 
   const trustData = trustBar.stat_1_value ? [
@@ -83,24 +84,20 @@ export default async function HomePage({ params }: Props) {
     trust_1: cta.trust_1, trust_2: cta.trust_2, trust_3: cta.trust_3,
   } : undefined
 
-  // Returns true when: no CMS (show everything as fallback) OR the section key
-  // exists in the response (serializer already excludes is_visible=False sections).
-  const sv = (key: string) => !cms || key in (cms.sections ?? {})
-
   return (
     <>
-      {sv('hero')             && <HeroSection data={heroData} />}
-      {sv('trust_bar')        && <TrustBar data={trustData} />}
-      {sv('services_scroll')  && <ServicesScroll items={marqueeItems} />}
-      {sv('services')         && <ServicesSection data={servicesData} />}
-      {sv('process')          && <ProcessSection data={processData} />}
-      {sv('portfolio')        && <PortfolioPreview />}
-      {sv('before_after')     && <BeforeAfterSection data={beforeAfterData} />}
-      {sv('pricing')          && <PricingSection data={pricingData} />}
-      {sv('testimonials')     && testimonialsData && <TestimonialsSection data={testimonialsData} />}
-      {sv('google_review_cta') && <GoogleReviewCta />}
-      {sv('cta')              && <CtaSection data={ctaData} />}
-      {sv('cta_banner')       && <CtaBanner />}
+      <HeroSection data={heroData} />
+      <TrustBar data={trustData} />
+      <ServicesScroll items={marqueeItems} />
+      {(servicesData   || !cms) && <ServicesSection data={servicesData} />}
+      {(processData    || !cms) && <ProcessSection data={processData} />}
+      <PortfolioPreview />
+      {(beforeAfterData || !cms) && <BeforeAfterSection data={beforeAfterData} />}
+      {(pricingData    || !cms) && <PricingSection data={pricingData} />}
+      {testimonialsData && <TestimonialsSection data={testimonialsData} />}
+      <GoogleReviewCta /> 
+      <CtaSection data={ctaData} />
+      <CtaBanner />
     </>
   )
 }

@@ -7,11 +7,11 @@ import { ArrowRight, ArrowUpRight, ChevronDown } from 'lucide-react'
 import { Link } from '@/i18n/navigation'
 import { BlueprintGrid } from '@/components/ui/blueprint-grid'
 
-const HERO_IMG = 'https://images.unsplash.com/photo-1621511075938-f03482369feb?auto=format&fit=crop&w=1600&q=60'
+const HERO_IMG_FALLBACK = 'https://images.unsplash.com/photo-1621511075938-f03482369feb?auto=format&fit=crop&w=1600&q=60'
 
 interface HeroData {
   eyebrow: string; headline_1: string; headline_2: string; headline_3: string
-  cta_primary: string; cta_secondary: string
+  cta_primary: string; cta_secondary: string; background_image?: string
 }
 
 export function HeroSection({ data }: { data?: HeroData }) {
@@ -32,6 +32,8 @@ export function HeroSection({ data }: { data?: HeroData }) {
     visible: { opacity: 1, transition: { duration: 0.6, delay: 0.5 } },
   }
 
+  const heroImg = data?.background_image || HERO_IMG_FALLBACK
+
   return (
     <section
       className="relative min-h-screen flex flex-col justify-center overflow-hidden"
@@ -40,7 +42,7 @@ export function HeroSection({ data }: { data?: HeroData }) {
       {/* Foto de fondo — muy oscura para preservar legibilidad del texto */}
       <div className="absolute inset-0 pointer-events-none">
         <Image
-          src={HERO_IMG}
+          src={heroImg}
           alt="Fondo de la sección hero"
           fill
           className="object-cover object-center"

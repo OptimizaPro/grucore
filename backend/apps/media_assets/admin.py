@@ -260,8 +260,8 @@ class MediaAssetAdmin(CRUDActionsMixin, ModelAdmin):
             <div class="grid">
               <div><label>Nombre descriptivo</label>
               <input type="text" name="name" placeholder="Ej. Cocina renovada"></div>
-              <div><label>Contexto de uso</label>
-              <input type="text" name="context" placeholder="Ej. Servicios / Portada"></div>
+              <div><label>Nota interna</label>
+              <input type="text" name="context" placeholder="Ej. Foto hero home"></div>
             </div>
             <div class="grid">
               <div><label>Alt ES</label>

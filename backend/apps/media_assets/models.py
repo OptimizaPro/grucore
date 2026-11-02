@@ -26,8 +26,8 @@ class MediaAsset(models.Model):
     alt_en = models.CharField(max_length=200, blank=True, verbose_name='Texto alt (EN)')
     context = models.CharField(
         max_length=200, blank=True,
-        verbose_name='Contexto de uso',
-        help_text='Ej: "Servicios / Cocinas — Portada", "Home / Before-After". Referencia libre para saber dónde se usa.',
+        verbose_name='Nota interna',
+        help_text='Nota libre de referencia. No condiciona dónde se muestra la imagen.',
     )
 
     uploaded_by = models.ForeignKey(
