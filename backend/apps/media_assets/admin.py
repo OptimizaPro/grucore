@@ -209,9 +209,10 @@ class MediaAssetAdmin(CRUDActionsMixin, ModelAdmin):
         <title>Subir imagen — Media Assets</title>
         <style>
           *{box-sizing:border-box}
+          html,body{height:100%}
           body{font-family:system-ui,sans-serif;background:#131D28;color:#F0EDE8;margin:0;
-            min-height:100vh;display:flex;align-items:center;justify-content:center;padding:16px}
-          .card{width:100%;max-width:560px;background:#1F2D3A;border:1px solid #27384A;border-radius:12px;padding:24px}
+            height:100vh;display:flex;align-items:center;justify-content:center;padding:16px;overflow:hidden}
+          .card{width:100%;max-width:580px;background:#1F2D3A;border:1px solid #27384A;border-radius:12px;padding:20px}
           .back{color:#8A95A5;font-size:.78rem;text-decoration:none;display:inline-flex;align-items:center;gap:4px;margin-bottom:14px}
           .back:hover{color:#F0EDE8}
           h1{font-size:1.1rem;margin:0 0 2px;color:#F0EDE8;font-weight:600}
@@ -221,7 +222,7 @@ class MediaAssetAdmin(CRUDActionsMixin, ModelAdmin):
             padding:8px 12px;color:#F0EDE8;font-size:.82rem;margin-bottom:10px;transition:border-color .15s}
           input:focus{outline:none;border-color:#FF6B35}
           .grid{display:grid;grid-template-columns:1fr 1fr;gap:0 12px}
-          .drop{border:2px dashed #27384A;border-radius:9px;padding:20px 16px;text-align:center;
+          .drop{border:2px dashed #27384A;border-radius:9px;padding:14px 16px;text-align:center;
             color:#8A95A5;font-size:.82rem;cursor:pointer;margin-bottom:12px;transition:all .2s;background:#131D28}
           .drop:hover,.drop.over{border-color:#FF6B35;color:#FF6B35;background:rgba(255,107,53,.04)}
           .drop-icon{font-size:1.5rem;margin-bottom:4px;display:block}
@@ -256,14 +257,18 @@ class MediaAssetAdmin(CRUDActionsMixin, ModelAdmin):
             </div>
             <input type="file" id="fileInput" name="file" accept="image/*" style="display:none"
               onchange="onFileSelect(this)">
-            <label>Nombre descriptivo (opcional)</label>
-            <input type="text" name="name" placeholder="Ej. Cocina renovada — Cliente García">
-            <label>Contexto de uso (opcional)</label>
-            <input type="text" name="context" placeholder="Ej. Servicios / Portada">
-            <label>Texto alt ES (opcional)</label>
-            <input type="text" name="alt_es" placeholder="Descripción de la imagen en español">
-            <label>Texto alt EN (opcional)</label>
-            <input type="text" name="alt_en" placeholder="Image description in English">
+            <div class="grid">
+              <div><label>Nombre descriptivo</label>
+              <input type="text" name="name" placeholder="Ej. Cocina renovada"></div>
+              <div><label>Contexto de uso</label>
+              <input type="text" name="context" placeholder="Ej. Servicios / Portada"></div>
+            </div>
+            <div class="grid">
+              <div><label>Alt ES</label>
+              <input type="text" name="alt_es" placeholder="Descripción en español"></div>
+              <div><label>Alt EN</label>
+              <input type="text" name="alt_en" placeholder="Description in English"></div>
+            </div>
             <div class="actions">
               <button type="submit" class="btn-primary" id="submitBtn">
                 <div class="spinner" id="spinner"></div>
