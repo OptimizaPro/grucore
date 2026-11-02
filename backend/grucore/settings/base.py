@@ -146,7 +146,7 @@ if USE_S3:
                 'secret_key':   env('SUPABASE_SECRET_ACCESS_KEY'),
                 'region_name':  env('SUPABASE_S3_REGION', default='us-east-1'),
                 'default_acl':      'public-read',
-                'file_overwrite':   False,
+                'file_overwrite':   True,
                 'querystring_auth': False,
                 'custom_domain':    f'rvprwttonwjolnwwrshp.supabase.co/storage/v1/object/public/{_S3_BUCKET}',
             },
