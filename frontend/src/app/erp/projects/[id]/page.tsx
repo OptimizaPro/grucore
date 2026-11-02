@@ -763,6 +763,7 @@ export default function ERPProjectDetail() {
 
   // Cover photo upload
   const [coverUploading, setCoverUploading] = useState(false)
+  const [isDragging, setIsDragging]         = useState(false)
   const coverInputRef = useRef<HTMLInputElement>(null)
 
   // Edit project modal
@@ -909,13 +910,29 @@ export default function ERPProjectDetail() {
   async function handleCoverUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (!file || !project) return
+    await uploadCover(file)
+    e.target.value = ''
+  }
+
+  async function uploadCover(file: File) {
+    if (!project) return
+    if (!file.type.startsWith('image/')) { toast.error('Solo se permiten imágenes.'); return }
     setCoverUploading(true)
     try {
       const updated = await uploadProjectCover(project.id, file)
       setProject(updated)
-    } catch {}
+      toast.success('Foto de portada actualizada.')
+    } catch { toast.error('Error al subir la imagen.') }
     finally { setCoverUploading(false) }
-    e.target.value = ''
+  }
+
+  function handleCoverDragOver(e: React.DragEvent) { e.preventDefault(); setIsDragging(true) }
+  function handleCoverDragLeave(e: React.DragEvent) { e.preventDefault(); setIsDragging(false) }
+  async function handleCoverDrop(e: React.DragEvent) {
+    e.preventDefault()
+    setIsDragging(false)
+    const file = e.dataTransfer.files[0]
+    if (file) await uploadCover(file)
   }
 
   // ── Progress form handlers ────────────────────────────────────────────────
@@ -1268,8 +1285,14 @@ export default function ERPProjectDetail() {
             <div className="space-y-6">
               {/* Cover photo */}
               <div
-                className="relative h-48 rounded-xl overflow-hidden border border-[#27384A] bg-[#1F2D3A] group cursor-pointer"
+                className={cn(
+                  "relative h-48 rounded-xl overflow-hidden border bg-[#1F2D3A] group cursor-pointer transition-colors",
+                  isDragging ? "border-[#FF6B35] ring-1 ring-[#FF6B35]/40" : "border-[#27384A]"
+                )}
                 onClick={() => coverInputRef.current?.click()}
+                onDragOver={handleCoverDragOver}
+                onDragLeave={handleCoverDragLeave}
+                onDrop={handleCoverDrop}
               >
                 {project.cover_photo_url ? (
                   <Image
@@ -1294,14 +1317,20 @@ export default function ERPProjectDetail() {
                   </div>
                 )}
                 {/* Overlay with upload button */}
-                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors flex items-center justify-center">
-                  <div className="opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-2 px-4 py-2 rounded-lg bg-[#131D28]/80 border border-[#27384A] text-xs text-[#F0EDE8]">
+                <div className={cn(
+                  "absolute inset-0 transition-colors flex items-center justify-center",
+                  isDragging ? "bg-black/60" : "bg-black/0 group-hover:bg-black/40"
+                )}>
+                  <div className={cn(
+                    "transition-opacity flex items-center gap-2 px-4 py-2 rounded-lg bg-[#131D28]/80 border text-xs text-[#F0EDE8]",
+                    isDragging ? "opacity-100 border-[#FF6B35]/60" : "opacity-0 group-hover:opacity-100 border-[#27384A]"
+                  )}>
                     {coverUploading ? (
                       <Loader2 size={13} className="animate-spin" />
                     ) : (
                       <Camera size={13} />
                     )}
-                    {project.cover_photo_url ? 'Cambiar foto de portada' : 'Subir foto de portada'}
+                    {isDragging ? 'Suelta para subir' : project.cover_photo_url ? 'Cambiar foto de portada' : 'Arrastra o haz clic para subir'}
                   </div>
                 </div>
                 <input
