@@ -240,7 +240,7 @@ export default function DesignStudioPage() {
       .finally(() => setLoadingModels(false))
 
     getDesignSessions()
-      .then(setSessions)
+      .then(data => setSessions(data.filter(s => s.status === 'completed')))
       .catch(() => {})
       .finally(() => setLoadingHistory(false))
   }, [])
@@ -264,9 +264,12 @@ export default function DesignStudioPage() {
         if (updated.status === 'completed' || updated.status === 'failed') {
           clearInterval(pollRef.current!)
           setGenerating(false)
-          setSessions(prev => [updated, ...prev.filter(s => s.id !== updated.id)])
-          if (updated.status === 'completed') toast.success('¡Diseños generados con éxito!')
-          else toast.error('La generación falló. Verifica el modelo o intenta con otros parámetros.')
+          if (updated.status === 'completed') {
+            setSessions(prev => [updated, ...prev.filter(s => s.id !== updated.id)])
+            toast.success('¡Diseños generados con éxito!')
+          } else {
+            toast.error('La generación falló. Verifica el modelo o intenta con otros parámetros.')
+          }
         }
       } catch {
         // silent — keep polling
@@ -636,7 +639,7 @@ export default function DesignStudioPage() {
                   onClick={() => {
                     setLoadingHistory(true)
                     getDesignSessions()
-                      .then(setSessions)
+                      .then(data => setSessions(data.filter(s => s.status === 'completed')))
                       .catch(() => {})
                       .finally(() => setLoadingHistory(false))
                   }}
