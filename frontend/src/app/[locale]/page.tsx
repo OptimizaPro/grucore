@@ -86,20 +86,23 @@ export default async function HomePage({ params }: Props) {
     trust_1: cta.trust_1, trust_2: cta.trust_2, trust_3: cta.trust_3,
   } : undefined
 
+  // sv(key) → true si no hay CMS (fallback) o si la sección existe y está visible
+  const sv = (key: string) => !cms || key in (cms.sections ?? {})
+
   return (
     <>
-      <HeroSection data={heroData} />
-      <TrustBar data={trustData} />
-      <ServicesScroll items={marqueeItems} />
-      {(servicesData   || !cms) && <ServicesSection data={servicesData} />}
-      {(processData    || !cms) && <ProcessSection data={processData} />}
-      <PortfolioPreview />
-      {(beforeAfterData || !cms) && <BeforeAfterSection data={beforeAfterData} />}
-      {(pricingData    || !cms) && <PricingSection data={pricingData} />}
-      {testimonialsData && <TestimonialsSection data={testimonialsData} />}
-      <GoogleReviewCta /> 
-      <CtaSection data={ctaData} />
-      <CtaBanner />
+      {sv('hero')             && <HeroSection data={heroData} />}
+      {sv('trust_bar')        && <TrustBar data={trustData} />}
+      {sv('services_scroll')  && <ServicesScroll items={marqueeItems} />}
+      {sv('services')         && (servicesData || !cms) && <ServicesSection data={servicesData} />}
+      {sv('process')          && (processData  || !cms) && <ProcessSection data={processData} />}
+      {sv('portfolio')        && <PortfolioPreview />}
+      {sv('before_after')     && (beforeAfterData || !cms) && <BeforeAfterSection data={beforeAfterData} />}
+      {sv('pricing')          && (pricingData || !cms) && <PricingSection data={pricingData} />}
+      {sv('testimonials')     && testimonialsData && <TestimonialsSection data={testimonialsData} />}
+      {sv('google_review_cta') && <GoogleReviewCta />}
+      {sv('cta')              && <CtaSection data={ctaData} />}
+      {sv('cta_banner')       && <CtaBanner />}
     </>
   )
 }
