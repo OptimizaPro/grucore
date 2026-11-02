@@ -2,7 +2,13 @@ import { useTranslations } from 'next-intl'
 import { SectionReveal } from '@/components/ui/section-reveal'
 import { BeforeAfterSlider } from '@/components/ui/before-after-slider'
 
-interface BeforeAfterData { eyebrow: string; title: string; before_label: string; after_label: string; drag_hint: string }
+const FALLBACK_BEFORE = '/antes-edificio.jpg'
+const FALLBACK_AFTER  = '/despues-edificio.png'
+
+interface BeforeAfterData {
+  eyebrow: string; title: string; before_label: string; after_label: string; drag_hint: string
+  before_image?: string; after_image?: string
+}
 
 export function BeforeAfterSection({ data }: { data?: BeforeAfterData }) {
   const t = useTranslations('Home.before_after')
@@ -27,8 +33,8 @@ export function BeforeAfterSection({ data }: { data?: BeforeAfterData }) {
 
         <SectionReveal delay={0.15}>
           <BeforeAfterSlider
-            beforeImage="/antes-edificio.jpg"
-            afterImage="/despues-edificio.png"
+            beforeImage={data?.before_image || FALLBACK_BEFORE}
+            afterImage={data?.after_image  || FALLBACK_AFTER}
             beforeLabel={data?.before_label ?? t('before_label')}
             afterLabel={data?.after_label ?? t('after_label')}
             dragHint={data?.drag_hint ?? t('drag_hint')}

@@ -67,6 +67,8 @@ export default async function HomePage({ params }: Props) {
     eyebrow: beforeAfter.eyebrow, title: beforeAfter.title,
     before_label: beforeAfter.before_label, after_label: beforeAfter.after_label,
     drag_hint: beforeAfter.drag_hint,
+    before_image: beforeAfter.before_image as string | undefined,
+    after_image:  beforeAfter.after_image  as string | undefined,
   } : undefined
 
   const pricingData = pricing.tiers ? {

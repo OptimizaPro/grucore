@@ -45,7 +45,7 @@ export default async function ServicesPage({ params }: Props) {
         title={content.title}
         subtitle={content.subtitle}
         accent={locale === 'es' ? 'Soluciones' : 'Solutions'}
-        bgImage="https://images.unsplash.com/photo-1710181202412-a8d5accdbbf6?auto=format&fit=crop&w=1600&q=60"
+        bgImage={(hero.background_image as string | undefined) ?? 'https://images.unsplash.com/photo-1710181202412-a8d5accdbbf6?auto=format&fit=crop&w=1600&q=60'}
         size="md"
         split
         subtitleVariant="border-left"
