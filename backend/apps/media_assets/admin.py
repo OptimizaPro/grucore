@@ -209,32 +209,37 @@ class MediaAssetAdmin(CRUDActionsMixin, ModelAdmin):
         <title>Subir imagen — Media Assets</title>
         <style>
           *{box-sizing:border-box}
-          body{font-family:system-ui,sans-serif;background:#131D28;color:#F0EDE8;margin:0;padding:40px}
-          .card{max-width:580px;margin:0 auto;background:#1F2D3A;border:1px solid #27384A;border-radius:12px;padding:36px}
-          h1{font-size:1.25rem;margin:0 0 6px;color:#F0EDE8;font-weight:600}
-          p.sub{color:#8A95A5;font-size:.82rem;margin:0 0 28px}
-          label{display:block;font-size:.72rem;color:#8A95A5;margin-bottom:5px;font-weight:500;text-transform:uppercase;letter-spacing:.05em}
-          input{width:100%;background:#131D28;border:1px solid #27384A;border-radius:8px;
-            padding:10px 14px;color:#F0EDE8;font-size:.875rem;margin-bottom:16px;transition:border-color .15s}
+          body{font-family:system-ui,sans-serif;background:#131D28;color:#F0EDE8;margin:0;
+            min-height:100vh;display:flex;align-items:center;justify-content:center;padding:16px}
+          .card{width:100%;max-width:560px;background:#1F2D3A;border:1px solid #27384A;border-radius:12px;padding:24px}
+          .back{color:#8A95A5;font-size:.78rem;text-decoration:none;display:inline-flex;align-items:center;gap:4px;margin-bottom:14px}
+          .back:hover{color:#F0EDE8}
+          h1{font-size:1.1rem;margin:0 0 2px;color:#F0EDE8;font-weight:600}
+          p.sub{color:#8A95A5;font-size:.78rem;margin:0 0 16px}
+          label{display:block;font-size:.68rem;color:#8A95A5;margin-bottom:4px;font-weight:500;text-transform:uppercase;letter-spacing:.05em}
+          input{width:100%;background:#131D28;border:1px solid #27384A;border-radius:7px;
+            padding:8px 12px;color:#F0EDE8;font-size:.82rem;margin-bottom:10px;transition:border-color .15s}
           input:focus{outline:none;border-color:#FF6B35}
-          .drop{border:2px dashed #27384A;border-radius:10px;padding:36px 24px;text-align:center;
-            color:#8A95A5;font-size:.85rem;cursor:pointer;margin-bottom:20px;transition:all .2s;background:#131D28}
+          .grid{display:grid;grid-template-columns:1fr 1fr;gap:0 12px}
+          .drop{border:2px dashed #27384A;border-radius:9px;padding:20px 16px;text-align:center;
+            color:#8A95A5;font-size:.82rem;cursor:pointer;margin-bottom:12px;transition:all .2s;background:#131D28}
           .drop:hover,.drop.over{border-color:#FF6B35;color:#FF6B35;background:rgba(255,107,53,.04)}
-          .drop-icon{font-size:2rem;margin-bottom:8px;display:block}
-          .drop-hint{font-size:.75rem;color:#4A5568;margin-top:4px}
-          .actions{display:flex;gap:12px;align-items:center;margin-top:20px}
-          .btn-primary{background:#FF6B35;color:#131D28;border:none;padding:11px 28px;
-            border-radius:8px;font-weight:700;font-size:.875rem;cursor:pointer;
-            display:inline-flex;align-items:center;gap:8px;transition:background .15s;min-width:140px;justify-content:center}
+          .drop-icon{font-size:1.5rem;margin-bottom:4px;display:block}
+          .drop-hint{font-size:.7rem;color:#4A5568;margin-top:2px}
+          .actions{display:flex;gap:10px;align-items:center;margin-top:14px}
+          .btn-primary{background:#FF6B35;color:#131D28;border:none;padding:9px 24px;
+            border-radius:8px;font-weight:700;font-size:.82rem;cursor:pointer;
+            display:inline-flex;align-items:center;gap:7px;transition:background .15s;min-width:130px;justify-content:center}
           .btn-primary:hover:not(:disabled){background:#ff8255}
           .btn-primary:disabled{opacity:.6;cursor:not-allowed}
-          .btn-secondary{color:#8A95A5;text-decoration:none;font-size:.875rem;padding:11px 0;transition:color .15s}
-          .btn-secondary:hover{color:#F0EDE8}
-          .msg{padding:12px 16px;border-radius:8px;margin-bottom:20px;font-size:.85rem;line-height:1.5}
+          .btn-secondary{color:#8A95A5;text-decoration:none;font-size:.82rem;padding:9px 16px;
+            border-radius:8px;background:#27384A;transition:background .15s,color .15s;border:1px solid #334455}
+          .btn-secondary:hover{background:#334455;color:#F0EDE8}
+          .msg{padding:10px 14px;border-radius:7px;margin-bottom:12px;font-size:.82rem;line-height:1.5}
           .msg.error{background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.2);color:#fca5a5}
           .msg.success{background:rgba(74,158,107,.08);border:1px solid rgba(74,158,107,.2);color:#86efac}
-          .spinner{width:14px;height:14px;border:2px solid rgba(0,0,0,.2);border-top-color:#131D28;
-            border-radius:50%;animation:spin .6s linear infinite;display:none}
+          .spinner{width:13px;height:13px;border:2px solid rgba(0,0,0,.2);border-top-color:#131D28;
+            border-radius:50%;animation:spin .6s linear infinite;display:none;flex-shrink:0}
           @keyframes spin{to{transform:rotate(360deg)}}
         </style></head><body>
         <div class="card">
