@@ -125,6 +125,7 @@ class GenerateView(APIView):
 class SessionListView(generics.ListAPIView):
     serializer_class   = DesignSessionSerializer
     permission_classes = [permissions.IsAuthenticated]
+    pagination_class   = None  # return plain list — frontend expects []
 
     def get_queryset(self):
         return (
