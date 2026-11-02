@@ -157,16 +157,43 @@ class MediaAssetAdmin(CRUDActionsMixin, ModelAdmin):
                 error_msg = 'Solo se permiten imágenes (JPG, PNG, WebP).'
             else:
                 try:
-                    name = request.POST.get('name', '').strip() or os.path.splitext(os.path.basename(file.name))[0]
-                    asset = MediaAsset(
-                        name=name,
-                        context=request.POST.get('context', ''),
-                        alt_es=request.POST.get('alt_es', ''),
-                        alt_en=request.POST.get('alt_en', ''),
-                        uploaded_by=request.user,
-                    )
-                    asset.file.save(os.path.basename(file.name), file, save=True)
+                    import boto3
+                    from datetime import date
+                    from django.conf import settings
                     from django.contrib import messages
+
+                    basename = os.path.basename(file.name)
+                    s3_key   = f"assets/{date.today().strftime('%Y/%m')}/{basename}"
+
+                    # Upload directo con boto3 (bypasa django-storages)
+                    opts   = settings.STORAGES['default']['OPTIONS']
+                    client = boto3.client(
+                        's3',
+                        endpoint_url          = opts['endpoint_url'],
+                        aws_access_key_id     = opts['access_key'],
+                        aws_secret_access_key = opts['secret_key'],
+                        region_name           = opts.get('region_name', 'us-east-1'),
+                    )
+                    file.seek(0)
+                    client.put_object(
+                        Bucket      = opts['bucket_name'],
+                        Key         = s3_key,
+                        Body        = file.read(),
+                        ContentType = file.content_type,
+                    )
+
+                    # Crear MediaAsset apuntando al path S3
+                    display_name = request.POST.get('name', '').strip() or os.path.splitext(basename)[0]
+                    asset = MediaAsset(
+                        name        = display_name,
+                        context     = request.POST.get('context', ''),
+                        alt_es      = request.POST.get('alt_es', ''),
+                        alt_en      = request.POST.get('alt_en', ''),
+                        uploaded_by = request.user,
+                    )
+                    asset.file.name = s3_key
+                    asset.save()
+
                     messages.success(request, f'"{asset.name}" subido correctamente.')
                     return HttpResponseRedirect('../')
                 except Exception as exc:
