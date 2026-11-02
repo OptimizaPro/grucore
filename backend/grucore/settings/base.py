@@ -149,6 +149,11 @@ if USE_S3:
                 'file_overwrite':   True,
                 'querystring_auth': False,
                 'custom_domain':    f'rvprwttonwjolnwwrshp.supabase.co/storage/v1/object/public/{_S3_BUCKET}',
+                # Supabase no soporta multipart uploads — forzar single-part
+                'transfer_config': {
+                    'multipart_threshold':  100 * 1024 * 1024,  # 100 MB
+                    'multipart_chunksize':  100 * 1024 * 1024,
+                },
             },
         },
         'staticfiles': {
