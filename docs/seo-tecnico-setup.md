@@ -1,14 +1,23 @@
 # SEO Técnico — Grucore
 
-**Fecha:** 2026-11-02
+**Última actualización:** 2026-11-02
 
-## Resumen
+## Checklist de implementación
 
-Setup completo de SEO técnico base para `grucore.com`: sitemap dinámico con hreflang `es`/`en`, robots.txt con protección de rutas privadas, y propiedad verificada en Google Search Console.
+| # | Elemento | Estado | Archivo |
+|---|---|---|---|
+| 1 | `sitemap.xml` con hreflang es/en | ✅ | `app/sitemap.ts` |
+| 2 | `robots.txt` con rutas privadas bloqueadas | ✅ | `app/robots.ts` |
+| 3 | Google Search Console verificado + sitemap enviado | ✅ | — |
+| 4 | Schema `GeneralContractor` (Organization + LocalBusiness) | ✅ | `app/[locale]/layout.tsx` |
+| 5 | `llms.txt` para crawlers de IA | ✅ | `public/llms.txt` |
+| 6 | OpenGraph + Twitter cards + canonical en todas las páginas | ✅ | `lib/metadata.ts` |
+| 7 | Schema `Service` + `FAQPage` en páginas de servicio | ✅ | `app/[locale]/services/[slug]/page.tsx` |
+| 8 | OG Images dinámicas (páginas públicas + servicios) | ✅ | `app/[locale]/opengraph-image.tsx` |
 
 ---
 
-## Sitemap.xml
+## 1. Sitemap.xml
 
 **Archivo:** `frontend/src/app/sitemap.ts`
 
@@ -16,16 +25,16 @@ Next.js genera `/sitemap.xml` automáticamente en build time.
 
 ### Páginas estáticas
 
-| URL (es)      | URL (en)        | Frecuencia | Prioridad |
-|---------------|-----------------|------------|-----------|
-| `/`           | `/en`           | monthly    | 1.0       |
-| `/servicios`  | `/en/services`  | monthly    | 0.9       |
-| `/proyectos`  | `/en/projects`  | weekly     | 0.9       |
-| `/nosotros`   | `/en/about`     | monthly    | 0.7       |
-| `/contacto`   | `/en/contact`   | monthly    | 0.8       |
-| `/cotizar`    | —               | monthly    | 0.6       |
-| `/privacy`    | `/privacy`      | yearly     | 0.2       |
-| `/terms`      | `/terms`        | yearly     | 0.2       |
+| URL (es) | URL (en) | Frecuencia | Prioridad |
+|---|---|---|---|
+| `/` | `/en` | monthly | 1.0 |
+| `/servicios` | `/en/services` | monthly | 0.9 |
+| `/proyectos` | `/en/projects` | weekly | 0.9 |
+| `/nosotros` | `/en/about` | monthly | 0.7 |
+| `/contacto` | `/en/contact` | monthly | 0.8 |
+| `/cotizar` | — | monthly | 0.6 |
+| `/privacy` | `/privacy` | yearly | 0.2 |
+| `/terms` | `/terms` | yearly | 0.2 |
 
 ### Páginas dinámicas
 
@@ -38,11 +47,9 @@ Cada entrada incluye `alternates.languages` con `es` y `en`. El español sin pre
 
 ---
 
-## Robots.txt
+## 2. Robots.txt
 
 **Archivo:** `frontend/src/app/robots.ts`
-
-Next.js genera `/robots.txt` automáticamente.
 
 ```
 User-Agent: *
@@ -58,7 +65,7 @@ Las rutas `/erp/`, `/portal/` y `/djamasy/` son áreas privadas (ERP interno, po
 
 ---
 
-## Google Search Console
+## 3. Google Search Console
 
 ### Verificación del dominio
 
@@ -79,25 +86,165 @@ La propiedad `grucore.com` está verificada y activa.
 2. Panel izquierdo → **Sitemaps**
 3. Pegar `https://grucore.com/sitemap.xml` → **Enviar**
 
-Estado: enviado y siendo procesado por Google.
+---
+
+## 4. Schema JSON-LD — GeneralContractor
+
+**Archivo:** `frontend/src/app/[locale]/layout.tsx`
+
+Inyectado en `<head>` en todas las páginas públicas. Los datos se leen dinámicamente desde `CompanySettings` (CMS).
+
+```json
+{
+  "@context": "https://schema.org",
+  "@type": "GeneralContractor",
+  "name": "Grucore",
+  "description": "...",
+  "url": "https://grucore.com",
+  "logo": "...",
+  "telephone": "...",
+  "email": "...",
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "...",
+    "addressCountry": "GT"
+  },
+  "areaServed": { "@type": "Country", "name": "Guatemala" },
+  "sameAs": ["instagram_url", "linkedin_url", "facebook_url"]
+}
+```
+
+`GeneralContractor` hereda de `LocalBusiness` → `Organization`. Verificar en [search.google.com/test/rich-results](https://search.google.com/test/rich-results).
 
 ---
 
-## Variables de entorno y deploy
+## 5. llms.txt (GEO)
 
-### Variable requerida
+**Archivo:** `frontend/public/llms.txt` → sirve en `https://grucore.com/llms.txt`
 
-| Variable               | Valor                 |
-|------------------------|-----------------------|
-| `NEXT_PUBLIC_SITE_URL` | `https://grucore.com` |
+Describe el negocio, servicios y páginas para crawlers de ChatGPT, Perplexity, Claude y otros LLMs. Sigue el estándar emergente `llms.txt`.
 
-Usar el dominio de producción sin barra final. `sitemap.ts` y `robots.ts` la leen en build time — si no está definida, el fallback hardcodeado es `https://grucore.com`.
+---
+
+## 6. OpenGraph + Twitter Cards + Canonical
+
+**Archivo helper:** `frontend/src/lib/metadata.ts` — función `buildMetadata()`
+
+Todas las páginas públicas usan el helper. Genera:
+- `openGraph`: título, descripción, URL canonical, siteName, locale (`es_GT` / `en_US`), imagen
+- `twitter`: `summary_large_image` cuando hay imagen, `summary` si no
+- `alternates.canonical`: URL canónica de la página
+- `alternates.languages`: hreflang `es` y `en` en el `<head>`
+
+### Cobertura por página
+
+| Página | Canonical (es) | OG Image |
+|---|---|---|
+| Home | `/` | OG Image dinámica (`opengraph-image.tsx`) |
+| Servicios | `/servicios` | OG Image dinámica |
+| Proyectos | `/proyectos` | OG Image dinámica |
+| Nosotros | `/nosotros` | OG Image dinámica |
+| Contacto | `/contacto` | OG Image dinámica |
+| Cotizar | `/cotizar` | OG Image dinámica |
+| Servicio detalle | `/servicios/[slug]` | OG Image dinámica por servicio |
+| Proyecto detalle | `/proyectos/[slug]` | `project.cover_image` (foto real) |
+
+---
+
+## 7. Schema Service + FAQPage
+
+**Archivo:** `frontend/src/app/[locale]/services/[slug]/page.tsx`
+
+Dos JSON-LD scripts inyectados en el `return` de cada página de servicio:
+
+### Service
+
+```json
+{
+  "@context": "https://schema.org",
+  "@type": "Service",
+  "name": "Construcción Residencial",
+  "description": "...",
+  "url": "https://grucore.com/servicios/residential",
+  "image": "...",
+  "provider": { "@type": "Organization", "name": "Grucore", "url": "https://grucore.com" },
+  "areaServed": { "@type": "Country", "name": "Guatemala" },
+  "offers": {
+    "@type": "Offer",
+    "priceCurrency": "GTQ",
+    "priceRange": "Q300,000 – Q2,500,000",
+    "availability": "https://schema.org/InStock"
+  }
+}
+```
+
+### FAQPage
+
+4 preguntas/respuestas por servicio, locale-aware (`es`/`en`). Los datos viven en la constante `FAQ_BY_SERVICE` dentro del mismo archivo.
+
+---
+
+## 8. OG Images dinámicas
+
+Generadas con `ImageResponse` de `next/og` (runtime Node.js). Usan Montserrat cargada desde Google Fonts y el logo `Grucore-white.png` desde `/public/`.
+
+### Default — páginas estáticas
+
+**Archivo:** `frontend/src/app/[locale]/opengraph-image.tsx`
+
+Aplica a: home, servicios, proyectos, nosotros, contacto, cotizar.
+
+- Fondo oscuro `#1A2530`
+- Barra naranja superior
+- Logo Grucore blanco centrado
+- Tagline: "Construcción y Remodelación Premium"
+- "Guatemala" en naranja
+- URL y "Consulta gratuita en 24h" en pie
+
+### Servicio detalle
+
+**Archivo:** `frontend/src/app/[locale]/services/[slug]/opengraph-image.tsx`
+
+- Nombre del servicio (grande, bold)
+- Descripción
+- Rango de inversión en GTQ
+- Duración típica
+- Logo Grucore en esquina superior derecha
+- Barra naranja izquierda
+
+### Verificar imágenes generadas
+
+Acceder directamente a:
+- `https://grucore.com/opengraph-image.png`
+- `https://grucore.com/servicios/residential/opengraph-image.png`
+
+O pegar cualquier URL en [opengraph.xyz](https://www.opengraph.xyz).
+
+---
+
+## Variables de entorno
+
+| Variable | Valor | Usado en |
+|---|---|---|
+| `NEXT_PUBLIC_SITE_URL` | `https://grucore.com` | `sitemap.ts`, `robots.ts`, `metadata.ts`, JSON-LD schemas, OG images |
 
 ### Actualizar en Railway
 
 1. Railway → proyecto Grucore → servicio **frontend**
 2. Pestaña **Variables** → editar o crear `NEXT_PUBLIC_SITE_URL`
 3. Guardar → Railway lanza redeploy automático
-4. Si el valor cambia después del deploy, forzar redeploy: **Deployments → Redeploy**
 
-> `NEXT_PUBLIC_*` se embebe en el bundle durante el build, no en runtime.
+> `NEXT_PUBLIC_*` se embebe en el bundle durante el build. Cambios requieren redeploy.
+
+---
+
+## Herramientas de verificación
+
+| Herramienta | Qué verifica |
+|---|---|
+| [search.google.com/test/rich-results](https://search.google.com/test/rich-results) | Schema JSON-LD (GeneralContractor, Service, FAQPage) |
+| [opengraph.xyz](https://www.opengraph.xyz) | OG Images + Twitter cards |
+| [search.google.com/search-console](https://search.google.com/search-console) | Indexación, sitemap, cobertura |
+| `Ctrl+U` en `/sitemap.xml` | Hreflang en XML |
+| `https://grucore.com/robots.txt` | Reglas de crawling |
+| `https://grucore.com/llms.txt` | Contenido para LLMs |
