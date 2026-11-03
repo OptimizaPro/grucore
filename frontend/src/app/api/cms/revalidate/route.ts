@@ -18,21 +18,26 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ revalidated: true, type: 'settings', scope: 'layout' })
   }
 
+  const locales = ['es', 'en']
+
   // Map CMS page slugs to Next.js locale-aware paths
   const pathMap: Record<string, string[]> = {
-    home:     ['/'],
-    about:    ['/about'],
-    contact:  ['/contact'],
-    services: ['/services'],
-    projects: ['/projects'],
-    global:   ['/'],           // global affects all pages — revalidate root
+    home:     ['/', '/en'],
+    about:    ['/about', '/en/about'],
+    contact:  ['/contact', '/en/contact'],
+    services: ['/services', '/en/services'],
+    projects: ['/projects', '/en/projects'],
+    global:   ['/', '/en'],
   }
 
   const paths = (slug && pathMap[slug]) ?? Object.values(pathMap).flat()
 
   for (const path of paths) {
-    revalidatePath(path)
+    revalidatePath(path, 'page')
   }
+
+  // Also revalidate layout to catch locale-prefixed routes
+  revalidatePath('/', 'layout')
 
   return NextResponse.json({ revalidated: true, slug, paths })
 }

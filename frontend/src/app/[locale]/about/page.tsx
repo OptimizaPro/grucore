@@ -18,8 +18,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   }
 }
 
-const TEAM_IMG  = 'https://images.unsplash.com/photo-1632041482049-c8b8a076fbf3?auto=format&fit=crop&w=1200&q=80'
-const SITE_IMG  = 'https://images.unsplash.com/photo-1591588582259-e675bd2e6088?auto=format&fit=crop&w=1200&q=80'
+const FALLBACK_HERO_IMG = 'https://plus.unsplash.com/premium_photo-1681691161744-06b1e2299ad5?auto=format&fit=crop&w=1600&q=60'
+const FALLBACK_SITE_IMG = 'https://images.unsplash.com/photo-1591588582259-e675bd2e6088?auto=format&fit=crop&w=1200&q=80'
+const FALLBACK_TEAM_IMG = 'https://images.unsplash.com/photo-1632041482049-c8b8a076fbf3?auto=format&fit=crop&w=1200&q=80'
 
 export default async function AboutPage({ params }: Props) {
   const { locale } = await params
@@ -31,6 +32,10 @@ export default async function AboutPage({ params }: Props) {
   const values = blocks(cms, 'values')
   const diff   = blocks(cms, 'differentiators')
   const cta    = blocks(cms, 'mini_cta')
+
+  const heroBgImage  = (hero.bg_image   as string | undefined) || FALLBACK_HERO_IMG
+  const storyImage   = (story.image_url as string | undefined) || FALLBACK_SITE_IMG
+  const teamImage    = (diff.image_url  as string | undefined) || FALLBACK_TEAM_IMG
 
   const c = {
     eyebrow:               hero.eyebrow   ?? '',
@@ -61,7 +66,7 @@ export default async function AboutPage({ params }: Props) {
         title={c.title}
         subtitle={c.subtitle}
         accentLast
-        bgImage="https://plus.unsplash.com/premium_photo-1681691161744-06b1e2299ad5?auto=format&fit=crop&w=1600&q=60"
+        bgImage={heroBgImage}
         size="md"
         split
         subtitleVariant="rule"
@@ -130,7 +135,7 @@ export default async function AboutPage({ params }: Props) {
             <SectionReveal delay={0.15} className="relative h-[480px]">
               <div className="absolute inset-0 rounded-xl overflow-hidden border border-[#27384A]">
                 <Image
-                  src={SITE_IMG}
+                  src={storyImage}
                   alt="Equipo Grucore en obra"
                   fill
                   className="object-cover"
@@ -210,7 +215,7 @@ export default async function AboutPage({ params }: Props) {
             <SectionReveal className="relative h-[420px] order-2 lg:order-1">
               <div className="absolute inset-0 rounded-xl overflow-hidden border border-[#27384A]">
                 <Image
-                  src={TEAM_IMG}
+                  src={teamImage}
                   alt={locale === 'es' ? 'Equipo de trabajo Grucore' : 'Grucore work team'}
                   fill
                   className="object-cover"
