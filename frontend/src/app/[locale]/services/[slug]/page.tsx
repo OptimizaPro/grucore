@@ -204,8 +204,49 @@ export default async function ServiceDetailPage({ params }: Props) {
 
   const faqs = FAQ_BY_SERVICE[slug] ?? []
 
+  const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL ?? 'https://grucore.com').replace(/\/$/, '')
+  const canonicalPath = locale === 'es' ? `/servicios/${slug}` : `/en/services/${slug}`
+
+  const serviceSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'Service',
+    name: label,
+    description,
+    url: `${siteUrl}${canonicalPath}`,
+    image: coverImage,
+    provider: {
+      '@type': 'Organization',
+      name: 'Grucore',
+      url: siteUrl,
+    },
+    areaServed: { '@type': 'Country', name: 'Guatemala' },
+    offers: {
+      '@type': 'Offer',
+      priceCurrency: 'GTQ',
+      priceRange: `Q${service.range_gtq[0].toLocaleString()} – Q${service.range_gtq[1].toLocaleString()}`,
+      availability: 'https://schema.org/InStock',
+    },
+  }
+
+  const faqSchema = faqs.length > 0 ? {
+    '@context': 'https://schema.org',
+    '@type': 'FAQPage',
+    mainEntity: faqs.map((faq) => ({
+      '@type': 'Question',
+      name: faq.q[locale],
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: faq.a[locale],
+      },
+    })),
+  } : null
+
   return (
     <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(serviceSchema) }} />
+      {faqSchema && (
+        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }} />
+      )}
       <PageHero
         eyebrow={locale === 'es' ? 'Servicio' : 'Service'}
         title={label}
