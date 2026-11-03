@@ -8,7 +8,8 @@ import { PROJECTS } from '@/lib/projects-data'
 // Primeros 3 proyectos destacados para el home
 const FEATURED = PROJECTS.filter((p) => p.is_featured).slice(0, 3)
 
-export function PortfolioPreview() {
+/** slug → URL de portada desde CMS (sobreescribe el hardcoded si existe) */
+export function PortfolioPreview({ imageOverrides = {} }: { imageOverrides?: Record<string, string> }) {
   const t = useTranslations('Home.portfolio')
 
   return (
@@ -52,7 +53,7 @@ export function PortfolioPreview() {
               {/* Imagen */}
               <div className="relative h-56 overflow-hidden">
                 <Image
-                  src={project.cover_image}
+                  src={imageOverrides[project.slug] ?? project.cover_image}
                   alt={project.title.es}
                   fill
                   className="object-cover transition-transform duration-500 group-hover:scale-105"

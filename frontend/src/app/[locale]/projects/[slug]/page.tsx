@@ -4,6 +4,7 @@ import Image from 'next/image'
 import { getLocale } from 'next-intl/server'
 import { PROJECTS, getProject } from '@/lib/projects-data'
 import { buildMetadata } from '@/lib/metadata'
+import { getProjectImages } from '@/lib/cms'
 import { PageHero } from '@/components/ui/page-hero'
 import { SectionReveal, StaggerReveal } from '@/components/ui/section-reveal'
 import { CtaSection } from '@/components/sections/cta-section'
@@ -22,6 +23,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug, locale } = await params
   const project = getProject(slug)
   if (!project) return {}
+  const [cmsImg] = await Promise.all([getProjectImages(slug)])
   const title       = `${locale === 'en' ? project.title.en : project.title.es} — Grucore`
   const description = locale === 'en' ? project.description.en : project.description.es
   return buildMetadata({
@@ -30,7 +32,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     locale,
     canonicalPath: locale === 'en' ? `/en/projects/${slug}` : `/proyectos/${slug}`,
     alternatePaths: { es: `/proyectos/${slug}`, en: `/en/projects/${slug}` },
-    image: project.cover_image,
+    image: cmsImg.cover ?? project.cover_image,
   })
 }
 
@@ -40,6 +42,11 @@ export default async function ProjectDetailPage({ params }: Props) {
   const project = getProject(slug)
 
   if (!project) notFound()
+
+  const cmsImages  = await getProjectImages(slug)
+  const coverImage  = cmsImages.cover  ?? project.cover_image
+  const beforeImage = cmsImages.before ?? project.before_image
+  const afterImage  = cmsImages.after  ?? project.after_image
 
   const title = locale === 'es' ? project.title.es : project.title.en
   const typeLabel = locale === 'es' ? project.type_label.es : project.type_label.en
@@ -77,7 +84,7 @@ export default async function ProjectDetailPage({ params }: Props) {
         eyebrow={typeLabel}
         title={title}
         subtitle={`${project.city} · ${project.location}`}
-        bgImage={project.cover_image}
+        bgImage={coverImage}
         accentLast
         size="md"
         split
@@ -104,10 +111,10 @@ export default async function ProjectDetailPage({ params }: Props) {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
               {/* Imagen grande o slider antes/después */}
               <div className="lg:col-span-2 h-[400px]">
-                {project.before_image && project.after_image ? (
+                {beforeImage && afterImage ? (
                   <BeforeAfterSlider
-                    beforeImage={project.before_image}
-                    afterImage={project.after_image}
+                    beforeImage={beforeImage}
+                    afterImage={afterImage}
                     beforeLabel={locale === 'es' ? 'Antes' : 'Before'}
                     afterLabel={locale === 'es' ? 'Después' : 'After'}
                     dragHint={locale === 'es' ? 'Desliza para comparar' : 'Drag to compare'}
@@ -116,7 +123,7 @@ export default async function ProjectDetailPage({ params }: Props) {
                 ) : (
                   <div className="rounded-xl overflow-hidden h-full relative border border-[#27384A]">
                     <Image
-                      src={project.cover_image}
+                      src={coverImage}
                       alt={title}
                       fill
                       className="object-cover"

@@ -2,12 +2,21 @@ from django.db import models
 from django.conf import settings
 
 SERVICE_SLUGS = [
-    ('residential_construction', 'Construcción Residencial'),
-    ('remodeling',               'Remodelación Interior'),
-    ('commercial',               'Proyectos Comerciales'),
-    ('design_build',             'Diseño y Construcción'),
-    ('industrial',               'Construcción Industrial'),
-    ('kitchens_baths',           'Cocinas y Baños'),
+    ('residential',  'Construcción Residencial'),
+    ('remodeling',   'Remodelación Interior'),
+    ('commercial',   'Proyectos Comerciales'),
+    ('design_build', 'Diseño y Construcción'),
+    ('industrial',   'Construcción Industrial'),
+    ('kitchens_baths', 'Cocinas y Baños'),
+]
+
+PROJECT_SLUGS = [
+    ('residencia-los-palmerales',           'Residencia Los Palmerales'),
+    ('oficinas-corporativas-torre-norte',   'Oficinas Corporativas Torre Norte'),
+    ('restaurante-costa-del-este',          'Restaurante Costa del Este'),
+    ('bodega-industrial-zona-franca',       'Bodega Industrial Zona Franca'),
+    ('remodelacion-casa-zona-15',           'Remodelación Casa Zona 15'),
+    ('clinica-medica-pradera',              'Clínica Médica Pradera'),
 ]
 
 
@@ -150,3 +159,46 @@ class ServicePage(models.Model):
 
     def __str__(self):
         return dict(SERVICE_SLUGS).get(self.slug, self.slug)
+
+
+class ProjectPage(models.Model):
+    """
+    Imágenes editables por proyecto. El slug debe coincidir con las claves
+    de PROJECTS en frontend/src/lib/projects-data.ts.
+    """
+    slug = models.CharField(
+        max_length=100,
+        unique=True,
+        choices=PROJECT_SLUGS,
+        verbose_name='Proyecto',
+    )
+    cover_image = models.ForeignKey(
+        'media_assets.MediaAsset',
+        null=True, blank=True,
+        on_delete=models.SET_NULL,
+        related_name='project_covers',
+        verbose_name='Imagen de portada',
+    )
+    before_image = models.ForeignKey(
+        'media_assets.MediaAsset',
+        null=True, blank=True,
+        on_delete=models.SET_NULL,
+        related_name='project_befores',
+        verbose_name='Imagen "Antes"',
+    )
+    after_image = models.ForeignKey(
+        'media_assets.MediaAsset',
+        null=True, blank=True,
+        on_delete=models.SET_NULL,
+        related_name='project_afters',
+        verbose_name='Imagen "Después"',
+    )
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name        = 'Imágenes de proyecto'
+        verbose_name_plural = 'Imágenes por proyecto'
+        ordering            = ['slug']
+
+    def __str__(self):
+        return dict(PROJECT_SLUGS).get(self.slug, self.slug)

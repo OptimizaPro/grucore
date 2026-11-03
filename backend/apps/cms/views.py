@@ -2,7 +2,7 @@ from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
-from .models import Page, MarqueeItem, ServicePage
+from .models import Page, MarqueeItem, ServicePage, ProjectPage
 from .serializers import PageSerializer
 
 
@@ -66,6 +66,31 @@ def service_images(request, slug):
         'cover':  url(svc.cover_image),
         'before': url(svc.before_image),
         'after':  url(svc.after_image),
+    })
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def project_images(request, slug):
+    """
+    GET /api/cms/projects/{slug}/
+    Devuelve las URLs de cover, before y after para un proyecto.
+    Retorna null en los campos no configurados (el frontend usa su fallback).
+    """
+    try:
+        proj = ProjectPage.objects.select_related(
+            'cover_image', 'before_image', 'after_image'
+        ).get(slug=slug)
+    except ProjectPage.DoesNotExist:
+        return Response({'cover': None, 'before': None, 'after': None})
+
+    def url(asset):
+        return asset.url if asset else None
+
+    return Response({
+        'cover':  url(proj.cover_image),
+        'before': url(proj.before_image),
+        'after':  url(proj.after_image),
     })
 
 

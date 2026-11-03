@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.utils.html import format_html
 from unfold.admin import ModelAdmin, TabularInline
-from .models import Page, Section, Block, MarqueeItem, ServicePage
+from .models import Page, Section, Block, MarqueeItem, ServicePage, ProjectPage
 
 _PAGE_COLORS = {
     'home':     '#FF6B35',
@@ -145,6 +145,46 @@ class ServicePageAdmin(ModelAdmin):
 
     @admin.display(description='Servicio')
     def service_label(self, obj):
+        return obj.__str__()
+
+    def _thumb(self, asset, label=''):
+        if asset:
+            return format_html(
+                '<img src="{}" style="height:56px;width:80px;object-fit:cover;'
+                'border-radius:4px;border:1px solid #27384A;" title="{}" />',
+                asset.url, label,
+            )
+        return format_html('<span style="color:#64748b;font-size:11px;">Sin imagen</span>')
+
+    @admin.display(description='Portada')
+    def cover_preview(self, obj):
+        return self._thumb(obj.cover_image, 'Portada')
+
+    @admin.display(description='Antes')
+    def before_preview(self, obj):
+        return self._thumb(obj.before_image, 'Antes')
+
+    @admin.display(description='Después')
+    def after_preview(self, obj):
+        return self._thumb(obj.after_image, 'Después')
+
+
+@admin.register(ProjectPage)
+class ProjectPageAdmin(ModelAdmin):
+    list_display  = ('project_label', 'cover_preview', 'before_preview', 'after_preview', 'updated_at')
+    readonly_fields = ('cover_preview', 'before_preview', 'after_preview', 'updated_at')
+    ordering      = ('slug',)
+    fieldsets     = [
+        ('Proyecto', {'fields': ('slug', 'updated_at')}),
+        ('Imágenes', {'fields': (
+            ('cover_image',  'cover_preview'),
+            ('before_image', 'before_preview'),
+            ('after_image',  'after_preview'),
+        )}),
+    ]
+
+    @admin.display(description='Proyecto')
+    def project_label(self, obj):
         return obj.__str__()
 
     def _thumb(self, asset, label=''):

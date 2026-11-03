@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
-import { getCMSPage, blocks, getMarqueeItems } from '@/lib/cms'
+import { getCMSPage, blocks, getMarqueeItems, getProjectImages } from '@/lib/cms'
+import { PROJECTS } from '@/lib/projects-data'
 import { buildMetadata } from '@/lib/metadata'
 import { HeroSection } from '@/components/sections/hero-section'
 import { TrustBar } from '@/components/sections/trust-bar'
@@ -33,10 +34,19 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function HomePage({ params }: Props) {
   const { locale } = await params
-  const [cms, marqueeItems] = await Promise.all([
+  const featuredSlugs = PROJECTS.filter((p) => p.is_featured).slice(0, 3).map((p) => p.slug)
+
+  const [cms, marqueeItems, ...featuredImages] = await Promise.all([
     getCMSPage('home', locale),
     getMarqueeItems(locale),
+    ...featuredSlugs.map((slug) => getProjectImages(slug)),
   ])
+
+  const portfolioImageOverrides: Record<string, string> = {}
+  featuredSlugs.forEach((slug, i) => {
+    const img = (featuredImages[i] as Awaited<ReturnType<typeof getProjectImages>>).cover
+    if (img) portfolioImageOverrides[slug] = img
+  })
 
   const hero         = blocks(cms, 'hero')
   const trustBar     = blocks(cms, 'trust_bar')
@@ -102,7 +112,7 @@ export default async function HomePage({ params }: Props) {
       {sv('services_scroll')  && <ServicesScroll items={marqueeItems} />}
       {sv('services')         && (servicesData || !cms) && <ServicesSection data={servicesData} />}
       {sv('process')          && (processData  || !cms) && <ProcessSection data={processData} />}
-      {sv('portfolio')        && <PortfolioPreview />}
+      {sv('portfolio')        && <PortfolioPreview imageOverrides={portfolioImageOverrides} />}
       {sv('before_after')     && (beforeAfterData || !cms) && <BeforeAfterSection data={beforeAfterData} />}
       {sv('pricing')          && (pricingData || !cms) && <PricingSection data={pricingData} />}
       {sv('testimonials')     && testimonialsData && <TestimonialsSection data={testimonialsData} />}

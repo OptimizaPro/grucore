@@ -6,4 +6,5 @@ urlpatterns = [
     path('pages/<slug:slug>/',       views.page_detail,    name='cms-page-detail'),
     path('marquee/',                 views.marquee_list,   name='cms-marquee-list'),
     path('services/<slug:slug>/',    views.service_images, name='cms-service-images'),
+    path('projects/<slug:slug>/',    views.project_images, name='cms-project-images'),
 ]

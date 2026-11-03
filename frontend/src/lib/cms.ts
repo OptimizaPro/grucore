@@ -61,6 +61,28 @@ export async function getServiceImages(slug: string): Promise<ServiceImages> {
   }
 }
 
+export interface ProjectImages {
+  cover:  string | null
+  before: string | null
+  after:  string | null
+}
+
+/**
+ * Obtiene las imágenes configuradas en el admin para un proyecto.
+ * Devuelve nulls si el proyecto no tiene imágenes en el CMS (el frontend usa su fallback).
+ */
+export async function getProjectImages(slug: string): Promise<ProjectImages> {
+  try {
+    const res = await fetch(`${API_URL}/api/cms/projects/${slug}/`, {
+      next: { revalidate: REVALIDATE },
+    })
+    if (!res.ok) return { cover: null, before: null, after: null }
+    return res.json() as Promise<ProjectImages>
+  } catch {
+    return { cover: null, before: null, after: null }
+  }
+}
+
 export interface MarqueeItem { id: number; title: string; order: number }
 
 /**
