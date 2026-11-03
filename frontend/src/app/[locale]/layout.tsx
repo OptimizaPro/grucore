@@ -45,6 +45,35 @@ export default async function LocaleLayout({ children, params }: Props) {
   const settings = await fetchCompanySettings()
   const logoUrl = settings.logo_light_url ?? settings.logo_url ?? null
 
+  const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL ?? 'https://grucore.com').replace(/\/$/, '')
+
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'GeneralContractor',
+    name: settings.name || 'Grucore',
+    description: settings.description || settings.tagline || 'Construcción y remodelación premium en Guatemala',
+    url: siteUrl,
+    ...(settings.logo_url ? { logo: settings.logo_url } : {}),
+    ...(settings.phone    ? { telephone: settings.phone } : {}),
+    ...(settings.email    ? { email: settings.email } : {}),
+    ...(settings.address  ? {
+      address: {
+        '@type': 'PostalAddress',
+        streetAddress: settings.address,
+        addressCountry: 'GT',
+      },
+    } : {}),
+    areaServed: {
+      '@type': 'Country',
+      name: 'Guatemala',
+    },
+    sameAs: [
+      settings.instagram,
+      settings.linkedin,
+      settings.facebook,
+    ].filter(Boolean),
+  }
+
   return (
     <html lang={locale}>
       <head>
@@ -53,6 +82,10 @@ export default async function LocaleLayout({ children, params }: Props) {
         <link
           href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;900&family=Roboto:wght@400;500&family=Space+Mono:wght@400;700&display=swap"
           rel="stylesheet"
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
       </head>
       <body>

@@ -1,0 +1,26 @@
+# Grucore
+
+> Empresa de construcción y remodelación premium en Guatemala. Especializados en proyectos residenciales, comerciales e industriales con altos estándares de calidad.
+
+## Servicios
+
+- [Construcción residencial](https://grucore.com/servicios/residential) — casas, villas y residencias de lujo
+- [Remodelación](https://grucore.com/servicios/remodeling) — transformación de espacios existentes
+- [Construcción comercial](https://grucore.com/servicios/commercial) — oficinas, restaurantes, locales
+- [Design & Build](https://grucore.com/servicios/design_build) — diseño y construcción integral
+- [Construcción industrial](https://grucore.com/servicios/industrial) — bodegas y plantas industriales
+- [Cocinas y baños](https://grucore.com/servicios/kitchens_baths) — remodelación de interiores
+
+## Páginas principales
+
+- [Inicio](https://grucore.com/)
+- [Portafolio de proyectos](https://grucore.com/proyectos)
+- [Nosotros](https://grucore.com/nosotros)
+- [Contacto](https://grucore.com/contacto)
+- [Cotizar](https://grucore.com/cotizar)
+
+## Información
+
+- País de operación: Guatemala
+- Idiomas: Español (principal), Inglés
+- Sitemap: https://grucore.com/sitemap.xml
