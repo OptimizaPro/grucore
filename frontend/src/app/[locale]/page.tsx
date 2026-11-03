@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import { getCMSPage, blocks, getMarqueeItems } from '@/lib/cms'
+import { buildMetadata } from '@/lib/metadata'
 import { HeroSection } from '@/components/sections/hero-section'
 import { TrustBar } from '@/components/sections/trust-bar'
 import { ServicesScroll } from '@/components/sections/services-scroll'
@@ -19,10 +20,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params
   const cms = await getCMSPage('global', locale)
   const meta = blocks(cms, 'metadata')
-  return {
-    title:       meta.site_title       ?? 'Grucore — Construcción y Remodelación en Guatemala',
-    description: meta.site_description ?? 'Empresa de construcción y remodelación premium en Guatemala.',
-  }
+  const title       = meta.site_title       ?? 'Grucore — Construcción y Remodelación en Guatemala'
+  const description = meta.site_description ?? 'Empresa de construcción y remodelación premium en Guatemala.'
+  return buildMetadata({
+    title,
+    description,
+    locale,
+    canonicalPath: locale === 'en' ? '/en' : '/',
+    alternatePaths: { es: '/', en: '/en' },
+  })
 }
 
 export default async function HomePage({ params }: Props) {

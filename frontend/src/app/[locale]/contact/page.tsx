@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { PageHero } from '@/components/ui/page-hero'
 import { getCMSPage, blocks } from '@/lib/cms'
+import { buildMetadata } from '@/lib/metadata'
 import { ContactForm, type ContactCMSData } from '@/components/sections/contact-form'
 
 type Props = { params: Promise<{ locale: string }> }
@@ -61,10 +62,15 @@ const FB = {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params
   const cms = await getCMSPage('contact', locale)
-  return {
-    title: cms ? `${cms.title} — Grucore` : 'Contacto — Grucore',
-    description: cms?.meta_description ?? 'Contáctanos para una cotización gratuita. Respondemos en menos de 24 horas.',
-  }
+  const title       = cms ? `${cms.title} — Grucore` : 'Contacto — Grucore'
+  const description = cms?.meta_description ?? 'Contáctanos para una cotización gratuita. Respondemos en menos de 24 horas.'
+  return buildMetadata({
+    title,
+    description,
+    locale,
+    canonicalPath: locale === 'en' ? '/en/contact' : '/contacto',
+    alternatePaths: { es: '/contacto', en: '/en/contact' },
+  })
 }
 
 export default async function ContactPage({ params }: Props) {

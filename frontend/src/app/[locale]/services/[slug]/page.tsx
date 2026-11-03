@@ -3,6 +3,7 @@ import type { Metadata } from 'next'
 import { getLocale } from 'next-intl/server'
 import { SERVICES, formatRangeGtq, formatRangeUsd } from '@/lib/estimator'
 import { getServiceImages } from '@/lib/cms'
+import { buildMetadata } from '@/lib/metadata'
 import { PageHero } from '@/components/ui/page-hero'
 import { SectionReveal } from '@/components/ui/section-reveal'
 import { CtaSection } from '@/components/sections/cta-section'
@@ -17,13 +18,18 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { slug } = await params
+  const { slug, locale } = await params
   const service = SERVICES[slug]
   if (!service) return {}
-  return {
-    title: `${service.label_es} — Grucore`,
-    description: service.description_es,
-  }
+  const title       = `${locale === 'en' ? service.label_en : service.label_es} — Grucore`
+  const description = locale === 'en' ? service.description_en : service.description_es
+  return buildMetadata({
+    title,
+    description,
+    locale,
+    canonicalPath: locale === 'en' ? `/en/services/${slug}` : `/servicios/${slug}`,
+    alternatePaths: { es: `/servicios/${slug}`, en: `/en/services/${slug}` },
+  })
 }
 
 export default async function ServiceDetailPage({ params }: Props) {

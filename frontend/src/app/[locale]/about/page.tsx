@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import Image from 'next/image'
+import { buildMetadata } from '@/lib/metadata'
 import { PageHero } from '@/components/ui/page-hero'
 import { SectionReveal, StaggerReveal } from '@/components/ui/section-reveal'
 import { CtaSection } from '@/components/sections/cta-section'
@@ -12,10 +13,15 @@ type Props = { params: Promise<{ locale: string }> }
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params
   const cms = await getCMSPage('about', locale)
-  return {
-    title: cms ? `${cms.title} — Grucore` : 'Nosotros — Grucore',
-    description: cms?.meta_description ?? 'Conoce al equipo detrás de Grucore, empresa guatemalteca de construcción y remodelación premium con más de 10 años de experiencia.',
-  }
+  const title       = cms ? `${cms.title} — Grucore` : 'Nosotros — Grucore'
+  const description = cms?.meta_description ?? 'Conoce al equipo detrás de Grucore, empresa guatemalteca de construcción y remodelación premium con más de 10 años de experiencia.'
+  return buildMetadata({
+    title,
+    description,
+    locale,
+    canonicalPath: locale === 'en' ? '/en/about' : '/nosotros',
+    alternatePaths: { es: '/nosotros', en: '/en/about' },
+  })
 }
 
 const FALLBACK_HERO_IMG = 'https://plus.unsplash.com/premium_photo-1681691161744-06b1e2299ad5?auto=format&fit=crop&w=1600&q=60'

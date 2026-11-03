@@ -3,6 +3,7 @@ import type { Metadata } from 'next'
 import Image from 'next/image'
 import { getLocale } from 'next-intl/server'
 import { PROJECTS, getProject } from '@/lib/projects-data'
+import { buildMetadata } from '@/lib/metadata'
 import { PageHero } from '@/components/ui/page-hero'
 import { SectionReveal, StaggerReveal } from '@/components/ui/section-reveal'
 import { CtaSection } from '@/components/sections/cta-section'
@@ -18,13 +19,19 @@ export async function generateStaticParams() {
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const { slug } = await params
+  const { slug, locale } = await params
   const project = getProject(slug)
   if (!project) return {}
-  return {
-    title: `${project.title.es} — Grucore`,
-    description: project.description.es,
-  }
+  const title       = `${locale === 'en' ? project.title.en : project.title.es} — Grucore`
+  const description = locale === 'en' ? project.description.en : project.description.es
+  return buildMetadata({
+    title,
+    description,
+    locale,
+    canonicalPath: locale === 'en' ? `/en/projects/${slug}` : `/proyectos/${slug}`,
+    alternatePaths: { es: `/proyectos/${slug}`, en: `/en/projects/${slug}` },
+    image: project.cover_image,
+  })
 }
 
 export default async function ProjectDetailPage({ params }: Props) {

@@ -3,6 +3,7 @@ import Image from 'next/image'
 import { PageHero } from '@/components/ui/page-hero'
 import { SectionReveal } from '@/components/ui/section-reveal'
 import { SERVICES, formatRangeGtq, formatRangeUsd } from '@/lib/estimator'
+import { buildMetadata } from '@/lib/metadata'
 import { CtaSection } from '@/components/sections/cta-section'
 import { Check, Clock, ArrowRight } from 'lucide-react'
 import { Link } from '@/i18n/navigation'
@@ -13,10 +14,15 @@ type Props = { params: Promise<{ locale: string }> }
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale } = await params
   const cms = await getCMSPage('services', locale)
-  return {
-    title: cms ? `${cms.title} — Grucore` : 'Servicios — Grucore',
-    description: cms?.meta_description ?? 'Construcción residencial, remodelación, proyectos comerciales e industriales en Guatemala.',
-  }
+  const title       = cms ? `${cms.title} — Grucore` : 'Servicios — Grucore'
+  const description = cms?.meta_description ?? 'Construcción residencial, remodelación, proyectos comerciales e industriales en Guatemala.'
+  return buildMetadata({
+    title,
+    description,
+    locale,
+    canonicalPath: locale === 'en' ? '/en/services' : '/servicios',
+    alternatePaths: { es: '/servicios', en: '/en/services' },
+  })
 }
 
 export default async function ServicesPage({ params }: Props) {
