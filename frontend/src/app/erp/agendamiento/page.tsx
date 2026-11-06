@@ -46,10 +46,10 @@ function MeetingCard({
 
   return (
     <div className={cn(
-      'bg-[#1F2D3A] border rounded-xl p-5 transition-colors',
+      'bg-[#1F2D3A] border rounded-xl p-4 transition-colors flex flex-col',
       isCancelled ? 'border-[#27384A] opacity-60' : 'border-[#27384A] hover:border-[#FF6B35]/30',
     )}>
-      <div className="flex items-start gap-4">
+      <div className="flex items-start gap-3">
         {/* Date block */}
         <div className="flex-shrink-0 w-14 text-center">
           <p className="text-2xl font-bold text-[#FF6B35]" style={{ fontFamily: 'Space Mono, monospace' }}>
@@ -313,7 +313,7 @@ export default function AgendamientoPage() {
               </a>
             </div>
           ) : (
-            <div className="space-y-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
               {filtered
                 .sort((a, b) => new Date(a.start_datetime).getTime() - new Date(b.start_datetime).getTime())
                 .map(e => (
