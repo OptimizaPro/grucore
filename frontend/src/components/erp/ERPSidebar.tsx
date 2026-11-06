@@ -1,7 +1,7 @@
 'use client'
 
 import Image from 'next/image'
-import { LayoutDashboard, Users, Package, Truck, FolderOpen, ClipboardList, BarChart2, Images, Settings, LogOut, X, CheckSquare, HardHat, UserSearch, Building2, ChevronDown, BookOpen, ShoppingCart, TrendingUp, Wrench, Landmark, GitBranch, Sparkles } from 'lucide-react'
+import { LayoutDashboard, Users, Package, Truck, FolderOpen, ClipboardList, BarChart2, Images, Settings, LogOut, X, CheckSquare, HardHat, UserSearch, Building2, ChevronDown, BookOpen, ShoppingCart, TrendingUp, Wrench, Landmark, GitBranch, Sparkles, ChevronLeft, ChevronRight } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { cn } from '@/lib/utils'
 import { logoutERP, type User as UserType } from '@/lib/api'
@@ -86,6 +86,7 @@ const NAV_ITEMS: NavItem[] = [
 export default function ERPSidebar({ currentPage, userName, userInitials, userAvatarUrl, open, onToggle, onUserUpdate }: Props) {
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [logoUrl, setLogoUrl] = useState<string | null>(null)
+  const [collapsed, setCollapsed] = useState(false)
   // Groups open by default if current page is inside them
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>(() => {
     const item = NAV_ITEMS.find(i => i.kind === 'group' && (i as any).pages.includes(currentPage))
@@ -94,7 +95,15 @@ export default function ERPSidebar({ currentPage, userName, userInitials, userAv
 
   useEffect(() => {
     getCompanySettings().then(s => setLogoUrl(s.logo_url))
+    const stored = localStorage.getItem('erp_sidebar_collapsed')
+    if (stored === '1') setCollapsed(true)
   }, [])
+
+  function toggleCollapsed() {
+    const next = !collapsed
+    setCollapsed(next)
+    localStorage.setItem('erp_sidebar_collapsed', next ? '1' : '0')
+  }
 
   function toggleGroup(id: string) {
     setOpenGroups(prev => ({ ...prev, [id]: !prev[id] }))
@@ -108,35 +117,55 @@ export default function ERPSidebar({ currentPage, userName, userInitials, userAv
       )}
 
       <aside className={cn(
-        'fixed md:sticky top-0 left-0 h-screen w-64 bg-[#1A2530] border-r border-[#27384A] flex flex-col z-40 transition-transform duration-300',
+        'fixed md:sticky top-0 left-0 h-screen bg-[#1A2530] border-r border-[#27384A] flex flex-col z-40 transition-all duration-300',
         open ? 'translate-x-0' : '-translate-x-full md:translate-x-0',
+        collapsed ? 'w-64 md:w-16' : 'w-64',
       )}>
         {/* Logo */}
-        <div className="h-16 flex items-center px-6 border-b border-[#27384A] flex-shrink-0">
-          <a href="/erp/dashboard">
-            <Image
-              src={logoUrl ?? '/Grucore-white.png'}
-              alt="Grucore"
-              width={180}
-              height={47}
-              className="h-12 w-auto"
-              unoptimized={!!logoUrl}
-            />
-          </a>
-          <button className="ml-auto md:hidden text-[#8A95A5]" onClick={onToggle}>
+        <div className={cn(
+          'h-16 flex items-center border-b border-[#27384A] flex-shrink-0 transition-all duration-300',
+          collapsed ? 'px-0 justify-center' : 'px-6',
+        )}>
+          {!collapsed && (
+            <a href="/erp/dashboard">
+              <Image
+                src={logoUrl ?? '/Grucore-white.png'}
+                alt="Grucore"
+                width={180}
+                height={47}
+                className="h-12 w-auto"
+                unoptimized={!!logoUrl}
+              />
+            </a>
+          )}
+          {/* Mobile close */}
+          <button className={cn('text-[#8A95A5] md:hidden', collapsed ? '' : 'ml-auto')} onClick={onToggle}>
             <X size={18} />
+          </button>
+          {/* Desktop collapse toggle */}
+          <button
+            className={cn(
+              'hidden md:flex items-center justify-center w-7 h-7 rounded-lg text-[#8A95A5] hover:text-[#F0EDE8] hover:bg-[#1F2D3A] transition-colors',
+              collapsed ? '' : 'ml-auto',
+            )}
+            onClick={toggleCollapsed}
+            title={collapsed ? 'Expandir sidebar' : 'Colapsar sidebar'}
+          >
+            {collapsed ? <ChevronRight size={15} /> : <ChevronLeft size={15} />}
           </button>
         </div>
 
         {/* ERP badge */}
-        <div className="px-6 py-3 border-b border-[#27384A]">
-          <p className="text-[10px] text-[#FF6B35] uppercase tracking-widest" style={{ fontFamily: 'Space Mono, monospace' }}>
-            Panel de Gestión
-          </p>
-        </div>
+        {!collapsed && (
+          <div className="px-6 py-3 border-b border-[#27384A]">
+            <p className="text-[10px] text-[#FF6B35] uppercase tracking-widest" style={{ fontFamily: 'Space Mono, monospace' }}>
+              Panel de Gestión
+            </p>
+          </div>
+        )}
 
         {/* Nav */}
-        <nav data-tour="erp-nav" className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
+        <nav data-tour="erp-nav" className={cn('flex-1 py-4 space-y-1 overflow-y-auto', collapsed ? 'px-1.5' : 'px-3')}>
           {NAV_ITEMS.map(item => {
             if (item.kind === 'link') {
               return (
@@ -144,15 +173,17 @@ export default function ERPSidebar({ currentPage, userName, userInitials, userAv
                   key={item.page}
                   href={item.href}
                   data-tour={`erp-${item.page}`}
+                  title={collapsed ? item.label : undefined}
                   className={cn(
-                    'w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors',
+                    'flex items-center rounded-lg text-sm transition-colors',
+                    collapsed ? 'justify-center w-full py-2.5' : 'gap-3 px-3 py-2.5 w-full',
                     currentPage === item.page
                       ? 'bg-[#FF6B35]/10 text-[#FF6B35]'
                       : 'text-[#8A95A5] hover:text-[#F0EDE8] hover:bg-[#1F2D3A]',
                   )}
                 >
                   <item.Icon size={16} />
-                  {item.label}
+                  {!collapsed && item.label}
                 </a>
               )
             }
@@ -160,6 +191,26 @@ export default function ERPSidebar({ currentPage, userName, userInitials, userAv
             // Group
             const isGroupActive = item.pages.includes(currentPage)
             const isOpen = !!openGroups[item.id]
+
+            // Collapsed: show icon only, navigate to first child
+            if (collapsed) {
+              return (
+                <a
+                  key={item.id}
+                  href={item.children[0]?.href ?? '#'}
+                  title={item.label}
+                  className={cn(
+                    'flex items-center justify-center w-full py-2.5 rounded-lg text-sm transition-colors',
+                    isGroupActive
+                      ? 'bg-[#FF6B35]/10 text-[#FF6B35]'
+                      : 'text-[#8A95A5] hover:text-[#F0EDE8] hover:bg-[#1F2D3A]',
+                  )}
+                >
+                  <item.Icon size={16} />
+                </a>
+              )
+            }
+
             return (
               <div key={item.id}>
                 <button
@@ -204,26 +255,39 @@ export default function ERPSidebar({ currentPage, userName, userInitials, userAv
         </nav>
 
         {/* Bottom */}
-        <div className="p-4 border-t border-[#27384A] space-y-1">
-          {userName && (
+        <div className={cn('border-t border-[#27384A] space-y-1', collapsed ? 'p-1.5' : 'p-4')}>
+          {!collapsed && userName && (
             <div className="flex items-center gap-2.5 px-3 py-2 mb-2">
               <ERPAvatar avatarUrl={userAvatarUrl} initials={userInitials ?? '??'} size="sm" />
               <span className="text-xs text-[#8A95A5] truncate">{userName}</span>
             </div>
           )}
+          {collapsed && userName && (
+            <div className="flex justify-center py-2 mb-1">
+              <ERPAvatar avatarUrl={userAvatarUrl} initials={userInitials ?? '??'} size="sm" />
+            </div>
+          )}
           <button
             onClick={() => setSettingsOpen(true)}
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-[#8A95A5] hover:text-[#F0EDE8] hover:bg-[#1F2D3A] transition-colors"
+            title={collapsed ? 'Configuración' : undefined}
+            className={cn(
+              'w-full flex items-center rounded-lg text-sm text-[#8A95A5] hover:text-[#F0EDE8] hover:bg-[#1F2D3A] transition-colors',
+              collapsed ? 'justify-center py-2.5' : 'gap-3 px-3 py-2.5',
+            )}
           >
             <Settings size={16} />
-            Configuración
+            {!collapsed && 'Configuración'}
           </button>
           <button
             onClick={logoutERP}
-            className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-[#8A95A5] hover:text-red-400 hover:bg-[#1F2D3A] transition-colors"
+            title={collapsed ? 'Cerrar sesión' : undefined}
+            className={cn(
+              'w-full flex items-center rounded-lg text-sm text-[#8A95A5] hover:text-red-400 hover:bg-[#1F2D3A] transition-colors',
+              collapsed ? 'justify-center py-2.5' : 'gap-3 px-3 py-2.5',
+            )}
           >
             <LogOut size={16} />
-            Cerrar sesión
+            {!collapsed && 'Cerrar sesión'}
           </button>
         </div>
       </aside>

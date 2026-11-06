@@ -9,7 +9,7 @@ import {
   TrendingUp, ChevronRight, Download, Phone, Loader2, ZoomIn,
   ShieldCheck, ShieldAlert, AlertCircle, XCircle,
   Users, CloudSun, Package, ClipboardList, Hammer, Eye, EyeOff, Upload, Check, ChevronDown, FileEdit, Trash2, LayoutGrid, List,
-  Send, RotateCcw, DollarSign,
+  Send, RotateCcw, DollarSign, ChevronLeft, ChevronRight,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import {
@@ -864,6 +864,7 @@ function COApprovalModal({
 export default function PortalDashboard() {
   const [activeTab, setActiveTab]         = useState<TabId>('dashboard')
   const [sidebarOpen, setSidebarOpen]     = useState(false)
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false)
   const [user, setUser]                   = useState<User | null>(null)
   const [projectList, setProjectList]     = useState<ProjectList[]>([])
   const [project, setProject]             = useState<ProjectDetail | null>(null)
@@ -923,6 +924,18 @@ export default function PortalDashboard() {
     return () => window.removeEventListener('keydown', onKey)
   }, [lightbox])
   const msgPollRef                  = useRef<ReturnType<typeof setInterval> | null>(null)
+
+  // Sidebar collapse state from localStorage
+  useEffect(() => {
+    const stored = localStorage.getItem('portal_sidebar_collapsed')
+    if (stored === '1') setSidebarCollapsed(true)
+  }, [])
+
+  function toggleSidebarCollapsed() {
+    const next = !sidebarCollapsed
+    setSidebarCollapsed(next)
+    localStorage.setItem('portal_sidebar_collapsed', next ? '1' : '0')
+  }
 
   // Carga inicial
   useEffect(() => {
@@ -1140,19 +1153,35 @@ export default function PortalDashboard() {
         )}
 
         <aside className={cn(
-          'fixed md:sticky top-0 left-0 h-screen w-64 bg-[#1A2530] border-r border-[#27384A] flex flex-col z-40 transition-transform duration-300',
+          'fixed md:sticky top-0 left-0 h-screen bg-[#1A2530] border-r border-[#27384A] flex flex-col z-40 transition-all duration-300',
           sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0',
+          sidebarCollapsed ? 'w-64 md:w-16' : 'w-64',
         )}>
           {/* Logo */}
-          <div className="h-20 flex items-center px-6 border-b border-[#27384A] flex-shrink-0">
-            <a href="/"><Image src={brandLogoUrl ?? '/Grucore-white.png'} alt="Grucore" width={180} height={47} className="h-12 w-auto" unoptimized={!!brandLogoUrl} /></a>
-            <button className="ml-auto md:hidden text-[#8A95A5]" onClick={() => setSidebarOpen(false)}>
+          <div className={cn(
+            'h-20 flex items-center border-b border-[#27384A] flex-shrink-0 transition-all duration-300',
+            sidebarCollapsed ? 'px-0 justify-center' : 'px-6',
+          )}>
+            {!sidebarCollapsed && (
+              <a href="/"><Image src={brandLogoUrl ?? '/Grucore-white.png'} alt="Grucore" width={180} height={47} className="h-12 w-auto" unoptimized={!!brandLogoUrl} /></a>
+            )}
+            <button className={cn('text-[#8A95A5] md:hidden', sidebarCollapsed ? '' : 'ml-auto')} onClick={() => setSidebarOpen(false)}>
               <X size={18} />
+            </button>
+            <button
+              className={cn(
+                'hidden md:flex items-center justify-center w-7 h-7 rounded-lg text-[#8A95A5] hover:text-[#F0EDE8] hover:bg-[#1F2D3A] transition-colors',
+                sidebarCollapsed ? '' : 'ml-auto',
+              )}
+              onClick={toggleSidebarCollapsed}
+              title={sidebarCollapsed ? 'Expandir sidebar' : 'Colapsar sidebar'}
+            >
+              {sidebarCollapsed ? <ChevronRight size={15} /> : <ChevronLeft size={15} />}
             </button>
           </div>
 
           {/* Project switcher */}
-          {project && (
+          {project && !sidebarCollapsed && (
             <div className="mx-4 mt-4 relative">
               <button
                 onClick={() => projectList.length > 1 && setSwitcherOpen(v => !v)}
@@ -1217,7 +1246,7 @@ export default function PortalDashboard() {
           )}
 
           {/* Alerta de firmas pendientes */}
-          {(pendingApprovals.length > 0 || pendingCOs.length > 0) && (
+          {!sidebarCollapsed && (pendingApprovals.length > 0 || pendingCOs.length > 0) && (
             <div className="mx-4 mt-3 p-3 rounded-lg bg-[#FF6B35]/10 border border-[#FF6B35]/30 space-y-1.5">
               {pendingApprovals.length > 0 && (
                 <button
@@ -1245,170 +1274,217 @@ export default function PortalDashboard() {
           )}
 
           {/* Nav */}
-          <nav data-tour="portal-nav" className="flex-1 px-3 py-4 overflow-y-auto space-y-0.5">
+          <nav data-tour="portal-nav" className={cn('flex-1 py-4 overflow-y-auto space-y-0.5', sidebarCollapsed ? 'px-1.5' : 'px-3')}>
 
-            {/* Resumen — ítem plano */}
+            {/* Resumen */}
             <button
               data-tour="portal-resumen"
               onClick={() => { setActiveTab('dashboard'); setSidebarOpen(false) }}
+              title={sidebarCollapsed ? 'Resumen' : undefined}
               className={cn(
-                'w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors text-left',
+                'w-full flex items-center rounded-lg text-sm transition-colors text-left',
+                sidebarCollapsed ? 'justify-center py-2.5' : 'gap-3 px-3 py-2.5',
                 activeTab === 'dashboard'
                   ? 'bg-[#FF6B35]/10 text-[#FF6B35]'
                   : 'text-[#8A95A5] hover:text-[#F0EDE8] hover:bg-[#1F2D3A]',
               )}
             >
               <LayoutDashboard size={16} />
-              Resumen
+              {!sidebarCollapsed && 'Resumen'}
             </button>
 
-            {/* Avance de Obra — sección expandible */}
-            <div>
+            {/* Avance de Obra */}
+            {sidebarCollapsed ? (
               <button
-                data-tour="portal-avance"
-                onClick={() => setProgressSectionOpen(v => !v)}
-                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors text-left text-[#8A95A5] hover:text-[#F0EDE8] hover:bg-[#1F2D3A]"
+                onClick={() => { setActiveTab('progress'); setSidebarOpen(false) }}
+                title="Avance de obra"
+                className={cn(
+                  'w-full flex items-center justify-center py-2.5 rounded-lg text-sm transition-colors',
+                  (activeTab === 'progress' || activeTab === 'photos')
+                    ? 'bg-[#FF6B35]/10 text-[#FF6B35]'
+                    : 'text-[#8A95A5] hover:text-[#F0EDE8] hover:bg-[#1F2D3A]',
+                )}
               >
-                <ClipboardList size={16} className="flex-shrink-0" />
-                <span className="flex-1">Avance de obra</span>
-                <ChevronDown size={14} className={cn('flex-shrink-0 transition-transform duration-200', progressSectionOpen && 'rotate-180')} />
+                <ClipboardList size={16} />
               </button>
+            ) : (
+              <div>
+                <button
+                  data-tour="portal-avance"
+                  onClick={() => setProgressSectionOpen(v => !v)}
+                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors text-left text-[#8A95A5] hover:text-[#F0EDE8] hover:bg-[#1F2D3A]"
+                >
+                  <ClipboardList size={16} className="flex-shrink-0" />
+                  <span className="flex-1">Avance de obra</span>
+                  <ChevronDown size={14} className={cn('flex-shrink-0 transition-transform duration-200', progressSectionOpen && 'rotate-180')} />
+                </button>
+                {progressSectionOpen && (
+                  <div className="ml-3 pl-3 border-l border-[#27384A] mt-0.5 space-y-0.5">
+                    <button
+                      onClick={() => { setActiveTab('progress'); setSidebarOpen(false) }}
+                      className={cn(
+                        'w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors text-left',
+                        activeTab === 'progress' ? 'bg-[#FF6B35]/10 text-[#FF6B35]' : 'text-[#8A95A5] hover:text-[#F0EDE8] hover:bg-[#1F2D3A]',
+                      )}
+                    >
+                      <ClipboardList size={15} />
+                      Bitácora
+                    </button>
+                    <button
+                      onClick={() => { setActiveTab('photos'); setSidebarOpen(false) }}
+                      className={cn(
+                        'w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors text-left',
+                        activeTab === 'photos' ? 'bg-[#FF6B35]/10 text-[#FF6B35]' : 'text-[#8A95A5] hover:text-[#F0EDE8] hover:bg-[#1F2D3A]',
+                      )}
+                    >
+                      <Camera size={15} />
+                      Fotos
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
 
-              {progressSectionOpen && (
-                <div className="ml-3 pl-3 border-l border-[#27384A] mt-0.5 space-y-0.5">
-                  <button
-                    onClick={() => { setActiveTab('progress'); setSidebarOpen(false) }}
-                    className={cn(
-                      'w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors text-left',
-                      activeTab === 'progress'
-                        ? 'bg-[#FF6B35]/10 text-[#FF6B35]'
-                        : 'text-[#8A95A5] hover:text-[#F0EDE8] hover:bg-[#1F2D3A]',
-                    )}
-                  >
-                    <ClipboardList size={15} />
-                    Bitácora
-                  </button>
-                  <button
-                    onClick={() => { setActiveTab('photos'); setSidebarOpen(false) }}
-                    className={cn(
-                      'w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors text-left',
-                      activeTab === 'photos'
-                        ? 'bg-[#FF6B35]/10 text-[#FF6B35]'
-                        : 'text-[#8A95A5] hover:text-[#F0EDE8] hover:bg-[#1F2D3A]',
-                    )}
-                  >
-                    <Camera size={15} />
-                    Fotos
-                  </button>
-                </div>
-              )}
-            </div>
-
-            {/* Hitos y pagos — ítem plano */}
+            {/* Hitos y pagos */}
             <button
               data-tour="portal-hitos"
               onClick={() => { setActiveTab('milestones'); setSidebarOpen(false) }}
+              title={sidebarCollapsed ? 'Hitos y pagos' : undefined}
               className={cn(
-                'w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors text-left',
-                activeTab === 'milestones'
-                  ? 'bg-[#FF6B35]/10 text-[#FF6B35]'
-                  : 'text-[#8A95A5] hover:text-[#F0EDE8] hover:bg-[#1F2D3A]',
+                'w-full flex items-center rounded-lg text-sm transition-colors text-left relative',
+                sidebarCollapsed ? 'justify-center py-2.5' : 'gap-3 px-3 py-2.5',
+                activeTab === 'milestones' ? 'bg-[#FF6B35]/10 text-[#FF6B35]' : 'text-[#8A95A5] hover:text-[#F0EDE8] hover:bg-[#1F2D3A]',
               )}
             >
-              <CreditCard size={16} />
-              <span className="flex-1">Hitos y pagos</span>
-              {pendingApprovals.length > 0 && (
-                <span className="w-4 h-4 rounded-full bg-[#FF6B35] text-[#1A2530] text-[10px] font-bold flex items-center justify-center flex-shrink-0">
-                  {pendingApprovals.length}
-                </span>
+              <span className="relative">
+                <CreditCard size={16} />
+                {sidebarCollapsed && pendingApprovals.length > 0 && (
+                  <span className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-[#FF6B35] border border-[#1A2530]" />
+                )}
+              </span>
+              {!sidebarCollapsed && (
+                <>
+                  <span className="flex-1">Hitos y pagos</span>
+                  {pendingApprovals.length > 0 && (
+                    <span className="w-4 h-4 rounded-full bg-[#FF6B35] text-[#1A2530] text-[10px] font-bold flex items-center justify-center flex-shrink-0">
+                      {pendingApprovals.length}
+                    </span>
+                  )}
+                </>
               )}
             </button>
 
-            {/* Órdenes de cambio — ítem plano */}
+            {/* Órdenes de cambio */}
             <button
               data-tour="portal-cambios"
               onClick={() => { setActiveTab('change_orders'); setSidebarOpen(false) }}
+              title={sidebarCollapsed ? 'Órdenes de cambio' : undefined}
               className={cn(
-                'w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors text-left',
-                activeTab === 'change_orders'
-                  ? 'bg-[#FF6B35]/10 text-[#FF6B35]'
-                  : 'text-[#8A95A5] hover:text-[#F0EDE8] hover:bg-[#1F2D3A]',
+                'w-full flex items-center rounded-lg text-sm transition-colors text-left',
+                sidebarCollapsed ? 'justify-center py-2.5' : 'gap-3 px-3 py-2.5',
+                activeTab === 'change_orders' ? 'bg-[#FF6B35]/10 text-[#FF6B35]' : 'text-[#8A95A5] hover:text-[#F0EDE8] hover:bg-[#1F2D3A]',
               )}
             >
-              <FileEdit size={16} />
-              <span className="flex-1">Órdenes de cambio</span>
-              {pendingCOs.length > 0 && (
-                <span className="w-4 h-4 rounded-full bg-[#FF6B35] text-[#1A2530] text-[10px] font-bold flex items-center justify-center flex-shrink-0">
-                  {pendingCOs.length}
-                </span>
+              <span className="relative">
+                <FileEdit size={16} />
+                {sidebarCollapsed && pendingCOs.length > 0 && (
+                  <span className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-[#FF6B35] border border-[#1A2530]" />
+                )}
+              </span>
+              {!sidebarCollapsed && (
+                <>
+                  <span className="flex-1">Órdenes de cambio</span>
+                  {pendingCOs.length > 0 && (
+                    <span className="w-4 h-4 rounded-full bg-[#FF6B35] text-[#1A2530] text-[10px] font-bold flex items-center justify-center flex-shrink-0">
+                      {pendingCOs.length}
+                    </span>
+                  )}
+                </>
               )}
             </button>
 
-            {/* Mensajes — ítem plano */}
+            {/* Mensajes */}
             <button
               data-tour="portal-mensajes"
               onClick={() => { setActiveTab('messages'); setSidebarOpen(false) }}
+              title={sidebarCollapsed ? 'Mensajes' : undefined}
               className={cn(
-                'w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors text-left',
-                activeTab === 'messages'
-                  ? 'bg-[#FF6B35]/10 text-[#FF6B35]'
-                  : 'text-[#8A95A5] hover:text-[#F0EDE8] hover:bg-[#1F2D3A]',
+                'w-full flex items-center rounded-lg text-sm transition-colors text-left',
+                sidebarCollapsed ? 'justify-center py-2.5' : 'gap-3 px-3 py-2.5',
+                activeTab === 'messages' ? 'bg-[#FF6B35]/10 text-[#FF6B35]' : 'text-[#8A95A5] hover:text-[#F0EDE8] hover:bg-[#1F2D3A]',
               )}
             >
               <MessageSquare size={16} />
-              Mensajes
+              {!sidebarCollapsed && 'Mensajes'}
             </button>
 
-            {/* Cotización — ítem plano */}
+            {/* Cotización */}
             <button
               data-tour="portal-cotizacion"
               onClick={() => { setActiveTab('cotizacion'); setSidebarOpen(false) }}
+              title={sidebarCollapsed ? 'Cotización' : undefined}
               className={cn(
-                'w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors text-left',
-                activeTab === 'cotizacion'
-                  ? 'bg-[#FF6B35]/10 text-[#FF6B35]'
-                  : 'text-[#8A95A5] hover:text-[#F0EDE8] hover:bg-[#1F2D3A]',
+                'w-full flex items-center rounded-lg text-sm transition-colors text-left',
+                sidebarCollapsed ? 'justify-center py-2.5' : 'gap-3 px-3 py-2.5',
+                activeTab === 'cotizacion' ? 'bg-[#FF6B35]/10 text-[#FF6B35]' : 'text-[#8A95A5] hover:text-[#F0EDE8] hover:bg-[#1F2D3A]',
               )}
             >
-              <DollarSign size={16} />
-              <span className="flex-1">Cotización</span>
-              {quote?.status === 'sent' && (
-                <span className="w-2 h-2 rounded-full bg-[#FF6B35] flex-shrink-0" />
+              <span className="relative">
+                <DollarSign size={16} />
+                {sidebarCollapsed && quote?.status === 'sent' && (
+                  <span className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-[#FF6B35] border border-[#1A2530]" />
+                )}
+              </span>
+              {!sidebarCollapsed && (
+                <>
+                  <span className="flex-1">Cotización</span>
+                  {quote?.status === 'sent' && (
+                    <span className="w-2 h-2 rounded-full bg-[#FF6B35] flex-shrink-0" />
+                  )}
+                </>
               )}
             </button>
 
-            {/* Documentos — ítem plano */}
+            {/* Documentos */}
             <button
               data-tour="portal-documentos"
               onClick={() => { setActiveTab('documents'); setSidebarOpen(false) }}
+              title={sidebarCollapsed ? 'Documentos' : undefined}
               className={cn(
-                'w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors text-left',
-                activeTab === 'documents'
-                  ? 'bg-[#FF6B35]/10 text-[#FF6B35]'
-                  : 'text-[#8A95A5] hover:text-[#F0EDE8] hover:bg-[#1F2D3A]',
+                'w-full flex items-center rounded-lg text-sm transition-colors text-left',
+                sidebarCollapsed ? 'justify-center py-2.5' : 'gap-3 px-3 py-2.5',
+                activeTab === 'documents' ? 'bg-[#FF6B35]/10 text-[#FF6B35]' : 'text-[#8A95A5] hover:text-[#F0EDE8] hover:bg-[#1F2D3A]',
               )}
             >
               <FileText size={16} />
-              Documentos
+              {!sidebarCollapsed && 'Documentos'}
             </button>
 
           </nav>
 
           {/* Bottom */}
-          <div className="p-4 border-t border-[#27384A] space-y-1">
+          <div className={cn('border-t border-[#27384A] space-y-1', sidebarCollapsed ? 'p-1.5' : 'p-4')}>
             <button
               onClick={() => setSettingsOpen(true)}
-              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-[#8A95A5] hover:text-[#F0EDE8] hover:bg-[#1F2D3A] transition-colors"
+              title={sidebarCollapsed ? 'Configuración' : undefined}
+              className={cn(
+                'w-full flex items-center rounded-lg text-sm text-[#8A95A5] hover:text-[#F0EDE8] hover:bg-[#1F2D3A] transition-colors',
+                sidebarCollapsed ? 'justify-center py-2.5' : 'gap-3 px-3 py-2.5',
+              )}
             >
               <Settings size={16} />
-              Configuración
+              {!sidebarCollapsed && 'Configuración'}
             </button>
             <button
               onClick={logout}
-              className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm text-[#8A95A5] hover:text-red-400 hover:bg-[#1F2D3A] transition-colors"
+              title={sidebarCollapsed ? 'Cerrar sesión' : undefined}
+              className={cn(
+                'w-full flex items-center rounded-lg text-sm text-[#8A95A5] hover:text-red-400 hover:bg-[#1F2D3A] transition-colors',
+                sidebarCollapsed ? 'justify-center py-2.5' : 'gap-3 px-3 py-2.5',
+              )}
             >
               <LogOut size={16} />
-              Cerrar sesión
+              {!sidebarCollapsed && 'Cerrar sesión'}
             </button>
           </div>
         </aside>
