@@ -1,7 +1,7 @@
 'use client'
 
 import Image from 'next/image'
-import { LayoutDashboard, Users, Package, Truck, FolderOpen, ClipboardList, BarChart2, Images, Settings, LogOut, X, CheckSquare, HardHat, UserSearch, Building2, ChevronDown, BookOpen, ShoppingCart, TrendingUp, Wrench, Landmark, GitBranch, Sparkles, ChevronLeft, ChevronRight } from 'lucide-react'
+import { LayoutDashboard, Users, Package, Truck, FolderOpen, ClipboardList, BarChart2, Images, Settings, LogOut, X, CheckSquare, HardHat, UserSearch, Building2, ChevronDown, BookOpen, ShoppingCart, TrendingUp, Wrench, Landmark, GitBranch, Sparkles, ChevronLeft, ChevronRight, CalendarDays, CalendarClock } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { cn } from '@/lib/utils'
 import { logoutERP, type User as UserType } from '@/lib/api'
@@ -9,7 +9,7 @@ import { getCompanySettings } from '@/lib/company-settings'
 import ERPAvatar from './ERPAvatar'
 import ERPSettingsModal from './ERPSettingsModal'
 
-type ERPPage = 'dashboard' | 'clients' | 'team' | 'inventory' | 'suppliers' | 'documentos' | 'bitacora' | 'presupuesto' | 'galeria' | 'tareas' | 'trabajadores' | 'crm' | 'crm_config' | 'compras' | 'finanzas' | 'activos' | 'subcontratistas' | 'tesoreria' | 'design_studio'
+type ERPPage = 'dashboard' | 'clients' | 'team' | 'inventory' | 'suppliers' | 'documentos' | 'bitacora' | 'presupuesto' | 'galeria' | 'tareas' | 'trabajadores' | 'crm' | 'crm_config' | 'compras' | 'finanzas' | 'activos' | 'subcontratistas' | 'tesoreria' | 'design_studio' | 'calendario' | 'agendamiento'
 
 interface Props {
   currentPage: ERPPage
@@ -63,9 +63,11 @@ const NAV_ITEMS: NavItem[] = [
   },
   {
     kind: 'group', id: 'operaciones', label: 'Operaciones', Icon: ClipboardList,
-    pages: ['tareas'],
+    pages: ['tareas', 'calendario', 'agendamiento'],
     children: [
-      { page: 'tareas', label: 'Tareas', href: '/erp/tareas', Icon: CheckSquare },
+      { page: 'tareas',       label: 'Tareas',        href: '/erp/tareas',        Icon: CheckSquare  },
+      { page: 'calendario',   label: 'Calendario',    href: '/erp/calendario',    Icon: CalendarDays },
+      { page: 'agendamiento', label: 'Agendamiento',  href: '/erp/agendamiento',  Icon: CalendarClock },
     ],
   },
   { kind: 'link',  page: 'design_studio', label: 'Estudio Visual', Icon: Sparkles, href: '/erp/design-studio' },

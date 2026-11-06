@@ -1939,3 +1939,114 @@ export function getDesignSession(id: number): Promise<DesignSession> {
 export function getDesignSessions(): Promise<DesignSession[]> {
   return apiFetch<DesignSession[]>('/api/design-studio/sessions/')
 }
+
+// ─── Scheduling ───────────────────────────────────────────────────────────────
+
+export type EventType =
+  | 'meeting_client' | 'supplier_visit' | 'site_inspection'
+  | 'supervisor_visit' | 'call' | 'other'
+
+export type EventStatus     = 'scheduled' | 'confirmed' | 'cancelled' | 'completed'
+export type ClientApproval  = 'pending' | 'approved' | 'rejected'
+
+export interface CalendarEvent {
+  id:                       number
+  title:                    string
+  description:              string
+  event_type:               EventType
+  event_type_display:       string
+  location:                 string
+  start_datetime:           string
+  end_datetime:             string
+  project:                  number | null
+  project_name:             string | null
+  lead:                     number | null
+  lead_name:                string | null
+  created_by:               number | null
+  created_by_name:          string | null
+  attendee_ids:             number[]
+  status:                   EventStatus
+  status_display:           string
+  is_client_meeting:        boolean
+  client_approval:          ClientApproval
+  client_approval_display:  string
+  client_notes:             string
+  created_at:               string
+  updated_at:               string
+}
+
+export interface CalendarEventPayload {
+  title:             string
+  description?:      string
+  event_type:        EventType
+  location?:         string
+  start_datetime:    string
+  end_datetime:      string
+  project?:          number | null
+  lead?:             number | null
+  attendees?:        number[]
+  status?:           EventStatus
+  is_client_meeting?: boolean
+}
+
+export function getEvents(params?: {
+  event_type?: EventType
+  status?: EventStatus
+  is_client_meeting?: boolean
+  project?: number
+  lead?: number
+}): Promise<CalendarEvent[]> {
+  const qs = new URLSearchParams()
+  if (params?.event_type)         qs.set('event_type', params.event_type)
+  if (params?.status)             qs.set('status', params.status)
+  if (params?.is_client_meeting !== undefined) qs.set('is_client_meeting', String(params.is_client_meeting))
+  if (params?.project)            qs.set('project', String(params.project))
+  if (params?.lead)               qs.set('lead', String(params.lead))
+  const q = qs.toString()
+  return apiFetch<CalendarEvent[] | { results: CalendarEvent[] }>(`/api/scheduling/events/${q ? `?${q}` : ''}`)
+    .then(r => Array.isArray(r) ? r : r.results)
+}
+
+export function getUpcomingEvents(limit = 5): Promise<CalendarEvent[]> {
+  return apiFetch<CalendarEvent[]>(`/api/scheduling/events/upcoming/?limit=${limit}`)
+}
+
+export function createEvent(data: CalendarEventPayload): Promise<CalendarEvent> {
+  return apiFetch<CalendarEvent>('/api/scheduling/events/', {
+    method: 'POST',
+    body: JSON.stringify(data),
+  })
+}
+
+export function updateEvent(id: number, data: Partial<CalendarEventPayload>): Promise<CalendarEvent> {
+  return apiFetch<CalendarEvent>(`/api/scheduling/events/${id}/`, {
+    method: 'PATCH',
+    body: JSON.stringify(data),
+  })
+}
+
+export function deleteEvent(id: number): Promise<void> {
+  return apiFetch<void>(`/api/scheduling/events/${id}/`, { method: 'DELETE' })
+}
+
+export function cancelEvent(id: number): Promise<CalendarEvent> {
+  return apiFetch<CalendarEvent>(`/api/scheduling/events/${id}/cancel/`, { method: 'POST' })
+}
+
+export function completeEvent(id: number): Promise<CalendarEvent> {
+  return apiFetch<CalendarEvent>(`/api/scheduling/events/${id}/complete/`, { method: 'POST' })
+}
+
+export function clientApproveEvent(id: number, notes = ''): Promise<CalendarEvent> {
+  return apiFetch<CalendarEvent>(`/api/scheduling/events/${id}/client-approve/`, {
+    method: 'POST',
+    body: JSON.stringify({ notes }),
+  })
+}
+
+export function clientRejectEvent(id: number, notes = ''): Promise<CalendarEvent> {
+  return apiFetch<CalendarEvent>(`/api/scheduling/events/${id}/client-reject/`, {
+    method: 'POST',
+    body: JSON.stringify({ notes }),
+  })
+}
