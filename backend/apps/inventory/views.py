@@ -218,7 +218,7 @@ def _validate_rows(raw_rows: list[dict]) -> list[dict]:
 
 class ProductImportTemplateView(APIView):
     """GET — download a CSV template with headers and two example rows."""
-    permission_classes = [permissions.IsAuthenticated]
+    permission_classes = [permissions.AllowAny]
 
     def get(self, request):
         resp = HttpResponse(content_type='text/csv; charset=utf-8')
