@@ -6,6 +6,7 @@ import {
   TrendingDown, ArrowDownCircle, ArrowUpCircle, RotateCcw,
   Search, LayoutGrid, List,
   Eye, Pencil, Trash2, Tag, Check, Boxes,
+  Upload, Download, CheckSquare, Square, ChevronDown, AlertTriangle, FileSpreadsheet,
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { cn } from '@/lib/utils'
@@ -14,9 +15,11 @@ import Pagination from '@/components/erp/Pagination'
 import ERPAvatar from '@/components/erp/ERPAvatar'
 import {
   getMe, getInventoryCategories, createInventoryCategory, updateInventoryCategory, deleteInventoryCategory,
-  getProducts, createProduct, updateProduct, deleteProduct,
+  getProducts, createProduct, updateProduct, deleteProduct, bulkDeleteProducts,
+  previewInventoryImport, confirmInventoryImport, getInventoryImportTemplate,
   getStockMovements, createStockMovement, getMyProjects,
   type User, type InventoryCategory, type Product, type StockMovement, type ProjectList,
+  type ImportRow, type ImportPreviewResponse,
 } from '@/lib/api'
 
 // ─── Units config ─────────────────────────────────────────────────────────────
@@ -103,6 +106,20 @@ export default function ERPInventoryPage() {
   const [mProject, setMProject]   = useState('')
   const [mNotes, setMNotes]       = useState('')
   const [mRef, setMRef]           = useState('')
+
+  // ── Import modal ──────────────────────────────────────────────────────────
+  const [showImport, setShowImport]               = useState(false)
+  const [importStep, setImportStep]               = useState<'upload' | 'preview' | 'done'>('upload')
+  const [importLoading, setImportLoading]         = useState(false)
+  const [importError, setImportError]             = useState('')
+  const [importPreview, setImportPreview]         = useState<ImportPreviewResponse | null>(null)
+  const [importResult, setImportResult]           = useState<{ created: number; updated: number; skipped: number } | null>(null)
+  const [dragOver, setDragOver]                   = useState(false)
+
+  // ── Bulk select ───────────────────────────────────────────────────────────
+  const [selectedIds, setSelectedIds]             = useState<Set<number>>(new Set())
+  const [bulkDeleting, setBulkDeleting]           = useState(false)
+  const [confirmBulkDelete, setConfirmBulkDelete] = useState(false)
 
   // Category form
   const [showCatForm, setShowCatForm]           = useState(false)
@@ -315,6 +332,84 @@ export default function ERPInventoryPage() {
     } finally { setDeletingCatId(null) }
   }
 
+  // ── Import handlers ───────────────────────────────────────────────────────
+
+  async function handleFileSelect(file: File) {
+    setImportError('')
+    setImportLoading(true)
+    try {
+      const preview = await previewInventoryImport(file)
+      setImportPreview(preview)
+      setImportStep('preview')
+    } catch (e: any) {
+      setImportError(e.message ?? 'Error al leer el archivo')
+    } finally {
+      setImportLoading(false)
+    }
+  }
+
+  async function handleImportConfirm() {
+    if (!importPreview) return
+    const validRows = importPreview.rows.filter(r => r.valid)
+    setImportLoading(true)
+    try {
+      const result = await confirmInventoryImport(validRows)
+      setImportResult(result)
+      setImportStep('done')
+      // Refresh products
+      const fresh = await getProducts()
+      setProducts(fresh)
+      toast.success(`Importación completada: ${result.created} creados, ${result.updated} actualizados`)
+    } catch (e: any) {
+      setImportError(e.message ?? 'Error al importar')
+    } finally {
+      setImportLoading(false)
+    }
+  }
+
+  function resetImport() {
+    setShowImport(false)
+    setImportStep('upload')
+    setImportPreview(null)
+    setImportResult(null)
+    setImportError('')
+    setDragOver(false)
+  }
+
+  // ── Bulk delete ───────────────────────────────────────────────────────────
+
+  async function handleBulkDelete() {
+    setConfirmBulkDelete(false)
+    setBulkDeleting(true)
+    try {
+      const ids = Array.from(selectedIds)
+      const { deleted } = await bulkDeleteProducts(ids)
+      setProducts(prev => prev.filter(p => !selectedIds.has(p.id)))
+      setSelectedIds(new Set())
+      toast.success(`${deleted} producto${deleted !== 1 ? 's' : ''} eliminado${deleted !== 1 ? 's' : ''}`)
+    } catch (e: any) {
+      toast.error(e.message ?? 'Error al eliminar')
+    } finally {
+      setBulkDeleting(false)
+    }
+  }
+
+  function toggleSelect(id: number) {
+    setSelectedIds(prev => {
+      const next = new Set(prev)
+      next.has(id) ? next.delete(id) : next.add(id)
+      return next
+    })
+  }
+
+  function toggleSelectAll() {
+    if (selectedIds.size === pagedProducts.length) {
+      setSelectedIds(new Set())
+    } else {
+      setSelectedIds(new Set(pagedProducts.map(p => p.id)))
+    }
+  }
+
   const initials = me
     ? `${me.first_name?.[0] ?? ''}${me.last_name?.[0] ?? ''}`.toUpperCase() || 'ST'
     : 'ST'
@@ -369,19 +464,35 @@ export default function ERPInventoryPage() {
             Inventario
           </p>
           <div className="flex items-center gap-2">
+            <a
+              href={getInventoryImportTemplate()}
+              download
+              className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-[#27384A] text-[#8A95A5] text-xs font-medium hover:text-[#F0EDE8] hover:border-[#FF6B35]/30 transition-colors"
+              title="Descargar plantilla CSV"
+            >
+              <Download size={12} />
+              <span className="hidden sm:inline">Plantilla</span>
+            </a>
+            <button
+              onClick={() => { resetImport(); setShowImport(true) }}
+              className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-[#27384A] text-[#8A95A5] text-xs font-medium hover:text-[#F0EDE8] hover:border-[#FF6B35]/30 transition-colors"
+            >
+              <Upload size={12} />
+              <span className="hidden sm:inline">Importar</span>
+            </button>
             <button
               onClick={() => { setFormError(''); setShowMovementForm(true) }}
               className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-[#27384A] text-[#8A95A5] text-xs font-medium hover:text-[#F0EDE8] hover:border-[#FF6B35]/30 transition-colors"
             >
               <RotateCcw size={12} />
-              <span className="hidden sm:inline">Registrar movimiento</span>
+              <span className="hidden sm:inline">Movimiento</span>
             </button>
             <button
               onClick={openCreateProduct}
               className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#FF6B35] text-[#131D28] text-xs font-semibold hover:bg-[#FF8557] transition-colors"
             >
               <Plus size={13} />
-              <span className="hidden sm:inline">Nuevo producto</span>
+              <span className="hidden sm:inline">Nuevo</span>
             </button>
           </div>
           <div className="flex items-center gap-2.5">
@@ -448,6 +559,39 @@ export default function ERPInventoryPage() {
             {/* Tab: Productos */}
             {activeTab === 'products' && (
               <div className="space-y-4">
+                {/* Bulk action bar */}
+                {selectedIds.size > 0 && (
+                  <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-[#FF6B35]/10 border border-[#FF6B35]/30">
+                    <span className="text-xs font-semibold text-[#FF6B35]">
+                      {selectedIds.size} producto{selectedIds.size !== 1 ? 's' : ''} seleccionado{selectedIds.size !== 1 ? 's' : ''}
+                    </span>
+                    <div className="flex-1" />
+                    {confirmBulkDelete ? (
+                      <>
+                        <span className="text-xs text-[#8A95A5]">¿Eliminar {selectedIds.size} producto{selectedIds.size !== 1 ? 's' : ''}?</span>
+                        <button onClick={() => setConfirmBulkDelete(false)} className="px-3 py-1.5 text-xs border border-[#27384A] text-[#8A95A5] rounded-lg hover:text-[#F0EDE8] transition-colors">
+                          Cancelar
+                        </button>
+                        <button onClick={handleBulkDelete} disabled={bulkDeleting}
+                          className="flex items-center gap-1.5 px-3 py-1.5 text-xs bg-red-500/15 border border-red-500/30 text-red-400 rounded-lg hover:bg-red-500/25 disabled:opacity-50 transition-colors">
+                          {bulkDeleting ? <Loader2 size={11} className="animate-spin" /> : <Trash2 size={11} />}
+                          Sí, eliminar
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <button onClick={() => setSelectedIds(new Set())} className="px-3 py-1.5 text-xs border border-[#27384A] text-[#8A95A5] rounded-lg hover:text-[#F0EDE8] transition-colors">
+                          Deseleccionar
+                        </button>
+                        <button onClick={() => setConfirmBulkDelete(true)}
+                          className="flex items-center gap-1.5 px-3 py-1.5 text-xs border border-red-500/30 text-red-400 rounded-lg hover:bg-red-500/5 transition-colors">
+                          <Trash2 size={11} /> Eliminar seleccionados
+                        </button>
+                      </>
+                    )}
+                  </div>
+                )}
+
                 {/* Filters + view toggle */}
                 <div className="flex flex-col sm:flex-row gap-3">
                   {/* Search */}
@@ -485,22 +629,37 @@ export default function ERPInventoryPage() {
                       </button>
                     ))}
                   </div>
-                  {/* View toggle */}
-                  <div className="flex items-center gap-1 bg-[#1F2D3A] border border-[#27384A] rounded-lg p-1 flex-shrink-0">
+                  {/* Select all + view toggle */}
+                  <div className="flex items-center gap-1.5 flex-shrink-0">
                     <button
-                      onClick={() => setViewMode('grid')}
-                      className={cn('p-1.5 rounded transition-colors', viewMode === 'grid' ? 'bg-[#FF6B35]/20 text-[#FF6B35]' : 'text-[#8A95A5] hover:text-[#F0EDE8]')}
-                      title="Vista cuadrícula"
+                      onClick={toggleSelectAll}
+                      title={selectedIds.size === pagedProducts.length && pagedProducts.length > 0 ? 'Deseleccionar todos' : 'Seleccionar todos'}
+                      className={cn(
+                        'flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border text-xs transition-colors',
+                        selectedIds.size > 0 ? 'border-[#FF6B35]/40 text-[#FF6B35]' : 'border-[#27384A] text-[#8A95A5] hover:text-[#F0EDE8]',
+                      )}
                     >
-                      <LayoutGrid size={14} />
+                      {selectedIds.size === pagedProducts.length && pagedProducts.length > 0
+                        ? <CheckSquare size={13} />
+                        : <Square size={13} />
+                      }
                     </button>
-                    <button
-                      onClick={() => setViewMode('list')}
-                      className={cn('p-1.5 rounded transition-colors', viewMode === 'list' ? 'bg-[#FF6B35]/20 text-[#FF6B35]' : 'text-[#8A95A5] hover:text-[#F0EDE8]')}
-                      title="Vista lista"
-                    >
-                      <List size={14} />
-                    </button>
+                    <div className="flex items-center gap-1 bg-[#1F2D3A] border border-[#27384A] rounded-lg p-1">
+                      <button
+                        onClick={() => setViewMode('grid')}
+                        className={cn('p-1.5 rounded transition-colors', viewMode === 'grid' ? 'bg-[#FF6B35]/20 text-[#FF6B35]' : 'text-[#8A95A5] hover:text-[#F0EDE8]')}
+                        title="Vista cuadrícula"
+                      >
+                        <LayoutGrid size={14} />
+                      </button>
+                      <button
+                        onClick={() => setViewMode('list')}
+                        className={cn('p-1.5 rounded transition-colors', viewMode === 'list' ? 'bg-[#FF6B35]/20 text-[#FF6B35]' : 'text-[#8A95A5] hover:text-[#F0EDE8]')}
+                        title="Vista lista"
+                      >
+                        <List size={14} />
+                      </button>
+                    </div>
                   </div>
                 </div>
 
@@ -523,9 +682,15 @@ export default function ERPInventoryPage() {
                           : stock > 0 ? 100 : 0
                         const stockColor = product.is_low_stock ? '#f87171' : stockPct < 50 ? '#f59e0b' : '#4A9E6B'
                         return (
-                          <div key={product.id} className="p-5 rounded-xl bg-[#1F2D3A] border border-[#27384A] hover:border-[#FF6B35]/30 transition-colors">
+                          <div key={product.id} className={cn(
+                            'p-5 rounded-xl bg-[#1F2D3A] border transition-colors',
+                            selectedIds.has(product.id) ? 'border-[#FF6B35]/50' : 'border-[#27384A] hover:border-[#FF6B35]/30',
+                          )}>
                             <div className="flex items-start justify-between mb-3">
                               <div className="flex items-center gap-2 min-w-0">
+                                <button onClick={() => toggleSelect(product.id)} className="flex-shrink-0 text-[#8A95A5] hover:text-[#FF6B35] transition-colors">
+                                  {selectedIds.has(product.id) ? <CheckSquare size={13} className="text-[#FF6B35]" /> : <Square size={13} />}
+                                </button>
                                 {product.category && (
                                   <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: categories.find(c => c.id === product.category)?.color ?? '#FF6B35' }} />
                                 )}
@@ -632,9 +797,15 @@ export default function ERPInventoryPage() {
                           const stockColor = product.is_low_stock ? '#f87171' : stockPct < 50 ? '#f59e0b' : '#4A9E6B'
                           const unitLabel  = UNITS.find(u => u.value === product.unit)?.label ?? product.unit
                           return (
-                            <div key={product.id} className="grid grid-cols-1 sm:grid-cols-[minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_auto] gap-4 items-center px-4 py-3 bg-[#1F2D3A] hover:bg-[#243344] transition-colors">
+                            <div key={product.id} className={cn(
+                              'grid grid-cols-1 sm:grid-cols-[minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_auto] gap-4 items-center px-4 py-3 transition-colors',
+                              selectedIds.has(product.id) ? 'bg-[#FF6B35]/5' : 'bg-[#1F2D3A] hover:bg-[#243344]',
+                            )}>
                               {/* Name + SKU */}
                               <div className="flex items-center gap-2 min-w-0">
+                                <button onClick={() => toggleSelect(product.id)} className="flex-shrink-0 text-[#8A95A5] hover:text-[#FF6B35] transition-colors">
+                                  {selectedIds.has(product.id) ? <CheckSquare size={13} className="text-[#FF6B35]" /> : <Square size={13} />}
+                                </button>
                                 {product.category && (
                                   <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ background: categories.find(c => c.id === product.category)?.color ?? '#FF6B35' }} />
                                 )}
@@ -1257,6 +1428,215 @@ export default function ERPInventoryPage() {
           </div>
         )
       })()}
+
+      {/* ── Import modal ── */}
+      {showImport && (
+        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/60 p-0 sm:p-4" onClick={resetImport}>
+          <div
+            className="bg-[#1A2530] border border-[#27384A] rounded-t-2xl sm:rounded-xl w-full sm:max-w-2xl shadow-2xl flex flex-col"
+            style={{ maxHeight: '90dvh' }}
+            onClick={e => e.stopPropagation()}
+          >
+            {/* Header */}
+            <div className="flex items-center justify-between px-5 py-4 border-b border-[#27384A] flex-shrink-0">
+              <div className="flex items-center gap-3">
+                <FileSpreadsheet size={16} className="text-[#FF6B35]" />
+                <div>
+                  <h3 className="text-sm font-semibold text-[#F0EDE8]" style={{ fontFamily: 'Montserrat, sans-serif' }}>
+                    Importar productos
+                  </h3>
+                  <p className="text-[10px] text-[#8A95A5] mt-0.5">
+                    {importStep === 'upload' ? 'CSV o Excel (.xlsx)' : importStep === 'preview' ? `${importPreview?.total} filas — ${importPreview?.valid} válidas, ${importPreview?.invalid} con errores` : 'Importación completada'}
+                  </p>
+                </div>
+              </div>
+              <button onClick={resetImport} className="text-[#8A95A5] hover:text-[#F0EDE8] transition-colors p-1">
+                <X size={16} />
+              </button>
+            </div>
+
+            {/* Body */}
+            <div className="overflow-y-auto flex-1 px-5 py-5">
+
+              {importError && (
+                <div className="flex items-start gap-3 p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-sm text-red-400 mb-4">
+                  <AlertCircle size={14} className="flex-shrink-0 mt-0.5" />
+                  {importError}
+                </div>
+              )}
+
+              {/* ── Step 1: Upload ── */}
+              {importStep === 'upload' && (
+                <div className="space-y-4">
+                  <div
+                    onDragOver={e => { e.preventDefault(); setDragOver(true) }}
+                    onDragLeave={() => setDragOver(false)}
+                    onDrop={e => {
+                      e.preventDefault()
+                      setDragOver(false)
+                      const file = e.dataTransfer.files[0]
+                      if (file) handleFileSelect(file)
+                    }}
+                    className={cn(
+                      'border-2 border-dashed rounded-xl p-10 text-center transition-colors cursor-pointer',
+                      dragOver ? 'border-[#FF6B35] bg-[#FF6B35]/5' : 'border-[#27384A] hover:border-[#FF6B35]/40',
+                    )}
+                    onClick={() => document.getElementById('import-file-input')?.click()}
+                  >
+                    {importLoading ? (
+                      <div className="flex flex-col items-center gap-3">
+                        <Loader2 size={28} className="animate-spin text-[#FF6B35]" />
+                        <p className="text-sm text-[#8A95A5]">Analizando archivo…</p>
+                      </div>
+                    ) : (
+                      <div className="flex flex-col items-center gap-3">
+                        <Upload size={28} className="text-[#8A95A5]" />
+                        <div>
+                          <p className="text-sm font-medium text-[#F0EDE8]">Arrastra tu archivo aquí</p>
+                          <p className="text-xs text-[#8A95A5] mt-1">o haz clic para seleccionar — CSV, XLSX</p>
+                        </div>
+                      </div>
+                    )}
+                    <input
+                      id="import-file-input"
+                      type="file"
+                      accept=".csv,.xlsx,.xls"
+                      className="hidden"
+                      onChange={e => { const f = e.target.files?.[0]; if (f) handleFileSelect(f) }}
+                    />
+                  </div>
+
+                  <div className="flex items-center gap-3 p-3.5 rounded-xl bg-[#131D28] border border-[#27384A]">
+                    <FileSpreadsheet size={14} className="text-[#8A95A5] flex-shrink-0" />
+                    <p className="text-xs text-[#8A95A5] leading-relaxed flex-1">
+                      ¿Primera vez? Descarga la <a href={getInventoryImportTemplate()} download className="text-[#FF6B35] hover:underline">plantilla CSV</a> con las columnas requeridas y filas de ejemplo.
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {/* ── Step 2: Preview ── */}
+              {importStep === 'preview' && importPreview && (
+                <div className="space-y-4">
+                  {/* Summary pills */}
+                  <div className="flex gap-3 flex-wrap">
+                    {[
+                      { label: 'Total',      value: importPreview.total,   color: '#F0EDE8' },
+                      { label: 'Válidas',    value: importPreview.valid,   color: '#4A9E6B' },
+                      { label: 'Con errores',value: importPreview.invalid, color: importPreview.invalid > 0 ? '#f87171' : '#8A95A5' },
+                    ].map(s => (
+                      <div key={s.label} className="px-4 py-2 rounded-lg bg-[#131D28] border border-[#27384A] text-center min-w-[80px]">
+                        <p className="text-[10px] text-[#8A95A5]">{s.label}</p>
+                        <p className="text-lg font-bold" style={{ fontFamily: 'Space Mono, monospace', color: s.color }}>{s.value}</p>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Rows table */}
+                  <div className="rounded-xl border border-[#27384A] overflow-hidden">
+                    <div className="grid grid-cols-[32px_minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_80px] gap-2 px-3 py-2 bg-[#131D28] text-[10px] text-[#8A95A5] uppercase tracking-wider">
+                      <span>#</span><span>Nombre</span><span>SKU</span><span>Categoría</span><span>Precio</span><span>Acción</span>
+                    </div>
+                    <div className="divide-y divide-[#27384A] max-h-64 overflow-y-auto">
+                      {importPreview.rows.map(row => (
+                        <div key={row.row} className={cn(
+                          'grid grid-cols-[32px_minmax(0,2fr)_minmax(0,1fr)_minmax(0,1fr)_minmax(0,1fr)_80px] gap-2 items-start px-3 py-2 text-xs',
+                          row.valid ? 'bg-[#1F2D3A]' : 'bg-red-500/5',
+                        )}>
+                          <span className="text-[#8A95A5]">{row.row}</span>
+                          <div className="min-w-0">
+                            <p className={cn('truncate font-medium', row.valid ? 'text-[#F0EDE8]' : 'text-red-400')}>
+                              {row.name || <span className="italic text-[#8A95A5]">vacío</span>}
+                            </p>
+                            {row.errors.length > 0 && (
+                              <ul className="mt-0.5 space-y-0.5">
+                                {row.errors.map((e, i) => (
+                                  <li key={i} className="text-[10px] text-red-400 flex items-center gap-1">
+                                    <AlertTriangle size={9} className="flex-shrink-0" /> {e}
+                                  </li>
+                                ))}
+                              </ul>
+                            )}
+                          </div>
+                          <span className="text-[#8A95A5] truncate">{row.sku ?? '—'}</span>
+                          <span className="text-[#8A95A5] truncate">
+                            {row.category || '—'}
+                            {row.category_new && <span className="ml-1 text-[#FF6B35]">(nueva)</span>}
+                          </span>
+                          <span className="text-[#8A95A5]" style={{ fontFamily: 'Space Mono, monospace' }}>
+                            {row.unit_price_gtq ? `Q ${row.unit_price_gtq}` : '—'}
+                          </span>
+                          <span className={cn('text-[10px] font-medium px-1.5 py-0.5 rounded-full text-center',
+                            row.valid
+                              ? row.action === 'update' ? 'bg-amber-500/15 text-amber-400' : 'bg-[#4A9E6B]/15 text-[#4A9E6B]'
+                              : 'bg-red-500/15 text-red-400',
+                          )}>
+                            {row.valid ? (row.action === 'update' ? 'Actualizar' : 'Crear') : 'Error'}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {importPreview.valid === 0 && (
+                    <div className="flex items-center gap-2 p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-xs text-red-400">
+                      <AlertCircle size={13} className="flex-shrink-0" />
+                      No hay filas válidas para importar. Corrige el archivo y vuelve a intentarlo.
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* ── Step 3: Done ── */}
+              {importStep === 'done' && importResult && (
+                <div className="flex flex-col items-center py-8 gap-4 text-center">
+                  <div className="w-14 h-14 rounded-full bg-[#4A9E6B]/15 flex items-center justify-center">
+                    <Check size={24} className="text-[#4A9E6B]" />
+                  </div>
+                  <div>
+                    <p className="text-base font-semibold text-[#F0EDE8] mb-1" style={{ fontFamily: 'Montserrat, sans-serif' }}>
+                      Importación completada
+                    </p>
+                    <p className="text-sm text-[#8A95A5]">
+                      {importResult.created} creado{importResult.created !== 1 ? 's' : ''} · {importResult.updated} actualizado{importResult.updated !== 1 ? 's' : ''}
+                      {importResult.skipped > 0 && ` · ${importResult.skipped} omitido${importResult.skipped !== 1 ? 's' : ''}`}
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Footer */}
+            <div className="flex gap-3 justify-end px-5 py-4 border-t border-[#27384A] flex-shrink-0">
+              {importStep === 'upload' && (
+                <button onClick={resetImport} className="px-4 py-2.5 border border-[#27384A] text-sm text-[#8A95A5] rounded-lg hover:text-[#F0EDE8] transition-colors">
+                  Cancelar
+                </button>
+              )}
+              {importStep === 'preview' && (
+                <>
+                  <button onClick={() => { setImportStep('upload'); setImportPreview(null); setImportError('') }}
+                    className="px-4 py-2.5 border border-[#27384A] text-sm text-[#8A95A5] rounded-lg hover:text-[#F0EDE8] transition-colors">
+                    Volver
+                  </button>
+                  <button
+                    onClick={handleImportConfirm}
+                    disabled={importLoading || (importPreview?.valid ?? 0) === 0}
+                    className="flex items-center gap-2 px-6 py-2.5 bg-[#FF6B35] text-[#131D28] text-sm font-semibold rounded-lg hover:bg-[#FF8557] disabled:opacity-60 transition-colors"
+                  >
+                    {importLoading ? <><Loader2 size={13} className="animate-spin" /> Importando…</> : <><Upload size={13} /> Confirmar importación ({importPreview?.valid ?? 0})</>}
+                  </button>
+                </>
+              )}
+              {importStep === 'done' && (
+                <button onClick={resetImport} className="px-6 py-2.5 bg-[#FF6B35] text-[#131D28] text-sm font-semibold rounded-lg hover:bg-[#FF8557] transition-colors">
+                  Cerrar
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ── Category create / edit modal ── */}
       {showCatForm && (

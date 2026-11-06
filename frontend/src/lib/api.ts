@@ -1057,6 +1057,76 @@ export function deleteProduct(id: number): Promise<void> {
   return apiFetch<void>(`/api/inventory/products/${id}/`, { method: 'DELETE' })
 }
 
+// ─── Import rows type ─────────────────────────────────────────────────────────
+
+export interface ImportRow {
+  row:              number
+  action:           'create' | 'update'
+  errors:           string[]
+  valid:            boolean
+  name:             string
+  sku:              string | null
+  description:      string
+  category:         string
+  category_new:     boolean
+  unit:             string
+  unit_price_gtq:   string
+  stock_quantity:   string
+  min_stock_alert:  string
+  supplier_name:    string
+  supplier_contact: string
+}
+
+export interface ImportPreviewResponse {
+  total:   number
+  valid:   number
+  invalid: number
+  rows:    ImportRow[]
+}
+
+export interface ImportConfirmResponse {
+  created: number
+  updated: number
+  skipped: number
+  errors:  { row: number; error: string }[]
+}
+
+export function getInventoryImportTemplate(): string {
+  const base = process.env.NEXT_PUBLIC_API_URL ?? ''
+  return `${base}/api/inventory/products/import/template/`
+}
+
+export async function previewInventoryImport(file: File): Promise<ImportPreviewResponse> {
+  const form = new FormData()
+  form.append('file', file)
+  const token = sessionStorage.getItem('erp_access')
+  const base  = process.env.NEXT_PUBLIC_API_URL ?? ''
+  const res   = await fetch(`${base}/api/inventory/products/import/preview/`, {
+    method: 'POST',
+    headers: token ? { Authorization: `Bearer ${token}` } : {},
+    body: form,
+  })
+  if (!res.ok) {
+    const data = await res.json().catch(() => ({}))
+    throw new Error(data.error ?? `Error ${res.status}`)
+  }
+  return res.json()
+}
+
+export function confirmInventoryImport(rows: ImportRow[]): Promise<ImportConfirmResponse> {
+  return apiFetch<ImportConfirmResponse>('/api/inventory/products/import/confirm/', {
+    method: 'POST',
+    body: JSON.stringify({ rows }),
+  })
+}
+
+export function bulkDeleteProducts(ids: number[]): Promise<{ deleted: number }> {
+  return apiFetch<{ deleted: number }>('/api/inventory/products/bulk-delete/', {
+    method: 'POST',
+    body: JSON.stringify({ ids }),
+  })
+}
+
 export function getStockMovements(params?: { product?: number; movement_type?: string }): Promise<StockMovement[]> {
   const qs = new URLSearchParams()
   if (params?.product) qs.set('product', String(params.product))
