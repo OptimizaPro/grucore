@@ -9,7 +9,7 @@ import {
   TrendingUp, ChevronRight, Download, Phone, Loader2, ZoomIn,
   ShieldCheck, ShieldAlert, AlertCircle, XCircle,
   Users, CloudSun, Package, ClipboardList, Hammer, Eye, EyeOff, Upload, Check, ChevronDown, FileEdit, Trash2, LayoutGrid, List,
-  Send, RotateCcw, DollarSign, ChevronLeft, ChevronRight,
+  Send, RotateCcw, DollarSign, ChevronLeft, CalendarClock,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import {
@@ -18,17 +18,18 @@ import {
   approveMilestone, getChangeOrders, approveChangeOrder, rejectChangeOrder, logout, updateMe, uploadAvatar, changePassword,
   getDocuments,
   getProjectQuotes, approveProjectQuote, requestChangesProjectQuote, rejectProjectQuote,
+  getEvents, clientApproveEvent, clientRejectEvent,
   type User, type ProjectList, type ProjectDetail, type ProgressUpdate,
   type PaymentMilestone, type MilestoneStatusValue,
   type ProjectMessage, type ChangeOrder, type ProjectDocument, type DocumentType,
-  type Quote, type StockAlert,
+  type Quote, type StockAlert, type CalendarEvent,
 } from '@/lib/api'
 import { getCompanySettings } from '@/lib/company-settings'
 import { toast } from 'sonner'
 
 // ─── Nav items ────────────────────────────────────────────────────────────────
 
-type TabId = 'dashboard' | 'progress' | 'photos' | 'milestones' | 'change_orders' | 'messages' | 'documents' | 'cotizacion'
+type TabId = 'dashboard' | 'progress' | 'photos' | 'milestones' | 'change_orders' | 'messages' | 'documents' | 'cotizacion' | 'reuniones'
 
 // ─── Helpers visuales ─────────────────────────────────────────────────────────
 
@@ -894,6 +895,12 @@ export default function PortalDashboard() {
   const [signatureConfirmed, setSignatureConfirmed] = useState(false)
   const [quoteComment, setQuoteComment]           = useState('')
 
+  // ── Reuniones ─────────────────────────────────────────────────────────────
+  const [meetings, setMeetings]               = useState<CalendarEvent[]>([])
+  const [meetingsLoaded, setMeetingsLoaded]   = useState(false)
+  const [meetingNotes, setMeetingNotes]       = useState<Record<number, string>>({})
+  const [meetingActionId, setMeetingActionId] = useState<number | null>(null)
+
   const [settingsOpen, setSettingsOpen]     = useState(false)
   const [brandLogoUrl, setBrandLogoUrl]     = useState<string | null>(null)
   const [brandName,    setBrandName]        = useState('Grucore')
@@ -1039,6 +1046,14 @@ export default function PortalDashboard() {
       .finally(() => setDocsLoading(false))
   }, [activeTab, project?.id, documentsLoaded])
 
+  // Carga reuniones al abrir la pestaña
+  useEffect(() => {
+    if (activeTab !== 'reuniones' || meetingsLoaded) return
+    getEvents({ is_client_meeting: true })
+      .then(evts => { setMeetings(evts); setMeetingsLoaded(true) })
+      .catch(() => {})
+  }, [activeTab, meetingsLoaded])
+
 
   async function handleSendMessage(e: React.FormEvent) {
     e.preventDefault()
@@ -1073,6 +1088,8 @@ export default function PortalDashboard() {
   const pendingCOs = changeOrders.filter(
     (co) => co.status === 'in_review' && !!co.approval?.company_approved_at && !co.approval?.client_approved_at,
   )
+
+  const pendingMeetings = meetings.filter(m => m.client_approval === 'pending' && m.status !== 'cancelled')
 
   // ── Loading / Error ─────────────────────────────────────────────────────────
   if (loading) {
@@ -1460,6 +1477,35 @@ export default function PortalDashboard() {
               {!sidebarCollapsed && 'Documentos'}
             </button>
 
+            {/* Reuniones */}
+            <button
+              data-tour="portal-reuniones"
+              onClick={() => { setActiveTab('reuniones'); setSidebarOpen(false) }}
+              title={sidebarCollapsed ? 'Reuniones' : undefined}
+              className={cn(
+                'w-full flex items-center rounded-lg text-sm transition-colors text-left relative',
+                sidebarCollapsed ? 'justify-center py-2.5' : 'gap-3 px-3 py-2.5',
+                activeTab === 'reuniones' ? 'bg-[#FF6B35]/10 text-[#FF6B35]' : 'text-[#8A95A5] hover:text-[#F0EDE8] hover:bg-[#1F2D3A]',
+              )}
+            >
+              <span className="relative">
+                <CalendarClock size={16} />
+                {sidebarCollapsed && pendingMeetings.length > 0 && (
+                  <span className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-[#FF6B35] border border-[#1A2530]" />
+                )}
+              </span>
+              {!sidebarCollapsed && (
+                <>
+                  <span className="flex-1">Reuniones</span>
+                  {pendingMeetings.length > 0 && (
+                    <span className="w-4 h-4 rounded-full bg-[#FF6B35] text-[#1A2530] text-[10px] font-bold flex items-center justify-center flex-shrink-0">
+                      {pendingMeetings.length}
+                    </span>
+                  )}
+                </>
+              )}
+            </button>
+
           </nav>
 
           {/* Bottom */}
@@ -1498,7 +1544,7 @@ export default function PortalDashboard() {
               <Menu size={20} />
             </button>
             <p className="flex-1 text-sm font-medium text-[#F0EDE8]" style={{ fontFamily: 'Montserrat, sans-serif' }}>
-              {({ dashboard: 'Resumen', progress: 'Bitácora', photos: 'Fotos', milestones: 'Hitos y pagos', change_orders: 'Órdenes de cambio', messages: 'Mensajes', documents: 'Documentos', cotizacion: 'Cotización' } as Record<TabId, string>)[activeTab]}
+              {({ dashboard: 'Resumen', progress: 'Bitácora', photos: 'Fotos', milestones: 'Hitos y pagos', change_orders: 'Órdenes de cambio', messages: 'Mensajes', documents: 'Documentos', cotizacion: 'Cotización', reuniones: 'Reuniones' } as Record<TabId, string>)[activeTab]}
             </p>
             {(pendingApprovals.length + pendingCOs.length > 0) && (
               <button
@@ -3150,6 +3196,178 @@ export default function PortalDashboard() {
                   )
                 })()}
 
+
+                {/* ── TAB: Reuniones ───────────────────────────────────────────────── */}
+                {activeTab === 'reuniones' && (
+                  <div className="space-y-5 max-w-3xl">
+                    <div className="mb-2">
+                      <h1 className="text-lg font-semibold text-[#F0EDE8] mb-1" style={{ fontFamily: 'Montserrat, sans-serif' }}>
+                        Reuniones programadas
+                      </h1>
+                      <p className="text-sm text-[#8A95A5]">
+                        Revisa y confirma las reuniones que el equipo ha programado contigo.
+                      </p>
+                    </div>
+
+                    {!meetingsLoaded ? (
+                      <div className="flex items-center justify-center py-20">
+                        <Loader2 size={24} className="animate-spin text-[#FF6B35]" />
+                      </div>
+                    ) : meetings.length === 0 ? (
+                      <div className="flex flex-col items-center justify-center py-20 gap-3 text-center">
+                        <CalendarClock size={36} className="text-[#27384A]" />
+                        <p className="text-sm text-[#8A95A5]">No tienes reuniones programadas aún.</p>
+                      </div>
+                    ) : (
+                      <div className="space-y-3">
+                        {[...meetings]
+                          .sort((a, b) => new Date(a.start_datetime).getTime() - new Date(b.start_datetime).getTime())
+                          .map(evt => {
+                            const isPending   = evt.client_approval === 'pending' && evt.status !== 'cancelled'
+                            const isApproved  = evt.client_approval === 'approved'
+                            const isRejected  = evt.client_approval === 'rejected'
+                            const isCancelled = evt.status === 'cancelled'
+                            const fmtTime = (iso: string) =>
+                              new Date(iso).toLocaleTimeString('es-GT', { hour: '2-digit', minute: '2-digit' })
+                            const fmtDateLong = (iso: string) =>
+                              new Date(iso).toLocaleDateString('es-GT', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
+
+                            return (
+                              <div
+                                key={evt.id}
+                                className={cn(
+                                  'bg-[#1F2D3A] border rounded-xl p-5 transition-colors',
+                                  isCancelled ? 'border-[#27384A] opacity-60' :
+                                  isPending   ? 'border-[#FF6B35]/30' : 'border-[#27384A]',
+                                )}
+                              >
+                                <div className="flex items-start gap-4">
+                                  {/* Date block */}
+                                  <div className="flex-shrink-0 w-14 text-center">
+                                    <p className="text-2xl font-bold text-[#FF6B35]" style={{ fontFamily: 'Space Mono, monospace' }}>
+                                      {new Date(evt.start_datetime).getDate()}
+                                    </p>
+                                    <p className="text-[10px] text-[#8A95A5] uppercase tracking-wider">
+                                      {new Date(evt.start_datetime).toLocaleString('es-GT', { month: 'short' })}
+                                    </p>
+                                  </div>
+
+                                  <div className="flex-1 min-w-0">
+                                    <div className="flex items-start justify-between gap-2 mb-2">
+                                      <h3 className="text-sm font-semibold text-[#F0EDE8] leading-snug" style={{ fontFamily: 'Montserrat, sans-serif' }}>
+                                        {evt.title}
+                                      </h3>
+                                      {/* Status badge */}
+                                      {isCancelled ? (
+                                        <span className="flex-shrink-0 text-[10px] px-2 py-0.5 rounded-full font-medium bg-[#27384A] text-[#8A95A5]">
+                                          Cancelada
+                                        </span>
+                                      ) : isApproved ? (
+                                        <span className="flex-shrink-0 text-[10px] px-2 py-0.5 rounded-full font-medium bg-[#4A9E6B]/15 text-[#4A9E6B]">
+                                          Confirmada
+                                        </span>
+                                      ) : isRejected ? (
+                                        <span className="flex-shrink-0 text-[10px] px-2 py-0.5 rounded-full font-medium bg-red-500/15 text-red-400">
+                                          Rechazada
+                                        </span>
+                                      ) : (
+                                        <span className="flex-shrink-0 text-[10px] px-2 py-0.5 rounded-full font-medium bg-amber-500/15 text-amber-400">
+                                          Pendiente
+                                        </span>
+                                      )}
+                                    </div>
+
+                                    <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-[#8A95A5] mb-3">
+                                      <span className="flex items-center gap-1">
+                                        <Calendar size={11} />
+                                        {fmtDateLong(evt.start_datetime)}
+                                      </span>
+                                      <span className="flex items-center gap-1">
+                                        <Clock size={11} />
+                                        {fmtTime(evt.start_datetime)} – {fmtTime(evt.end_datetime)}
+                                      </span>
+                                      {evt.location && (
+                                        <span className="flex items-center gap-1 truncate max-w-xs">
+                                          <MapPin size={11} />
+                                          {evt.location}
+                                        </span>
+                                      )}
+                                    </div>
+
+                                    {/* Notes from previous rejection */}
+                                    {evt.client_notes && (
+                                      <div className="p-2.5 rounded-lg bg-[#131D28] border border-[#27384A] mb-3">
+                                        <p className="text-[11px] text-[#8A95A5] italic">"{evt.client_notes}"</p>
+                                      </div>
+                                    )}
+
+                                    {/* Actions for pending meetings */}
+                                    {isPending && (
+                                      <div className="space-y-3">
+                                        {/* Notes field */}
+                                        <textarea
+                                          rows={2}
+                                          value={meetingNotes[evt.id] ?? ''}
+                                          onChange={e => setMeetingNotes(prev => ({ ...prev, [evt.id]: e.target.value }))}
+                                          placeholder="Nota opcional (motivo de rechazo, pregunta, etc.)…"
+                                          className="w-full bg-[#131D28] border border-[#27384A] rounded-xl px-3 py-2 text-xs text-[#F0EDE8] placeholder:text-[#8A95A5] focus:outline-none focus:border-[#FF6B35]/50 resize-none"
+                                        />
+                                        <div className="flex gap-2">
+                                          <button
+                                            disabled={meetingActionId === evt.id}
+                                            onClick={async () => {
+                                              setMeetingActionId(evt.id)
+                                              try {
+                                                const updated = await clientApproveEvent(evt.id, meetingNotes[evt.id] ?? '')
+                                                setMeetings(prev => prev.map(m => m.id === evt.id ? updated : m))
+                                                toast.success('Reunión confirmada')
+                                              } catch { toast.error('No se pudo confirmar la reunión') }
+                                              finally { setMeetingActionId(null) }
+                                            }}
+                                            className="flex items-center gap-1.5 px-4 py-2 text-xs bg-[#4A9E6B] text-white rounded-lg hover:bg-[#3d8a5c] disabled:opacity-50 transition-colors font-semibold"
+                                          >
+                                            {meetingActionId === evt.id ? <Loader2 size={12} className="animate-spin" /> : <CheckCircle2 size={12} />}
+                                            Confirmar
+                                          </button>
+                                          <button
+                                            disabled={meetingActionId === evt.id}
+                                            onClick={async () => {
+                                              setMeetingActionId(evt.id)
+                                              try {
+                                                const updated = await clientRejectEvent(evt.id, meetingNotes[evt.id] ?? '')
+                                                setMeetings(prev => prev.map(m => m.id === evt.id ? updated : m))
+                                                toast.success('Reunión rechazada')
+                                              } catch { toast.error('No se pudo rechazar la reunión') }
+                                              finally { setMeetingActionId(null) }
+                                            }}
+                                            className="flex items-center gap-1.5 px-4 py-2 text-xs border border-red-500/30 text-red-400 rounded-lg hover:bg-red-500/5 disabled:opacity-50 transition-colors"
+                                          >
+                                            {meetingActionId === evt.id ? <Loader2 size={12} className="animate-spin" /> : <XCircle size={12} />}
+                                            Rechazar
+                                          </button>
+                                        </div>
+                                      </div>
+                                    )}
+
+                                    {isApproved && (
+                                      <span className="text-[11px] text-[#4A9E6B] flex items-center gap-1">
+                                        <CheckCircle2 size={11} /> Confirmaste esta reunión
+                                      </span>
+                                    )}
+                                    {isRejected && (
+                                      <span className="text-[11px] text-red-400 flex items-center gap-1">
+                                        <XCircle size={11} /> Rechazaste esta reunión
+                                      </span>
+                                    )}
+                                  </div>
+                                </div>
+                              </div>
+                            )
+                          })}
+                      </div>
+                    )}
+                  </div>
+                )}
 
               </>
             )}
