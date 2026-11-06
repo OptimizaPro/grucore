@@ -112,7 +112,7 @@ function MeetingCard({
               {!isPast ? (
                 <button
                   onClick={() => onCancel(event.id)}
-                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs border border-[#27384A] text-[#8A95A5] rounded-lg hover:border-red-500/40 hover:text-red-400 transition-colors"
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-xs border border-[#3D5166] text-[#8A95A5] rounded-lg hover:border-red-500/40 hover:text-red-400 transition-colors"
                 >
                   <XCircle size={12} /> Cancelar
                 </button>
@@ -126,7 +126,7 @@ function MeetingCard({
               )}
               <a
                 href="/erp/calendario"
-                className="flex items-center gap-1 px-3 py-1.5 text-xs border border-[#27384A] text-[#8A95A5] rounded-lg hover:border-[#FF6B35]/40 hover:text-[#FF6B35] transition-colors"
+                className="flex items-center gap-1 px-3 py-1.5 text-xs border border-[#3D5166] text-[#8A95A5] rounded-lg hover:border-[#FF6B35]/40 hover:text-[#FF6B35] transition-colors"
               >
                 Ver en calendario <ChevronRight size={11} />
               </a>
