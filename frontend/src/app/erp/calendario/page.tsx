@@ -619,7 +619,7 @@ export default function CalendarioPage() {
         .erp-calendar .rbc-event.rbc-selected { box-shadow: 0 0 0 2px #FF6B35; }
         .erp-calendar .rbc-show-more { color: #FF6B35; font-size: 10px; background: transparent; }
         .erp-calendar .rbc-toolbar { display: none; }
-        .erp-calendar .rbc-time-slot { border-color: #27384A; color: #4A5568; font-size: 10px; }
+        .erp-calendar .rbc-time-slot { border-color: #27384A; color: #8A95A5; font-size: 10px; }
         .erp-calendar .rbc-time-gutter { background: #1A2530; }
         .erp-calendar .rbc-current-time-indicator { background: #FF6B35; }
         .erp-calendar .rbc-row-segment .rbc-event-content { font-size: 11px; }
