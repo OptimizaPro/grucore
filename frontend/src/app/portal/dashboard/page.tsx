@@ -3199,13 +3199,13 @@ export default function PortalDashboard() {
 
                 {/* ── TAB: Reuniones ───────────────────────────────────────────────── */}
                 {activeTab === 'reuniones' && (
-                  <div className="space-y-5 max-w-3xl">
-                    <div className="mb-2">
-                      <h1 className="text-lg font-semibold text-[#F0EDE8] mb-1" style={{ fontFamily: 'Montserrat, sans-serif' }}>
+                  <div className="space-y-4">
+                    <div>
+                      <h1 className="text-base font-semibold text-[#F0EDE8] mb-0.5" style={{ fontFamily: 'Montserrat, sans-serif' }}>
                         Reuniones programadas
                       </h1>
-                      <p className="text-sm text-[#8A95A5]">
-                        Revisa y confirma las reuniones que el equipo ha programado contigo.
+                      <p className="text-xs text-[#8A95A5]">
+                        Confirma o rechaza las reuniones que el equipo ha agendado contigo.
                       </p>
                     </div>
 
@@ -3219,7 +3219,7 @@ export default function PortalDashboard() {
                         <p className="text-sm text-[#8A95A5]">No tienes reuniones programadas aún.</p>
                       </div>
                     ) : (
-                      <div className="space-y-3">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
                         {[...meetings]
                           .sort((a, b) => new Date(a.start_datetime).getTime() - new Date(b.start_datetime).getTime())
                           .map(evt => {
@@ -3229,138 +3229,120 @@ export default function PortalDashboard() {
                             const isCancelled = evt.status === 'cancelled'
                             const fmtTime = (iso: string) =>
                               new Date(iso).toLocaleTimeString('es-GT', { hour: '2-digit', minute: '2-digit' })
-                            const fmtDateLong = (iso: string) =>
-                              new Date(iso).toLocaleDateString('es-GT', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
+                            const d = new Date(evt.start_datetime)
 
                             return (
                               <div
                                 key={evt.id}
                                 className={cn(
-                                  'bg-[#1F2D3A] border rounded-xl p-5 transition-colors',
-                                  isCancelled ? 'border-[#27384A] opacity-60' :
+                                  'bg-[#1F2D3A] border rounded-xl p-4 flex flex-col gap-3 transition-colors',
+                                  isCancelled ? 'border-[#27384A] opacity-55' :
                                   isPending   ? 'border-[#FF6B35]/30' : 'border-[#27384A]',
                                 )}
                               >
-                                <div className="flex items-start gap-4">
-                                  {/* Date block */}
-                                  <div className="flex-shrink-0 w-14 text-center">
-                                    <p className="text-2xl font-bold text-[#FF6B35]" style={{ fontFamily: 'Space Mono, monospace' }}>
-                                      {new Date(evt.start_datetime).getDate()}
-                                    </p>
-                                    <p className="text-[10px] text-[#8A95A5] uppercase tracking-wider">
-                                      {new Date(evt.start_datetime).toLocaleString('es-GT', { month: 'short' })}
-                                    </p>
-                                  </div>
-
-                                  <div className="flex-1 min-w-0">
-                                    <div className="flex items-start justify-between gap-2 mb-2">
-                                      <h3 className="text-sm font-semibold text-[#F0EDE8] leading-snug" style={{ fontFamily: 'Montserrat, sans-serif' }}>
+                                {/* Top row: date pill + badge */}
+                                <div className="flex items-center justify-between gap-2">
+                                  <div className="flex items-center gap-2.5">
+                                    <div className="flex-shrink-0 w-9 h-9 rounded-lg bg-[#FF6B35]/10 flex flex-col items-center justify-center">
+                                      <span className="text-sm font-bold text-[#FF6B35] leading-none" style={{ fontFamily: 'Space Mono, monospace' }}>
+                                        {d.getDate()}
+                                      </span>
+                                      <span className="text-[8px] text-[#FF6B35]/70 uppercase tracking-wider leading-none mt-0.5">
+                                        {d.toLocaleString('es-GT', { month: 'short' })}
+                                      </span>
+                                    </div>
+                                    <div>
+                                      <p className="text-xs font-semibold text-[#F0EDE8] leading-tight" style={{ fontFamily: 'Montserrat, sans-serif' }}>
                                         {evt.title}
-                                      </h3>
-                                      {/* Status badge */}
-                                      {isCancelled ? (
-                                        <span className="flex-shrink-0 text-[10px] px-2 py-0.5 rounded-full font-medium bg-[#27384A] text-[#8A95A5]">
-                                          Cancelada
-                                        </span>
-                                      ) : isApproved ? (
-                                        <span className="flex-shrink-0 text-[10px] px-2 py-0.5 rounded-full font-medium bg-[#4A9E6B]/15 text-[#4A9E6B]">
-                                          Confirmada
-                                        </span>
-                                      ) : isRejected ? (
-                                        <span className="flex-shrink-0 text-[10px] px-2 py-0.5 rounded-full font-medium bg-red-500/15 text-red-400">
-                                          Rechazada
-                                        </span>
-                                      ) : (
-                                        <span className="flex-shrink-0 text-[10px] px-2 py-0.5 rounded-full font-medium bg-amber-500/15 text-amber-400">
-                                          Pendiente
-                                        </span>
-                                      )}
-                                    </div>
-
-                                    <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-[#8A95A5] mb-3">
-                                      <span className="flex items-center gap-1">
-                                        <Calendar size={11} />
-                                        {fmtDateLong(evt.start_datetime)}
-                                      </span>
-                                      <span className="flex items-center gap-1">
-                                        <Clock size={11} />
+                                      </p>
+                                      <p className="text-[10px] text-[#8A95A5] mt-0.5">
                                         {fmtTime(evt.start_datetime)} – {fmtTime(evt.end_datetime)}
-                                      </span>
-                                      {evt.location && (
-                                        <span className="flex items-center gap-1 truncate max-w-xs">
-                                          <MapPin size={11} />
-                                          {evt.location}
-                                        </span>
-                                      )}
+                                      </p>
                                     </div>
-
-                                    {/* Notes from previous rejection */}
-                                    {evt.client_notes && (
-                                      <div className="p-2.5 rounded-lg bg-[#131D28] border border-[#27384A] mb-3">
-                                        <p className="text-[11px] text-[#8A95A5] italic">"{evt.client_notes}"</p>
-                                      </div>
-                                    )}
-
-                                    {/* Actions for pending meetings */}
-                                    {isPending && (
-                                      <div className="space-y-3">
-                                        {/* Notes field */}
-                                        <textarea
-                                          rows={2}
-                                          value={meetingNotes[evt.id] ?? ''}
-                                          onChange={e => setMeetingNotes(prev => ({ ...prev, [evt.id]: e.target.value }))}
-                                          placeholder="Nota opcional (motivo de rechazo, pregunta, etc.)…"
-                                          className="w-full bg-[#131D28] border border-[#27384A] rounded-xl px-3 py-2 text-xs text-[#F0EDE8] placeholder:text-[#8A95A5] focus:outline-none focus:border-[#FF6B35]/50 resize-none"
-                                        />
-                                        <div className="flex gap-2">
-                                          <button
-                                            disabled={meetingActionId === evt.id}
-                                            onClick={async () => {
-                                              setMeetingActionId(evt.id)
-                                              try {
-                                                const updated = await clientApproveEvent(evt.id, meetingNotes[evt.id] ?? '')
-                                                setMeetings(prev => prev.map(m => m.id === evt.id ? updated : m))
-                                                toast.success('Reunión confirmada')
-                                              } catch { toast.error('No se pudo confirmar la reunión') }
-                                              finally { setMeetingActionId(null) }
-                                            }}
-                                            className="flex items-center gap-1.5 px-4 py-2 text-xs bg-[#4A9E6B] text-white rounded-lg hover:bg-[#3d8a5c] disabled:opacity-50 transition-colors font-semibold"
-                                          >
-                                            {meetingActionId === evt.id ? <Loader2 size={12} className="animate-spin" /> : <CheckCircle2 size={12} />}
-                                            Confirmar
-                                          </button>
-                                          <button
-                                            disabled={meetingActionId === evt.id}
-                                            onClick={async () => {
-                                              setMeetingActionId(evt.id)
-                                              try {
-                                                const updated = await clientRejectEvent(evt.id, meetingNotes[evt.id] ?? '')
-                                                setMeetings(prev => prev.map(m => m.id === evt.id ? updated : m))
-                                                toast.success('Reunión rechazada')
-                                              } catch { toast.error('No se pudo rechazar la reunión') }
-                                              finally { setMeetingActionId(null) }
-                                            }}
-                                            className="flex items-center gap-1.5 px-4 py-2 text-xs border border-red-500/30 text-red-400 rounded-lg hover:bg-red-500/5 disabled:opacity-50 transition-colors"
-                                          >
-                                            {meetingActionId === evt.id ? <Loader2 size={12} className="animate-spin" /> : <XCircle size={12} />}
-                                            Rechazar
-                                          </button>
-                                        </div>
-                                      </div>
-                                    )}
-
-                                    {isApproved && (
-                                      <span className="text-[11px] text-[#4A9E6B] flex items-center gap-1">
-                                        <CheckCircle2 size={11} /> Confirmaste esta reunión
-                                      </span>
-                                    )}
-                                    {isRejected && (
-                                      <span className="text-[11px] text-red-400 flex items-center gap-1">
-                                        <XCircle size={11} /> Rechazaste esta reunión
-                                      </span>
-                                    )}
                                   </div>
+                                  {isCancelled ? (
+                                    <span className="flex-shrink-0 text-[9px] px-1.5 py-0.5 rounded-full font-medium bg-[#27384A] text-[#8A95A5]">Cancelada</span>
+                                  ) : isApproved ? (
+                                    <span className="flex-shrink-0 text-[9px] px-1.5 py-0.5 rounded-full font-medium bg-[#4A9E6B]/15 text-[#4A9E6B]">Confirmada</span>
+                                  ) : isRejected ? (
+                                    <span className="flex-shrink-0 text-[9px] px-1.5 py-0.5 rounded-full font-medium bg-red-500/15 text-red-400">Rechazada</span>
+                                  ) : (
+                                    <span className="flex-shrink-0 text-[9px] px-1.5 py-0.5 rounded-full font-medium bg-amber-500/15 text-amber-400">Pendiente</span>
+                                  )}
                                 </div>
+
+                                {/* Location */}
+                                {evt.location && (
+                                  <p className="flex items-center gap-1 text-[10px] text-[#8A95A5] truncate">
+                                    <MapPin size={10} className="flex-shrink-0" />
+                                    {evt.location}
+                                  </p>
+                                )}
+
+                                {/* Client notes */}
+                                {evt.client_notes && (
+                                  <p className="text-[10px] text-[#8A95A5] italic border-l-2 border-[#27384A] pl-2 leading-relaxed">
+                                    "{evt.client_notes}"
+                                  </p>
+                                )}
+
+                                {/* Actions */}
+                                {isPending && (
+                                  <div className="mt-auto space-y-2 pt-1 border-t border-[#27384A]">
+                                    <textarea
+                                      rows={2}
+                                      value={meetingNotes[evt.id] ?? ''}
+                                      onChange={e => setMeetingNotes(prev => ({ ...prev, [evt.id]: e.target.value }))}
+                                      placeholder="Nota opcional…"
+                                      className="w-full bg-[#131D28] border border-[#27384A] rounded-lg px-2.5 py-1.5 text-[11px] text-[#F0EDE8] placeholder:text-[#8A95A5]/60 focus:outline-none focus:border-[#FF6B35]/40 resize-none"
+                                    />
+                                    <div className="flex gap-1.5">
+                                      <button
+                                        disabled={meetingActionId === evt.id}
+                                        onClick={async () => {
+                                          setMeetingActionId(evt.id)
+                                          try {
+                                            const updated = await clientApproveEvent(evt.id, meetingNotes[evt.id] ?? '')
+                                            setMeetings(prev => prev.map(m => m.id === evt.id ? updated : m))
+                                            toast.success('Reunión confirmada')
+                                          } catch { toast.error('No se pudo confirmar') }
+                                          finally { setMeetingActionId(null) }
+                                        }}
+                                        className="flex-1 flex items-center justify-center gap-1 py-1.5 text-[11px] font-semibold bg-[#4A9E6B] text-white rounded-lg hover:bg-[#3d8a5c] disabled:opacity-50 transition-colors"
+                                      >
+                                        {meetingActionId === evt.id ? <Loader2 size={11} className="animate-spin" /> : <CheckCircle2 size={11} />}
+                                        Confirmar
+                                      </button>
+                                      <button
+                                        disabled={meetingActionId === evt.id}
+                                        onClick={async () => {
+                                          setMeetingActionId(evt.id)
+                                          try {
+                                            const updated = await clientRejectEvent(evt.id, meetingNotes[evt.id] ?? '')
+                                            setMeetings(prev => prev.map(m => m.id === evt.id ? updated : m))
+                                            toast.success('Reunión rechazada')
+                                          } catch { toast.error('No se pudo rechazar') }
+                                          finally { setMeetingActionId(null) }
+                                        }}
+                                        className="flex-1 flex items-center justify-center gap-1 py-1.5 text-[11px] border border-red-500/30 text-red-400 rounded-lg hover:bg-red-500/5 disabled:opacity-50 transition-colors"
+                                      >
+                                        {meetingActionId === evt.id ? <Loader2 size={11} className="animate-spin" /> : <XCircle size={11} />}
+                                        Rechazar
+                                      </button>
+                                    </div>
+                                  </div>
+                                )}
+
+                                {isApproved && (
+                                  <p className="text-[10px] text-[#4A9E6B] flex items-center gap-1 mt-auto pt-1 border-t border-[#27384A]">
+                                    <CheckCircle2 size={10} /> Confirmaste esta reunión
+                                  </p>
+                                )}
+                                {isRejected && (
+                                  <p className="text-[10px] text-red-400 flex items-center gap-1 mt-auto pt-1 border-t border-[#27384A]">
+                                    <XCircle size={10} /> Rechazaste esta reunión
+                                  </p>
+                                )}
                               </div>
                             )
                           })}
