@@ -534,7 +534,7 @@ export default function CalendarioPage() {
                   className="w-8 h-8 flex items-center justify-center rounded-lg border border-[#27384A] text-[#8A95A5] hover:text-[#F0EDE8] hover:border-[#FF6B35]/40 transition-colors">
                   <ChevronLeft size={15} />
                 </button>
-                <h2 className="text-base font-semibold text-[#F0EDE8] capitalize w-44 text-center" style={{ fontFamily: 'Montserrat, sans-serif' }}>
+                <h2 className="text-base font-semibold text-slate-300 capitalize w-44 text-center" style={{ fontFamily: 'Montserrat, sans-serif' }}>
                   {monthLabel}
                 </h2>
                 <button onClick={() => setDate(addMonths(date, 1))}
