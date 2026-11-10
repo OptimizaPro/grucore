@@ -10,11 +10,11 @@ import {
   Calendar, TrendingUp, Receipt, FileText, Hammer, MapPin,
   CloudSun, DollarSign, ClipboardCheck, FolderOpen, Images,
   LayoutDashboard, CheckSquare, Truck, UserSearch, MessageSquare,
-  BookOpen, Settings,
+  BookOpen, Settings, CalendarClock, Upload, Palette,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
-const STORAGE_KEY = 'grucore_erp_onboarding_v2'
+const STORAGE_KEY = 'grucore_erp_onboarding_v3'
 
 // ─── Wizard steps ─────────────────────────────────────────────────────────────
 
@@ -73,10 +73,12 @@ const WIZARD_STEPS = [
     features: [
       { Icon: Users,          text: 'Equipo interno con roles y permisos' },
       { Icon: HardHat,        text: 'Trabajadores: días trabajados y tarifa' },
-      { Icon: ClipboardCheck, text: 'Tareas asignadas con fecha límite' },
-      { Icon: UserSearch,     text: 'CRM: pipeline de leads y seguimiento' },
-      { Icon: Truck,          text: 'Proveedores e inventario de materiales' },
-      { Icon: Package,        text: 'Stock de materiales con alertas de nivel' },
+      { Icon: ClipboardCheck,  text: 'Tareas asignadas con fecha límite' },
+      { Icon: CalendarClock,   text: 'Calendario y agendamiento de reuniones' },
+      { Icon: UserSearch,      text: 'CRM: pipeline de leads y seguimiento' },
+      { Icon: Truck,           text: 'Proveedores e inventario de materiales' },
+      { Icon: Package,         text: 'Stock con alertas de nivel mínimo' },
+      { Icon: Upload,          text: 'Importación masiva de productos (CSV/XLSX)' },
     ],
   },
   {
@@ -151,9 +153,16 @@ const SPOTLIGHT_STEPS = [
   {
     selector: '[data-tour="erp-operaciones"]',
     title: 'Operaciones',
-    description: 'Tareas asignables con prioridad, fecha límite y responsable. Mantén el equipo enfocado en lo que importa.',
+    description: 'Tareas asignables con prioridad y responsable, calendario de eventos del equipo y agendamiento de reuniones con clientes.',
     Icon: CheckSquare,
     iconColor: '#8B5CF6',
+  },
+  {
+    selector: '[data-tour="erp-design_studio"]',
+    title: 'Estudio Visual',
+    description: 'Galería de imágenes, renders y recursos visuales del proyecto. Gestiona fotos de obra y materiales gráficos en un solo lugar.',
+    Icon: Palette,
+    iconColor: '#EC4899',
   },
   {
     selector: '[data-tour="erp-presupuesto"]',

@@ -8,11 +8,11 @@ import {
   CheckCircle2, ChevronRight, ChevronLeft, X, HelpCircle,
   Camera, FileText, Users, ShieldCheck, Bell, ClipboardList,
   LayoutDashboard, ArrowUpDown, BarChart2, Calendar,
-  Clock, DollarSign, Eye, Lock,
+  Clock, DollarSign, Eye, Lock, CalendarClock,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
-const STORAGE_KEY = 'grucore_portal_onboarding_v2'
+const STORAGE_KEY = 'grucore_portal_onboarding_v3'
 
 // ─── Wizard steps (perspectiva del cliente) ───────────────────────────────────
 
@@ -29,7 +29,7 @@ const WIZARD_STEPS = [
       { Icon: CreditCard,    text: 'Hitos y pagos del contrato' },
       { Icon: ArrowUpDown,   text: 'Órdenes de cambio con firma' },
       { Icon: MessageSquare, text: 'Chat directo con el equipo' },
-      { Icon: FileText,      text: 'Documentos compartidos del proyecto' },
+      { Icon: CalendarClock, text: 'Confirma o rechaza reuniones agendadas' },
     ],
   },
   {
@@ -137,6 +137,13 @@ const SPOTLIGHT_STEPS = [
     description: 'Accede a contratos, planos, permisos y toda la documentación oficial de tu proyecto en un solo lugar.',
     Icon: FileText,
     iconColor: '#4A9E6B',
+  },
+  {
+    selector: '[data-tour="portal-reuniones"]',
+    title: 'Reuniones',
+    description: 'Confirma o rechaza las reuniones que el equipo ha agendado contigo. Puedes añadir notas antes de responder.',
+    Icon: CalendarClock,
+    iconColor: '#6B8CFF',
   },
 ]
 
