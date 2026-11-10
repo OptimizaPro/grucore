@@ -78,11 +78,33 @@ class StockMovementDetailView(generics.RetrieveAPIView):
 
 # ─── Import / Export helpers ──────────────────────────────────────────────────
 
+# Internal field names (used in validation logic)
 IMPORT_HEADERS = [
     'name', 'sku', 'description', 'category',
     'unit', 'unit_price_gtq', 'stock_quantity',
     'min_stock_alert', 'supplier_name', 'supplier_contact',
 ]
+
+# Spanish column labels shown in the downloadable template
+TEMPLATE_HEADERS_ES = [
+    'nombre', 'sku', 'descripcion', 'categoria',
+    'unidad', 'precio_unitario_gtq', 'stock', 'stock_minimo',
+    'proveedor', 'contacto_proveedor',
+]
+
+# Map Spanish header → internal field name (covers both ES and EN uploads)
+_HEADER_MAP: dict[str, str] = {
+    'nombre': 'name', 'name': 'name',
+    'sku': 'sku',
+    'descripcion': 'description', 'descripción': 'description', 'description': 'description',
+    'categoria': 'category', 'categoría': 'category', 'category': 'category',
+    'unidad': 'unit', 'unit': 'unit',
+    'precio_unitario_gtq': 'unit_price_gtq', 'unit_price_gtq': 'unit_price_gtq', 'precio': 'unit_price_gtq',
+    'stock': 'stock_quantity', 'stock_quantity': 'stock_quantity', 'cantidad_stock': 'stock_quantity',
+    'stock_minimo': 'min_stock_alert', 'stock_mínimo': 'min_stock_alert', 'min_stock_alert': 'min_stock_alert',
+    'proveedor': 'supplier_name', 'supplier_name': 'supplier_name',
+    'contacto_proveedor': 'supplier_contact', 'supplier_contact': 'supplier_contact', 'contacto': 'supplier_contact',
+}
 
 # Accept both codes ('unit', 'kg') and Spanish display names ('unidad', 'kilogramo')
 _UNIT_MAP: dict[str, str] = {code.lower(): code for code, _ in UnitType.choices}
@@ -112,8 +134,16 @@ def _parse_decimal(val: object, default: str = '0') -> Decimal | None:
         return None
 
 
+def _normalize_row(raw: dict) -> dict:
+    """Remap Spanish/English column names to internal field names."""
+    return {
+        _HEADER_MAP.get(k.strip().lower(), k.strip().lower()): v
+        for k, v in raw.items()
+    }
+
+
 def _parse_file(file_obj, filename: str) -> list[dict]:
-    """Parse CSV or XLSX into a list of dicts keyed by lowercase header names."""
+    """Parse CSV or XLSX into a list of dicts keyed by internal field names."""
     ext = filename.rsplit('.', 1)[-1].lower()
 
     if ext == 'csv':
@@ -123,7 +153,7 @@ def _parse_file(file_obj, filename: str) -> list[dict]:
         except UnicodeDecodeError:
             text = raw.decode('latin-1')
         reader = csv.DictReader(io.StringIO(text))
-        return [{k.strip().lower(): (v or '').strip() for k, v in row.items()} for row in reader]
+        return [_normalize_row({k.strip().lower(): (v or '').strip() for k, v in row.items()}) for row in reader]
 
     if ext in ('xlsx', 'xls'):
         import openpyxl
@@ -137,11 +167,11 @@ def _parse_file(file_obj, filename: str) -> list[dict]:
         for row in rows[1:]:
             if all(v is None for v in row):
                 continue
-            result.append({
+            result.append(_normalize_row({
                 headers[i]: (str(v).strip() if v is not None else '')
                 for i, v in enumerate(row)
                 if i < len(headers)
-            })
+            }))
         wb.close()
         return result
 
@@ -225,7 +255,7 @@ class ProductImportTemplateView(APIView):
         resp['Content-Disposition'] = 'attachment; filename="inventario_template.csv"'
         resp.write('\ufeff')  # BOM so Excel opens UTF-8 correctly
         writer = csv.writer(resp)
-        writer.writerow(IMPORT_HEADERS)
+        writer.writerow(TEMPLATE_HEADERS_ES)
         writer.writerow(['Cemento UGC 42.5', 'CEM-001', 'Saco 42.5 kg', 'Materiales', 'bag',  '62.00', '50',  '10', 'Cementos Progreso', ''])
         writer.writerow(['Varilla 3/8"',      'VAR-375', '',              'Materiales', 'unit', '45.50', '200', '20', '',                  ''])
         return resp
