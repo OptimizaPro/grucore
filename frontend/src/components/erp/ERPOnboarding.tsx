@@ -102,13 +102,6 @@ const WIZARD_STEPS = [
 
 const SPOTLIGHT_STEPS = [
   {
-    selector: '[data-tour="erp-nav"]',
-    title: 'Navegación principal',
-    description: 'Accede a todas las secciones del ERP desde aquí. Los módulos están agrupados por área: proyectos, clientes, colaboradores, recursos, registro y operaciones.',
-    Icon: LayoutDashboard,
-    iconColor: '#FF6B35',
-  },
-  {
     selector: '[data-tour="erp-dashboard"]',
     title: 'Proyectos',
     description: 'Tu dashboard principal. KPIs en tiempo real, estado de avance y acceso rápido a cada proyecto activo.',
